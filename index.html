@@ -13,7 +13,7 @@
             <div class="text-center border-start border-top border-end border-bottom" style="margin-left:-12px;margin-right:-12px">班級名條</div>
             <div class="row" v-for="n in 50">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
-                <div class="col border-start border-bottom border-end text-center ps-0 pe-0" @click="editName(n)" :id="'no_'+ n" ref="divContainer"></div>
+                <div class="col border-start border-bottom border-end" @click="editName(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="divContainer"></div>
             </div>
 
         </div>
@@ -23,7 +23,7 @@
                 <div class="col p-0" v-for="x in 8">
                     <div class="col p-1 oneset" v-for="x in 6">
                         <div class="col border text-center" @click="editName()">&nbsp;</div>
-                        <div class="sname col border pb-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;padding:5px">&nbsp;</div>
+                        <div class="sname col border w-100 p-3" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;height:100px">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -31,25 +31,28 @@
         </div>
         <div class="col-2">
             <!-- right area -->
-            <div class="row">
-                <div class="col-4 border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap">班導:</div>
-                <div class="col border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()">&nbsp;</div>
-            </div>
-            <div class="row oneset">
-                <div class="col border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap" @click="editName()">班長:</div>
-                <div class="col-2 border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></div>
-                <div class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</div>
-            </div>
-            <div class="row oneset">
-                <div class="col border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap" @click="editName()">副班長:</div>
-                <div class="col-2 border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></div>
-                <div class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</div>
-            </div>
-            <div class="row oneset" v-for="n in 8">
-                <div class="col border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap" @click="editName()">&nbsp;</div>
-                <div class="col-2 border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></div>
-                <div class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</div>
-            </div>
+            <table class="table">
+                <tr>
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">班導</td>
+                    <td colspan="2" class="border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()">&nbsp;</td>
+                </tr>
+                <tr class="oneset">
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="editName()">班長</td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></td>
+                    <td class="sname border-start border-bottom border-end text-center pe-0">&nbsp;</td>
+                </tr>
+                <tr class="oneset">
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="editName()">副班長</td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></td>
+                    <td class="sname border-start border-bottom border-end text-center pe-0">&nbsp;</td>
+                </tr>
+                <tr class="oneset" v-for="n in 8">
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="editName()">&nbsp;</div>
+                    </td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()">&nbsp;</td>
+                    <td class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</td>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
@@ -80,23 +83,23 @@
                 inputElement.addEventListener('blur', () => {
                     if (!isNaN(parseInt(inputElement.value))) {
                         divContainer.innerText = String(inputElement.value).padStart(2, '0');
-                        const pname = divContainer.closest('div.oneset');
-                        const sname = document.getElementById('no_'+ inputElement.value);
-                        if (pname && sname) {
-                            pname.querySelector('.sname').classList.remove('pb-5');
+                        const pname = divContainer.closest('div.oneset') || divContainer.closest('tr.oneset');
+                        const sname = document.getElementById('no_'+ divContainer.innerText);
+                        if (pname && sname && sname.innerText.length) {
+                            // pname.querySelector('.sname').classList.remove('pb-md-5');
                             pname.querySelector('.sname').innerText = sname.innerText;
                         }
                     } else
                         divContainer.innerHTML = inputElement.value.length ? inputElement.value : '&nbsp;';
                 });
                 inputElement.addEventListener('keydown', (e) => {
-
+                    n = parseInt(n);
                     if (e.shiftKey && e.key === 'Enter' || e.key === 'ArrowUp') {
                         e.preventDefault();
-                        editName(n - 1);
+                        editName(String(n - 1).padStart(2, '0'));
                     } else if (e.key === 'Enter' || e.key === 'Tab' || e.key === 'ArrowDown') {
                         e.preventDefault();
-                        editName(n + 1);
+                        editName(String(n + 1).padStart(2, '0'));
                     }
                 });
                 inputElement.focus();
