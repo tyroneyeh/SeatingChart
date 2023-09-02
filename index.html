@@ -6,24 +6,50 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
-<div id="app" class="container">
+<div id="app" class="container-fluid">
     <div class="row">
-        <div class="col-3">
+        <div class="col-2">
             <!-- left area -->
             <div class="text-center border-start border-top border-end border-bottom" style="margin-left:-12px;margin-right:-12px">班級名條</div>
             <div class="row" v-for="n in 50">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
-                <div class="col border-start border-bottom border-end text-center ps-0 pe-0" @click="editName(n)" ref="divContainer"></div>
+                <div class="col border-start border-bottom border-end text-center ps-0 pe-0" @click="editName(n)" :id="'no_'+ n" ref="divContainer"></div>
             </div>
 
         </div>
-        <div class="col-7 ">
+        <div class="col-7 p-4">
             <!-- center area -->
+            <div class="row">
+                <div class="col p-0" v-for="x in 8">
+                    <div class="col p-1 oneset" v-for="x in 6">
+                        <div class="col border text-center" @click="editName()">&nbsp;</div>
+                        <div class="sname col border pb-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;padding:5px">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
 
         </div>
-        <div class="col-3 ">
+        <div class="col-2">
             <!-- right area -->
-
+            <div class="row">
+                <div class="col-4 border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap">班導:</div>
+                <div class="col border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()">&nbsp;</div>
+            </div>
+            <div class="row oneset">
+                <div class="col border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap" @click="editName()">班長:</div>
+                <div class="col-2 border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></div>
+                <div class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</div>
+            </div>
+            <div class="row oneset">
+                <div class="col border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap" @click="editName()">副班長:</div>
+                <div class="col-2 border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></div>
+                <div class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</div>
+            </div>
+            <div class="row oneset" v-for="n in 8">
+                <div class="col border-start border-bottom border-end text-end ps-0 pe-1 text-nowrap" @click="editName()">&nbsp;</div>
+                <div class="col-2 border-start border-bottom border-end text-center ps-0 pe-0" @click="editName()"></div>
+                <div class="sname col border-start border-bottom border-end text-center pe-0">&nbsp;</div>
+            </div>
         </div>
     </div>
 </div>
@@ -39,18 +65,29 @@
             const inputElement = document.createElement('input');
             inputElement.classList.add('from-control-sm');
             inputElement.setAttribute('type', 'text');
-            inputElement.setAttribute('placeholder', 'Enter a name');
+            // inputElement.setAttribute('placeholder', 'Enter a name');
             inputElement.style.width = "100%";
             inputElement.style.height = "24px";
-            const divContainer = document.querySelector(`#app .row:nth-child(${n + 1}) .col`);
+            // const divContainer = document.querySelector(`#app .row:nth-child(${n + 1}) .col`);
+
+            const divContainer = n ? document.getElementById('no_'+ n) : event.target;
             if (divContainer) {
 
-                inputElement.value = divContainer.innerText;
+                inputElement.value = divContainer.innerText.trim();
 
                 divContainer.innerHTML = '';
                 divContainer.appendChild(inputElement);
                 inputElement.addEventListener('blur', () => {
-                    divContainer.innerText = inputElement.value;
+                    if (!isNaN(parseInt(inputElement.value))) {
+                        divContainer.innerText = String(inputElement.value).padStart(2, '0');
+                        const pname = divContainer.closest('div.oneset');
+                        const sname = document.getElementById('no_'+ inputElement.value);
+                        if (pname && sname) {
+                            pname.querySelector('.sname').classList.remove('pb-5');
+                            pname.querySelector('.sname').innerText = sname.innerText;
+                        }
+                    } else
+                        divContainer.innerHTML = inputElement.value.length ? inputElement.value : '&nbsp;';
                 });
                 inputElement.addEventListener('keydown', (e) => {
 
@@ -64,7 +101,7 @@
                 });
                 inputElement.focus();
             } else {
-                document.querySelector(`#app .row:nth-child(${n}) .col`).appendChild(inputElement);
+
             }
         }
 
