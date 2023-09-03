@@ -10,14 +10,15 @@
     <div class="d-print-none card m-1">
         <!-- top area -->
         <div class="input-group-text">
-            <div class="col">全班人數: <input type="number" style="width:60px" v-model="totalnum" min="1" ref="totalnums" @change="store"></div>
-            <div class="col">排數: <input type="number" style="width:60px" v-model="totalx" min="1" ref="totalxs" @change="store"></div>
-            <div class="col">列數: <input type="number" style="width:60px" v-model="totaly" min="1" ref="totalys" @change="store"></div>
-            <div class="col">股長數: <input type="number" style="width:60px" v-model="totalleader" min="1" ref="totalleaders" @change="store"></div>
+            <div class="col">全班人數: <input type="number" style="width:60px" v-model="totalNum" min="1" ref="totalnums" @change="store"></div>
+            <div class="col">排數: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store"></div>
+            <div class="col">列數: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store"></div>
+            <div class="col">股長數: <input type="number" style="width:60px" v-model="totalLeader" min="1" ref="totalleaders" @change="store"></div>
             <div class="col">
-                <button class="form-control-sm" @click="clearstore" v-if="storedata">清除資料</button>&nbsp;
-                <button class="form-control-sm" @click="download" v-if="storedata">下載資料</button>&nbsp;
-                <input type="file" id="uploadfile" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploaddata">上傳資料</button>
+                <button class="form-control-sm" @click="clearStore" v-if="storeData">清除資料</button>&nbsp;
+                <button class="form-control-sm" @click="download" v-if="storeData">下載資料</button>&nbsp;
+                <input type="file" id="uploadfile" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">上傳資料</button>&nbsp;
+                <button class="form-control-sm" @click="randomPos">隨機座位</button>
             </div>
         </div>
         <div class="input-group-text">請直接點選姓名或座號區域輸入資料</div>
@@ -27,7 +28,7 @@
         <div class="col-2">
             <!-- left area -->
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">班級名條</div>
-            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalnum)">
+            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalNum)">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
             </div>
@@ -37,8 +38,8 @@
             <!-- center area -->
             <div class="text-center fs-4" @click="clickToEdit()" ref="tabletitle">座位表</div>
             <div class="row flex-nowrap">
-                <div class="col p-0" v-for="x in parseInt(totalx)">
-                    <div class="col p-1 oneset" v-for="y in parseInt(totaly)">
+                <div class="col p-0" v-for="x in parseInt(totalX)">
+                    <div class="col p-1 oneset" v-for="y in parseInt(totalY)">
                         <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y" ref="posdata">&nbsp;</div>
                         <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="sname text-nowrap" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
                     </div>
@@ -66,7 +67,7 @@
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
                     <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
-                <tr class="oneset" v-for="n in parseInt(totalleader)">
+                <tr class="oneset" v-for="n in parseInt(totalLeader)">
                     <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">&nbsp;</div>
                     </td>
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
@@ -116,11 +117,11 @@ const updatedisplay = () => {
 createApp({
     setup() {
         const today = ref(new Date().toLocaleDateString());
-        const totalnum = ref(40);
-        const totalx = ref(6);
-        const totaly = ref(8);
-        const totalleader = ref(8);
-        const storedata = ref(0);
+        const totalNum = ref(40);
+        const totalX = ref(6);
+        const totalY = ref(8);
+        const totalLeader = ref(8);
+        const storeData = ref(0);
 
         const store = () => {
             const datakeys = Object.keys(refs);
@@ -147,7 +148,7 @@ createApp({
 
         };
 
-        const clearstore = () => {
+        const clearStore = () => {
             if (!confirm("確定要清除全部輸入的資料嗎?"))
                 return;
 
@@ -194,7 +195,7 @@ createApp({
                         updatedisplay();
                     }
 
-                    storedata.value = 1;
+                    storeData.value = 1;
 
                 });
                 inputElement.addEventListener('keydown', (e) => {
@@ -205,13 +206,13 @@ createApp({
                             if (n > 1)
                                 clickToEdit(n - 1, y);
                             else
-                                clickToEdit(totalx.value, y - 1);
+                                clickToEdit(totalX.value, y - 1);
                         } else
                             clickToEdit(String(n - 1).padStart(2, '0'));
                     } else if (['Enter', 'Tab', 'ArrowDown'].includes(e.key)) {
                         e.preventDefault();
                         if (y) {
-                            if (n >= totalx.value)
+                            if (n >= totalX.value)
                                 clickToEdit(1, y + 1);
                             else
                                 clickToEdit(n + 1, y);
@@ -219,6 +220,23 @@ createApp({
                             clickToEdit(String(n + 1).padStart(2, '0'));
                     }
                 });
+                inputElement.addEventListener('paste', (e) => {
+                    let pasteData = e.clipboardData.getData('text');
+                    if (pasteData && (pasteData = pasteData.trim().split(/\r\n| |,|\n/)).length > 1) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        let no = parseInt(e.target.parentElement.id.replace(/no_/, ''));
+                        const sname = document.getElementById('no_'+ String(no).padStart(2, '0'))
+                        if (sname)
+                            sname.innerText = pasteData[0];
+                        pasteData.forEach((i) => {
+                            const sname = document.getElementById('no_'+ String(no++).padStart(2, '0'));
+                            if (sname)
+                                sname.innerText = i;
+                        });
+                    }
+                });
+
                 inputElement.focus();
             } else {
 
@@ -237,22 +255,38 @@ createApp({
             }
         };
 
-        const uploaddata = () => {
+        const uploadData = () => {
             document.getElementById('uploadfile').click();
+        };
+
+        const randomPos = () => {
+
+            for (let x = 1; x <= totalX.value; x++) {
+                for (let y = 1; y <= totalY.value; y++) {
+                    let rNum = Math.floor(Math.random() * totalNum.value) + 1;
+                    const pos = document.getElementById('pos_'+ x +'_'+ y);
+                    const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
+                    if (sname.innerText.length) {
+                        pos.innerText = String(rNum).padStart(2, '0');
+                    }
+                }
+            }
+            updatedisplay();
         };
 
         return {
             today,
-            totalnum,
-            totalx,
-            totaly,
-            totalleader,
+            totalNum,
+            totalX,
+            totalY,
+            totalLeader,
             clickToEdit,
             store,
-            clearstore,
-            storedata,
+            clearStore,
+            storeData,
             download,
-            uploaddata
+            uploadData,
+            randomPos
         };
     }, mounted() {
 
@@ -280,7 +314,7 @@ createApp({
             });
 
             updatedisplay();
-            this.storedata = 1;
+            this.storeData = 1;
         }
 
         document.getElementById('uploadfile').addEventListener('change', () => {
