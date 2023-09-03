@@ -234,6 +234,8 @@ createApp({
                             if (sname)
                                 sname.innerText = i;
                         });
+                        store();
+
                     }
                 });
 
@@ -271,6 +273,7 @@ createApp({
                     }
                 }
             }
+            store();
             updatedisplay();
         };
 
