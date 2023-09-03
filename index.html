@@ -270,21 +270,19 @@ createApp({
 
         const randomPos = () => {
             const randomNumbers = [];
-            while (randomNumbers.length < totalNum.value) {
-                for (let y = 1; y <= totalY.value; y++) {
-                    for (let x = 1; x <= totalX.value; x++) {
-                        const rNum = Math.floor(Math.random() * totalNum.value) + 1;
-                        const pos = document.getElementById('pos_'+ x +'_'+ y);
-                        if (!randomNumbers.includes(rNum)) {
-                            const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
-                            if (sname && pos && !pos.innerText.trim().length) {
-                                pos.innerText = String(rNum).padStart(2, '0');
-                                randomNumbers.push(rNum);
-                            }
-
-                        } else if (pos && !pos.innerText.trim().length && randomNumbers.length < totalNum.value) {
-                            x--;
+            for (let y = 1; y <= totalY.value; y++) {
+                for (let x = 1; x <= totalX.value; x++) {
+                    const rNum = Math.floor(Math.random() * totalNum.value) + 1;
+                    const pos = document.getElementById('pos_'+ x +'_'+ y);
+                    if (!randomNumbers.includes(rNum)) {
+                        const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
+                        if (sname && pos && !pos.innerText.trim().length) {
+                            pos.innerText = String(rNum).padStart(2, '0');
+                            randomNumbers.push(rNum);
                         }
+
+                    } else if (pos && !pos.innerText.trim().length && randomNumbers.length < totalNum.value) {
+                        x--;
                     }
                 }
             }
