@@ -16,8 +16,9 @@
             <div class="col">股長數: <input type="number" style="width:60px" v-model="totalLeader" min="1" ref="totalleaders" @change="store"></div>
             <div class="col">
                 <button class="form-control-sm" @click="clearStore" v-if="storeData">清除資料</button>&nbsp;
-                <button class="form-control-sm" @click="download" v-if="storeData">下載資料</button>&nbsp;
+                <button class="form-control-sm" @click="download" v-if="storeData">下載資料</button>
                 <input type="file" id="uploadfile" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">上傳資料</button>&nbsp;
+                <button class="form-control-sm" @click="clearPos">清除座位</button>
                 <button class="form-control-sm" @click="randomPos">隨機座位</button>
             </div>
         </div>
@@ -156,6 +157,12 @@ createApp({
             location.reload();
         };
 
+        const clearPos = () => {
+            refs.posdata.forEach((i) => { i.innerHTML = '&nbsp;'; });
+            store();
+            location.reload();
+        };
+
         const clickToEdit = (n, y) => {
 
             // const divContainer = document.querySelector(`#app .row:nth-child(${n + 1}) .col`);
@@ -262,14 +269,22 @@ createApp({
         };
 
         const randomPos = () => {
-
-            for (let x = 1; x <= totalX.value; x++) {
+            const randomNumbers = [];
+            while (randomNumbers.length < totalNum.value) {
                 for (let y = 1; y <= totalY.value; y++) {
-                    let rNum = Math.floor(Math.random() * totalNum.value) + 1;
-                    const pos = document.getElementById('pos_'+ x +'_'+ y);
-                    const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
-                    if (sname.innerText.length) {
-                        pos.innerText = String(rNum).padStart(2, '0');
+                    for (let x = 1; x <= totalX.value; x++) {
+                        const rNum = Math.floor(Math.random() * totalNum.value) + 1;
+                        const pos = document.getElementById('pos_'+ x +'_'+ y);
+                        if (!randomNumbers.includes(rNum)) {
+                            const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
+                            if (sname && pos && !pos.innerText.trim().length) {
+                                pos.innerText = String(rNum).padStart(2, '0');
+                                randomNumbers.push(rNum);
+                            }
+
+                        } else if (pos && !pos.innerText.trim().length && randomNumbers.length < totalNum.value) {
+                            x--;
+                        }
                     }
                 }
             }
@@ -289,7 +304,8 @@ createApp({
             storeData,
             download,
             uploadData,
-            randomPos
+            randomPos,
+            clearPos
         };
     }, mounted() {
 
