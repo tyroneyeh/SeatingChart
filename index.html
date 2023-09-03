@@ -10,30 +10,33 @@
     <div class="d-print-none input-group-text m-1">
         <!-- top area -->
         <div class="input-group">
-            <div class="col">全班人數: <input type="number" style="width:60px" v-model="totalnum" min="1"></div>
-            <div class="col">排數: <input type="number" style="width:60px" v-model="totalx" min="1"></div>
-            <div class="col">列數: <input type="number" style="width:60px" v-model="totaly" min="1"></div>
-            <div class="col">股長數: <input type="number" style="width:60px" v-model="totalleader" min="1"></div>
+            <div class="col">全班人數: <input type="number" style="width:60px" v-model="totalnum" min="1" ref="totalnums" @change="store"></div>
+            <div class="col">排數: <input type="number" style="width:60px" v-model="totalx" min="1" ref="totalxs" @change="store"></div>
+            <div class="col">列數: <input type="number" style="width:60px" v-model="totaly" min="1" ref="totalys" @change="store"></div>
+            <div class="col">股長數: <input type="number" style="width:60px" v-model="totalleader" min="1" ref="totalleaders" @change="store"></div>
+            <div class="col"><button @click="clearstore">清除資料</button></div>
         </div>
     </div>
     <div class="row">
         <div class="col-2">
             <!-- left area -->
-            <div class="text-center border-start border-top border-end border-bottom" style="margin-left:-12px;margin-right:-12px">班級名條</div>
-            <div class="row" :class="{'border-top border-secondary': n % 5 == 0 || n == 1}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalnum)">
+            <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">班級名條</div>
+            <div class="border-1">
+            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalnum)">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
-                <div class="col border-start border-bottom border-end" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="divContainer"></div>
+                <div class="col border-start border-bottom border-end" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
+            </div>
             </div>
 
         </div>
         <div class="col-8 p-4">
             <!-- center area -->
-            <div class="text-center" @click="clickToEdit()">座位表</div>
+            <div class="text-center" @click="clickToEdit()" ref="tabletitle">座位表</div>
             <div class="row flex-nowrap">
                 <div class="col p-0" v-for="x in parseInt(totalx)">
                     <div class="col p-1 oneset" v-for="y in parseInt(totaly)">
-                        <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y">&nbsp;</div>
-                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="sname" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
+                        <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y" ref="posdata">&nbsp;</div>
+                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="sname text-nowrap" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
                     </div>
                 </div>
             </div>
@@ -41,26 +44,28 @@
         </div>
         <div class="col-2">
             <!-- right area -->
-            <div class="text-center">更新日期: <span @click="clickToEdit()">{{ today }}</span></div>
+            <div class="text-center">更新日期: <span @click="clickToEdit()" ref="updatedate">{{ today }}</span></div>
             <table class="table table-bordered table-striped">
+                <thead>
                 <tr>
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">導師</td>
-                    <td colspan="2" class="w-50 border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()">&nbsp;</td>
+                    <th class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">導師</td>
+                    <td colspan="2" class="w-50 border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" ref="teacher">&nbsp;</th>
                 </tr>
+                </thead>
                 <tr class="oneset">
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()">班長</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="10" @click="clickToEdit()" id="leader_a"></td>
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">班長</td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="10" @click="clickToEdit()" id="leader_a" ref="leader_a"></td>
                     <td class="sname border-start border-bottom border-end text-center">&nbsp;</td>
                 </tr>
                 <tr class="oneset">
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()">副班長</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" id="leader_b"></td>
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">副班長</td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
                     <td class="sname border-start border-bottom border-end text-center">&nbsp;</td>
                 </tr>
                 <tr class="oneset" v-for="n in parseInt(totalleader)">
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()">&nbsp;</div>
+                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">&nbsp;</div>
                     </td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" :id="'leader_'+ n">&nbsp;</td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
                     <td class="sname col border-start border-bottom border-end text-center">&nbsp;</td>
                 </tr>
             </table>
@@ -69,15 +74,77 @@
 </div>
 
 <script>
-  const { createApp, ref, h } = Vue
+const { createApp, ref, h } = Vue;
 
-  createApp({
+
+const updatedisplay = () => {
+    refs.posdata.forEach((i) => {
+        const num = i.innerText.trim();
+        if (num.length) {
+            const no = document.getElementById('no_'+ num);
+            if (no) {
+                i.closest('.oneset').querySelector('.sname').innerText = no.innerText;
+            }
+        }
+    });
+
+    const leader_a = document.getElementById('no_'+ refs.leader_a.innerText);
+    if (leader_a)
+        refs.leader_a.closest('.oneset').querySelector('.sname').innerText = leader_a.innerText;
+
+    const leader_b = document.getElementById('no_'+ refs.leader_b.innerText);
+    if (leader_b)
+        refs.leader_b.closest('.oneset').querySelector('.sname').innerText = leader_b.innerText;
+
+    refs.leaders.forEach((i) => {
+        const num = i.innerText.trim();
+        if (num.length) {
+            const no = document.getElementById('no_'+ num);
+            if (no) {
+                i.closest('.oneset').querySelector('.sname').innerText = no.innerText;
+            }
+        }
+    });
+};
+
+
+createApp({
     setup() {
         const today = ref(new Date().toLocaleDateString());
         const totalnum = ref(40);
         const totalx = ref(6);
         const totaly = ref(8);
         const totalleader = ref(8);
+
+        const store = () => {
+            const datakeys = Object.keys(refs);
+            const tojson = {};
+            datakeys.forEach((i) => {
+
+                if (refs[i]?.length) {
+                    tojson[i] = [];
+                    Object.keys(refs[i]).forEach((j) => {
+                        const value = refs[i][j]?.value || refs[i][j]?.innerText;
+                        tojson[i].push(value);
+                    });
+                } else {
+                    const value = refs[i]?.value || refs[i]?.innerText;
+                    tojson[i] = value;
+                }
+
+
+
+            });
+            // console.log(JSON.stringify(tojson));
+
+            localStorage.setItem('data', JSON.stringify(tojson));
+
+        };
+
+        const clearstore = () => {
+            localStorage.removeItem('data');
+            location.reload();
+        };
 
         const clickToEdit = (n, y) => {
 
@@ -110,6 +177,13 @@
                         }
                     } else
                         divContainer.innerHTML = inputElement.value.length ? inputElement.value : '&nbsp;';
+
+                    store();
+
+                    if (divContainer.id.includes('no_')) {
+                        updatedisplay();
+                    }
+
                 });
                 inputElement.addEventListener('keydown', (e) => {
                     n = parseInt(n);
@@ -137,7 +211,8 @@
             } else {
 
             }
-        }
+        };
+
 
         return {
             today,
@@ -145,10 +220,38 @@
             totalx,
             totaly,
             totalleader,
-            clickToEdit
+            clickToEdit,
+            store,
+            clearstore
         };
+    }, mounted() {
+
+        window.refs = this.$refs;
+
+        let data = localStorage.getItem('data');
+        if (data) {
+            data = JSON.parse(data);
+            dkeys = Object.keys(data);
+            dkeys.forEach((i) => {
+                if (refs[i]?.length) {
+                    data[i].forEach((_, j) => {
+                        if (refs[i][j]?.value != undefined) refs[i][j].value = data[i][j];
+                        else if (refs[i][j]?.innerText != undefined) {
+                            refs[i][j].innerText = data[i][j];
+                        }
+                    });
+                } else {
+                    if (refs[i]?.value != undefined) refs[i].value = data[i];
+                    else if (refs[i]?.innerText != undefined) refs[i].innerText = data[i];
+                }
+            });
+
+            updatedisplay();
+
+        }
+
     }
-  }).mount('#app')
+}).mount('#app')
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
