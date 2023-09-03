@@ -21,11 +21,9 @@
         <div class="col-2">
             <!-- left area -->
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">班級名條</div>
-            <div class="border-1">
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalnum)">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
-                <div class="col border-start border-bottom border-end" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
-            </div>
+                <div class="col border-start border-bottom border-end overflow-scroll" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
             </div>
 
         </div>
@@ -36,7 +34,7 @@
                 <div class="col p-0" v-for="x in parseInt(totalx)">
                     <div class="col p-1 oneset" v-for="y in parseInt(totaly)">
                         <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y" ref="posdata">&nbsp;</div>
-                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="sname text-nowrap" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
+                        <div class="col border text-center w-100 p-3 overflow-scroll" style="height:100px"><span class="sname text-nowrap" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
                     </div>
                 </div>
             </div>
