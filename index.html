@@ -14,7 +14,11 @@
             <div class="col">排數: <input type="number" style="width:60px" v-model="totalx" min="1" ref="totalxs" @change="store"></div>
             <div class="col">列數: <input type="number" style="width:60px" v-model="totaly" min="1" ref="totalys" @change="store"></div>
             <div class="col">股長數: <input type="number" style="width:60px" v-model="totalleader" min="1" ref="totalleaders" @change="store"></div>
-            <div class="col"><button @click="clearstore">清除資料</button></div>
+            <div class="col">
+                <button @click="clearstore" v-if="storedata">清除資料</button>&nbsp;
+                <button @click="download" v-if="storedata">下載資料</button>&nbsp;
+                <input type="file" id="uploadfile" class="d-none" accept="application/json"><button @click="uploaddata">上傳資料</button>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -103,6 +107,7 @@ const updatedisplay = () => {
             }
         }
     });
+
 };
 
 
@@ -113,6 +118,7 @@ createApp({
         const totalx = ref(6);
         const totaly = ref(8);
         const totalleader = ref(8);
+        const storedata = ref(0);
 
         const store = () => {
             const datakeys = Object.keys(refs);
@@ -182,6 +188,8 @@ createApp({
                         updatedisplay();
                     }
 
+                    storedata.value = 1;
+
                 });
                 inputElement.addEventListener('keydown', (e) => {
                     n = parseInt(n);
@@ -211,6 +219,21 @@ createApp({
             }
         };
 
+        const download = () => {
+            let data = localStorage.getItem('data');
+
+            if (data) {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
+                const dlAnchorElem = document.createElement('a');
+                dlAnchorElem.setAttribute("href", dataStr);
+                dlAnchorElem.setAttribute("download", "seatingtable.json");
+                dlAnchorElem.click();
+            }
+        };
+
+        const uploaddata = () => {
+            document.getElementById('uploadfile').click();
+        };
 
         return {
             today,
@@ -220,7 +243,10 @@ createApp({
             totalleader,
             clickToEdit,
             store,
-            clearstore
+            clearstore,
+            storedata,
+            download,
+            uploaddata
         };
     }, mounted() {
 
@@ -248,9 +274,17 @@ createApp({
             });
 
             updatedisplay();
-
+            this.storedata = 1;
         }
 
+        document.getElementById('uploadfile').addEventListener('change', () => {
+            const reader = new FileReader();
+            reader.readAsText(uploadfile.files[0], "UTF-8");
+            reader.onload = (evt) => {
+                localStorage.setItem('data', evt.target.result);
+                location.reload();
+            }
+        });
     }
 }).mount('#app')
 </script>
