@@ -7,19 +7,21 @@
 </head>
 <body>
 <div id="app" class="container-fluid">
-    <div class="d-print-none input-group-text m-1">
+    <div class="d-print-none card m-1">
         <!-- top area -->
-        <div class="input-group">
+        <div class="input-group-text">
             <div class="col">全班人數: <input type="number" style="width:60px" v-model="totalnum" min="1" ref="totalnums" @change="store"></div>
             <div class="col">排數: <input type="number" style="width:60px" v-model="totalx" min="1" ref="totalxs" @change="store"></div>
             <div class="col">列數: <input type="number" style="width:60px" v-model="totaly" min="1" ref="totalys" @change="store"></div>
             <div class="col">股長數: <input type="number" style="width:60px" v-model="totalleader" min="1" ref="totalleaders" @change="store"></div>
             <div class="col">
-                <button @click="clearstore" v-if="storedata">清除資料</button>&nbsp;
-                <button @click="download" v-if="storedata">下載資料</button>&nbsp;
-                <input type="file" id="uploadfile" class="d-none" accept="application/json"><button @click="uploaddata">上傳資料</button>
+                <button class="form-control-sm" @click="clearstore" v-if="storedata">清除資料</button>&nbsp;
+                <button class="form-control-sm" @click="download" v-if="storedata">下載資料</button>&nbsp;
+                <input type="file" id="uploadfile" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploaddata">上傳資料</button>
             </div>
         </div>
+        <div class="input-group-text">請直接點選姓名或座號區域輸入資料</div>
+
     </div>
     <div class="row">
         <div class="col-2">
@@ -27,13 +29,13 @@
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">班級名條</div>
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalnum)">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
-                <div class="col border-start border-bottom border-end overflow-auto" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
+                <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
             </div>
 
         </div>
         <div class="col-8 p-4">
             <!-- center area -->
-            <div class="text-center" @click="clickToEdit()" ref="tabletitle">座位表</div>
+            <div class="text-center fs-4" @click="clickToEdit()" ref="tabletitle">座位表</div>
             <div class="row flex-nowrap">
                 <div class="col p-0" v-for="x in parseInt(totalx)">
                     <div class="col p-1 oneset" v-for="y in parseInt(totaly)">
@@ -50,25 +52,25 @@
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">導師</td>
-                    <td colspan="2" class="w-50 border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" ref="teacher">&nbsp;</th>
+                    <th class="border-start border-bottom border-end text-end" style="text-align-last:justify">導師</td>
+                    <td colspan="2" class="w-50 border-start border-bottom border-end text-center ps-0 pe-0 text-nowrap" @click="clickToEdit()" ref="teacher">&nbsp;</th>
                 </tr>
                 </thead>
                 <tr class="oneset">
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">班長</td>
+                    <td class="border-start border-bottom border-end text-end" style="text-align-last:justify">班長</td>
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="10" @click="clickToEdit()" id="leader_a" ref="leader_a"></td>
-                    <td class="sname border-start border-bottom border-end text-center">&nbsp;</td>
+                    <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
                 <tr class="oneset">
                     <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">副班長</td>
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
-                    <td class="sname border-start border-bottom border-end text-center">&nbsp;</td>
+                    <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
                 <tr class="oneset" v-for="n in parseInt(totalleader)">
                     <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">&nbsp;</div>
                     </td>
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
-                    <td class="sname col border-start border-bottom border-end text-center">&nbsp;</td>
+                    <td class="sname col border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
             </table>
         </div>
@@ -146,6 +148,9 @@ createApp({
         };
 
         const clearstore = () => {
+            if (!confirm("確定要清除全部輸入的資料嗎?"))
+                return;
+
             localStorage.removeItem('data');
             location.reload();
         };
@@ -162,6 +167,7 @@ createApp({
                 const inputElement = document.createElement('input');
                 inputElement.classList.add('from-control-sm');
                 inputElement.setAttribute('type', ['pos_', 'leader_'].includes(divContainer.id.slice(0, divContainer.id.indexOf('_') + 1)) ? 'number' : 'text');
+                inputElement.setAttribute('min', 1);
                 // inputElement.setAttribute('placeholder', 'Enter a name');
                 inputElement.style.width = "100%";
                 inputElement.style.height = "24px";
