@@ -242,6 +242,9 @@ createApp({
                     if (refs[i]?.value != undefined) refs[i].value = data[i];
                     else if (refs[i]?.innerText != undefined) refs[i].innerText = data[i];
                 }
+
+                if ('tabletitle' == i)
+                    document.title = data[i];
             });
 
             updatedisplay();
