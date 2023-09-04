@@ -60,18 +60,18 @@
                 </thead>
                 <tr class="oneset">
                     <td class="border-start border-bottom border-end text-end" style="text-align-last:justify">班長</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="10" @click="clickToEdit()" id="leader_a" ref="leader_a"></td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" style="width:50px;display:block" @click="clickToEdit()" id="leader_a" ref="leader_a"></td>
                     <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
                 <tr class="oneset">
                     <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">副班長</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
                     <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
                 <tr class="oneset" v-for="n in parseInt(totalLeader)">
                     <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">&nbsp;</div>
                     </td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" width="5" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
+                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
                     <td class="sname col border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
             </table>
@@ -81,7 +81,7 @@
 
 <script>
 const { createApp, ref, h } = Vue;
-
+window.randomNumbers = [];
 
 const updatedisplay = () => {
     refs.posdata.forEach((i) => {
@@ -90,6 +90,8 @@ const updatedisplay = () => {
             const no = document.getElementById('no_'+ num);
             if (no) {
                 i.closest('.oneset').querySelector('.sname').innerText = no.innerText;
+                if (!window.randomNumbers.includes(parseInt(num)))
+                    window.randomNumbers.push(parseInt(num));
             }
         }
     });
@@ -268,9 +270,10 @@ createApp({
         };
 
         const randomPos = () => {
-            const randomNumbers = [];
-            for (let y = 1; y <= totalY.value; y++) {
-                for (let x = 1; x <= totalX.value; x++) {
+            updatedisplay();
+
+            for (let y = totalY.value; y > 0; y--) {
+                for (let x = totalX.value; x > 0; x--) {
                     const rNum = Math.floor(Math.random() * totalNum.value) + 1;
                     const pos = document.getElementById('pos_'+ x +'_'+ y);
                     const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
@@ -279,9 +282,9 @@ createApp({
                         randomNumbers.push(rNum);
                     } else if (!pos?.innerText.trim().length && randomNumbers.length < totalNum.value)  {
                         if (!sname?.innerText.trim().length && !randomNumbers.includes(rNum)) {
-                           randomNumbers.push(rNum);
+                            randomNumbers.push(rNum);
                         }
-                        x--;
+                        x++;
                     }
                 }
             }
