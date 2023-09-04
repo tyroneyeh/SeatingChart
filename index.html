@@ -6,7 +6,7 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
-<div id="app" class="container-fluid">
+<div id="app" class="container">
     <div class="d-print-none card m-1">
         <!-- top area -->
         <div class="input-group-text">
@@ -25,7 +25,7 @@
         <div class="input-group-text">請直接點選姓名或座號區域輸入資料</div>
 
     </div>
-    <div class="row">
+    <div class="row col-lg-9 col-sm-12 mx-auto">
         <div class="col-2">
             <!-- left area -->
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">班級名條</div>
@@ -42,7 +42,7 @@
                 <div class="col p-0" v-for="x in parseInt(totalX)">
                     <div class="col p-1 oneset" v-for="y in parseInt(totalY)">
                         <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y" ref="posdata">&nbsp;</div>
-                        <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="sname text-nowrap" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
+                        <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="sname text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
                     </div>
                 </div>
             </div>
@@ -247,7 +247,6 @@ createApp({
                 });
 
                 inputElement.focus();
-            } else {
 
             }
         };
@@ -274,14 +273,14 @@ createApp({
                 for (let x = 1; x <= totalX.value; x++) {
                     const rNum = Math.floor(Math.random() * totalNum.value) + 1;
                     const pos = document.getElementById('pos_'+ x +'_'+ y);
-                    if (!randomNumbers.includes(rNum)) {
-                        const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
-                        if (sname && pos && !pos.innerText.trim().length) {
-                            pos.innerText = String(rNum).padStart(2, '0');
-                            randomNumbers.push(rNum);
+                    const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
+                    if (sname?.innerText.trim().length && !randomNumbers.includes(rNum) && !pos?.innerText.trim().length) {
+                        pos.innerText = String(rNum).padStart(2, '0');
+                        randomNumbers.push(rNum);
+                    } else if (!pos?.innerText.trim().length && randomNumbers.length < totalNum.value)  {
+                        if (!sname?.innerText.trim().length && !randomNumbers.includes(rNum)) {
+                           randomNumbers.push(rNum);
                         }
-
-                    } else if (pos && !pos.innerText.trim().length && randomNumbers.length < totalNum.value) {
                         x--;
                     }
                 }
