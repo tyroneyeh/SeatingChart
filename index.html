@@ -341,9 +341,9 @@ createApp({
         };
     }, beforeCreate() {
         window.data = localStorage.getItem('data');
-        data = JSON.parse(data);
-        window.dkeys = Object.keys(data);
         if (data) {
+            data = JSON.parse(data);
+            window.dkeys = Object.keys(data);
             dkeys.forEach((i) => {
                 if ('tabletitle' == i)
                     document.title = data[i];
