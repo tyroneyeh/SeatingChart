@@ -25,32 +25,38 @@
         <div class="input-group-text">請直接點選姓名或座號區域輸入資料</div>
 
     </div>
-    <div class="text-center fs-4" @click="clickToEdit()" ref="tabletitle">座位表</div>
-    <div class="row col-lg-7 col-sm-12 mx-auto">
-        <div class="col-2 pt-1">
+    <div class="row m-auto" :class="xColClass">
+        <div class="col-2"></div>
+        <div class="text-center col-8 fs-4" @click="clickToEdit()" ref="tabletitle">座位表</div>
+        <div class="col-2 align-self-end text-nowrap">更新日期: <span @click="clickToEdit()" ref="updatedate">{{ today }}</span></div>
+    </div>
+
+    <div class="row col-sm-12 mx-auto" :class="xColClass">
+        <div class="pt-1" :class="xColClassStart">
             <!-- left area -->
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">班級名條</div>
-            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in parseInt(totalNum)">
+            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNum">
                 <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit(String(n).padStart(2, '0'))" :id="'no_'+ String(n).padStart(2, '0')" ref="namelist"></div>
             </div>
 
         </div>
-        <div class="col-7 ps-4 pb-3">
+        <div class="ps-4 pb-3" :class="xColClassCenter">
             <!-- center area -->
-            <div class="row flex-nowrap overflow-auto">
-                <div class="col p-0" v-for="x in parseInt(totalX)">
-                    <div class="col p-1 oneset" v-for="y in parseInt(totalY)">
+            <div class="row flex-nowrap">
+                <div class="col p-0" v-for="x in totalX">
+                    <div class="col p-1 oneset" v-for="y in totalY">
                         <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y" ref="posdata">&nbsp;</div>
                         <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="sname text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
                     </div>
                 </div>
             </div>
-
+            <div class="row m-4">
+                <div class="mx-auto pt-2 mb-5 text-center" style="text-align-last:justify;width:90px;height:63px;background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAABACAYAAACa5WD/AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAc1JREFUeJzt2LFqwmAYheHzf0RB6eaVOInX4J6Lc3Z3EgdxayveQnsL2WwqxJp0sW3UxIL5PbHpeTalhY8XOZC4+XyeQW5ms9kEYRjure5D/guFJlFoEoUmUWgShSZRaBKFJlFoEoUmUWgShSZRaBKFJlFoEoUmCeo+4JLVagWzy7+FNE0xHA5JF13vrkObGQaDwcW/Wa/XpGuq0XSQKDSJQpMoNIlCkyg0iUKTKDSJQpPc9ZNhFEW/PvlFUUS6ppq7Dj0ajeo+wRtNB4lCkyg0iUKTKDSJQpMoNIlCkyg0iUKTKDSJQpME0+m07hsaq9/vo9frAQAsCO76Bd6f1Wq10O12vz/bbrdLarynsZIkSRaLxUMYhnsAMOfca91HNdTLZDKJvz5YmqYzAB81HtREezOb5b8w59wSQFzyD3KdNwDL/BfmnHvMsqxT00GNlGVZJ47j5/x3Nh6P37XT3h3tM3B4YNFOe3W2z8AhtHbaq7N9Bn5Ca6c9Kdpn4BBaO+3V2T4DuZdK2mkvCvcZyIXWTntRuM/AcWjtdEVl+wzkQmunvSjcZ+Dkxb92upLSfQZOQmunKyndZ+Ak9Ha7fQLQvvVFDdUu22cRkSt9AicbkgadtfvPAAAAAElFTkSuQmCC');">講台</div>
+            </div>
         </div>
-        <div class="col-3">
+        <div class="pt-1" :class="xColClassEnd">
             <!-- right area -->
-            <div class="text-center text-nowrap">更新日期: <span @click="clickToEdit()" ref="updatedate">{{ today }}</span></div>
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
@@ -68,7 +74,7 @@
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
                     <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
                 </tr>
-                <tr class="oneset" v-for="n in parseInt(totalLeader)">
+                <tr class="oneset" v-for="n in totalLeader">
                     <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">&nbsp;</div>
                     </td>
                     <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
@@ -77,17 +83,10 @@
             </table>
         </div>
     </div>
-    <div class="row col-lg-7 col-sm-12 mx-auto">
-
-        <div class="mx-auto pt-2 mb-5 text-center" style="text-align-last:justify;width:90px;height:63px;background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAABACAYAAACa5WD/AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAc1JREFUeJzt2LFqwmAYheHzf0RB6eaVOInX4J6Lc3Z3EgdxayveQnsL2WwqxJp0sW3UxIL5PbHpeTalhY8XOZC4+XyeQW5ms9kEYRjure5D/guFJlFoEoUmUWgShSZRaBKFJlFoEoUmUWgShSZRaBKFJlFoEoUmCeo+4JLVagWzy7+FNE0xHA5JF13vrkObGQaDwcW/Wa/XpGuq0XSQKDSJQpMoNIlCkyg0iUKTKDSJQpPc9ZNhFEW/PvlFUUS6ppq7Dj0ajeo+wRtNB4lCkyg0iUKTKDSJQpMoNIlCkyg0iUKTKDSJQpME0+m07hsaq9/vo9frAQAsCO76Bd6f1Wq10O12vz/bbrdLarynsZIkSRaLxUMYhnsAMOfca91HNdTLZDKJvz5YmqYzAB81HtREezOb5b8w59wSQFzyD3KdNwDL/BfmnHvMsqxT00GNlGVZJ47j5/x3Nh6P37XT3h3tM3B4YNFOe3W2z8AhtHbaq7N9Bn5Ca6c9Kdpn4BBaO+3V2T4DuZdK2mkvCvcZyIXWTntRuM/AcWjtdEVl+wzkQmunvSjcZ+Dkxb92upLSfQZOQmunKyndZ+Ak9Ha7fQLQvvVFDdUu22cRkSt9AicbkgadtfvPAAAAAElFTkSuQmCC');">
-            講台
-        </div>
-
-    </div>
 </div>
 
 <script>
-const { createApp, ref, h } = Vue;
+const { createApp, ref, watch } = Vue;
 window.randomNumbers = [];
 
 const updatedisplay = () => {
@@ -132,6 +131,25 @@ createApp({
         const totalY = ref(8);
         const totalLeader = ref(8);
         const storeData = ref(0);
+        const xColClass = ref('col-lg-7 col-md-12');
+        const xColClassStart = ref('col-2 col-md-2');
+        const xColClassCenter = ref('col-7 col-md-9');
+        const xColClassEnd = ref('col-3 col-md-1');
+
+
+        watch(totalX, async (i) => {
+            if (i > 8) {
+                xColClass.value = 'col-lg-12 col-md-12';
+                xColClassStart.value = 'col-1';
+                xColClassCenter.value = 'col-9';
+                xColClassEnd.value = 'col-2';
+            } else {
+                xColClass.value = 'col-lg-8';
+                xColClassStart.value = 'col-2 col-md-2';
+                xColClassCenter.value = 'col-7 col-md-9';
+                xColClassEnd.value = 'col-3 col-md-1';
+            }
+        });
 
         const store = () => {
             const datakeys = Object.keys(refs);
@@ -167,6 +185,9 @@ createApp({
         };
 
         const clearPos = () => {
+            if (!confirm("確定要清除目前的座位排列嗎?"))
+                return;
+
             refs.posdata.forEach((i) => { i.innerHTML = '&nbsp;'; });
             store();
             location.reload();
@@ -312,16 +333,36 @@ createApp({
             download,
             uploadData,
             randomPos,
-            clearPos
+            clearPos,
+            xColClass,
+            xColClassStart,
+            xColClassCenter,
+            xColClassEnd
         };
+    }, beforeCreate() {
+        window.data = localStorage.getItem('data');
+        data = JSON.parse(data);
+        window.dkeys = Object.keys(data);
+        if (data) {
+            dkeys.forEach((i) => {
+                if ('tabletitle' == i)
+                    document.title = data[i];
+                else if ('totalnums' == i)
+                    this.totalNum = parseInt(data[i]);
+                else if ('totalxs' == i)
+                    this.totalX = parseInt(data[i]);
+                else if ('totalys' == i)
+                    this.totalY = parseInt(data[i]);
+                else if ('totalleaders' == i)
+                    this.totalLeader = parseInt(data[i]);
+
+            });
+        }
     }, mounted() {
 
         window.refs = this.$refs;
 
-        let data = localStorage.getItem('data');
         if (data) {
-            data = JSON.parse(data);
-            dkeys = Object.keys(data);
             dkeys.forEach((i) => {
                 if (refs[i]?.length) {
                     data[i].forEach((_, j) => {
@@ -335,8 +376,6 @@ createApp({
                     else if (refs[i]?.innerText != undefined) refs[i].innerText = data[i];
                 }
 
-                if ('tabletitle' == i)
-                    document.title = data[i];
             });
 
             updatedisplay();
