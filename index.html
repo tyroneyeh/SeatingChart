@@ -144,8 +144,16 @@ createApp({
         const xColClassCenter = ref('col-7');
         const xColClassEnd = ref('col-3 col-md-1');
 
+        watch([totalNum, totalX, totalY], async(_, oldValues) => {
+            if (totalX.value * totalY.value < totalNum.value) {
+                totalNum.value = oldValues[0];
+                totalX.value = oldValues[1];
+                totalY.value = oldValues[2];
+                alert("座位數不夠坐!");
+            }
+        });
 
-        watch(totalX, async (i) => {
+        watch(totalX, async(i) => {
             if (i > 8) {
                 xColClass.value = 'col-lg-12 col-md-12';
                 xColClassStart.value = 'col-1';
