@@ -320,7 +320,7 @@ createApp({
                 while(!i.innerText.trim().length) {
                     if (j++ > storeRefs.totalNum.value << 2) break;
                     rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
-                    if (!window.randomNumbers.includes(rNum) && storeRefs.namelist[rNum]?.innerText.trim().length) {
+                    if (!window.randomNumbers.includes(rNum) && storeRefs.namelist[rNum - 1]?.innerText.trim().length) {
                         i.innerText = String(rNum).padStart(2, '0');
                         window.randomNumbers.push(rNum);
                     }
