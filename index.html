@@ -315,9 +315,10 @@ createApp({
 
         const randomPos = () => {
             let rNum;
+            let sCount = 0;
             const posdatas = storeRefs.posdata.slice();
             posdatas.reverse().forEach((i) => {
-                while(!i.innerText.trim().length && randomNumbers.length < storeRefs.totalNum.value) {
+                while(!i.innerText.trim().length && sCount++ < storeRefs.totalNum.value << 2) {
                     rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
                     if (!randomNumbers.includes(rNum) && storeRefs.namelist[rNum - 1]?.innerText.trim().length) {
                         i.innerText = String(rNum).padStart(2, '0');
