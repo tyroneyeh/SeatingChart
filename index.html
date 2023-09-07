@@ -240,7 +240,7 @@ createApp({
 
                 inputElement.addEventListener('keydown', (e) => {
                     // n = parseInt(event.target.parentElement.id.replace(/[^\d]+/, ''));
-                    if ((e.shiftKey && 'Tab' == e.key && !y) || ('ArrowUp' == e.key && !y)) {
+                    if ((e.shiftKey && 'Tab' == e.key) || ('ArrowUp' == e.key && !y)) {
                         e.preventDefault();
                         if (y)
                             storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
