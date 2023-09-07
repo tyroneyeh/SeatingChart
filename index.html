@@ -21,10 +21,10 @@
                         <span class="nav-link">排數: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link">列數: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link">股長數: <input type="number" style="width:60px" v-model="totalLeader" min="1" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">清除資料</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">下載資料</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="clearStore" :if="storeData">清除資料</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="download" :if="storeData">下載資料</button></span>
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">上傳資料</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="clearPos">清除座位</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">清除座位</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="randomPos">隨機座位</button></span>
                     </div>
                 </div>
@@ -111,7 +111,8 @@ createApp({
             xColClassEnd: ref('col-3 col-md-1'),
             posname: reactive([]),
             posindex: ref(0),
-            leadersname: reactive([])
+            leadersname: reactive([]),
+            clearBtnCtl: ref(0)
         };
 
         watch([storeRefs.totalNum, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
@@ -206,6 +207,7 @@ createApp({
             storeRefs.posdata.forEach((i) => { i.innerHTML = '&nbsp;'; });
             store();
             window.randomNumbers = [];
+            refs.clearBtnCtl.value = 1;
         };
 
         const clickToEdit = (o, n, y) => {
@@ -313,21 +315,19 @@ createApp({
 
         const randomPos = () => {
             let rNum;
-            let j;
             const posdatas = storeRefs.posdata.slice();
             posdatas.reverse().forEach((i) => {
-                j = 0;
-                while(!i.innerText.trim().length) {
-                    if (j++ > storeRefs.totalNum.value << 2) break;
+                while(!i.innerText.trim().length && randomNumbers.length < storeRefs.totalNum.value) {
                     rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
-                    if (!window.randomNumbers.includes(rNum) && storeRefs.namelist[rNum - 1]?.innerText.trim().length) {
+                    if (!randomNumbers.includes(rNum) && storeRefs.namelist[rNum - 1]?.innerText.trim().length) {
                         i.innerText = String(rNum).padStart(2, '0');
-                        window.randomNumbers.push(rNum);
+                        randomNumbers.push(rNum);
                     }
                 }
             });
 
             store();
+            refs.clearBtnCtl.value = !randomNumbers.length;
         };
 
         const uploadfileChange = () => {
@@ -395,6 +395,7 @@ createApp({
 
             this.updatedisplay();
             this.storeData = 1;
+            this.clearBtnCtl = !randomNumbers.length;
         }
     }
 }).mount('#app')
