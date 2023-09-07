@@ -36,7 +36,7 @@
     <div class="row m-auto" :class="xColClass">
         <div class="col-2"></div>
         <div class="text-center col-7 fs-4" @click="clickToEdit()" ref="tabletitle">座位表</div>
-        <div class="col-2 align-self-end text-nowrap">更新日期: <span @click="clickToEdit()" ref="updatedate">{{ today }}</span></div>
+        <div class="col-2 align-self-end text-nowrap">更新日期: <span @click="clickToEdit()" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
     </div>
 
     <div class="row col-sm-12 mx-auto" :class="xColClass">
@@ -52,10 +52,10 @@
         <div class="ps-4 pb-3" :class="xColClassCenter">
             <!-- center area -->
             <div class="row flex-nowrap" v-for="x in totalY">
-                <div class="col p-1 oneset" v-for="y in totalX">
+                <div class="col p-1" v-for="y in totalX">
                     <div class="col p-0">
                         <div class="col border text-center" @click="clickToEdit(x, y)" :id="'pos_'+ x +'_'+ y" ref="posdata">&nbsp;</div>
-                        <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="sname text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;">&nbsp;</span></div>
+                        <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname">&nbsp;</span></div>
                     </div>
                 </div>
             </div>
@@ -69,24 +69,14 @@
                 <caption></caption>
                 <thead>
                 <tr>
-                    <th class="border-start border-bottom border-end text-end" style="text-align-last:justify">導師</th>
-                    <th colspan="2" class="w-50 border-start border-bottom border-end text-center ps-0 pe-0 text-nowrap" @click="clickToEdit()" ref="teacher">&nbsp;</th>
+                    <th style="text-align-last:justify">導師</th>
+                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit()" ref="teacher">&nbsp;</th>
                 </tr>
                 </thead>
-                <tr class="oneset">
-                    <td class="border-start border-bottom border-end text-end" style="text-align-last:justify">班長</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" style="width:50px;display:block" @click="clickToEdit()" id="leader_a" ref="leader_a"></td>
-                    <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
-                </tr>
-                <tr class="oneset">
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify">副班長</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" id="leader_b" ref="leader_b"></td>
-                    <td class="sname border-start border-bottom border-end text-nowrap">&nbsp;</td>
-                </tr>
-                <tr class="oneset" v-for="n in totalLeader">
-                    <td class="border-start border-bottom border-end text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">&nbsp;</td>
-                    <td class="border-start border-bottom border-end text-center ps-0 pe-0" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
-                    <td class="sname col border-start border-bottom border-end text-nowrap">&nbsp;</td>
+                <tr v-for="n in totalLeader">
+                    <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit()" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
+                    <td class="text-center ps-0 pe-0" style="display:block;width:50px" @click="clickToEdit()" :id="'leader_'+ n" ref="leaders">&nbsp;</td>
+                    <td class="text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
         </div>
@@ -94,7 +84,7 @@
 </div>
 
 <script>
-const { createApp, ref, watch } = Vue;
+const { createApp, ref, reactive, watch } = Vue;
 window.randomNumbers = [];
 
 createApp({
@@ -106,13 +96,11 @@ createApp({
             totalX: ref(6),
             totalY: ref(8),
             totalLeader: ref(8),
-            namelist: ref(null),
-            posdata: ref(null),
+            namelist: reactive([]),
+            posdata: reactive([]),
             teacher: ref(null),
-            leadernames: ref(null),
-            leader_a: ref(null),
-            leader_b: ref(null),
-            leaders: ref(null)
+            leadernames: reactive([]),
+            leaders: reactive([])
         };
         const refs = {
             uploadfile: ref(null),
@@ -120,7 +108,9 @@ createApp({
             xColClass: ref('col-lg-7 col-md-12'),
             xColClassStart: ref('col-2 col-md-2'),
             xColClassCenter: ref('col-7'),
-            xColClassEnd: ref('col-3 col-md-1')
+            xColClassEnd: ref('col-3 col-md-1'),
+            posname: reactive([]),
+            leadersname: reactive([])
         };
 
         watch([storeRefs.totalNum, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
@@ -148,33 +138,25 @@ createApp({
 
 
         const updatedisplay = () => {
-            storeRefs.posdata.value.forEach((i) => {
-                const num = i.innerText.trim();
-                if (num.length) {
-                    const no = document.getElementById('no_'+ num);
+            storeRefs.posdata.forEach((i, j) => {
+                const num = parseInt(i.innerText.trim());
+                if (!isNaN(num)) {
+                    const no = storeRefs?.namelist[num - 1];
                     if (no) {
-                        i.closest('.oneset').querySelector('.sname').innerText = no.innerText;
-                        if (!window.randomNumbers.includes(parseInt(num)))
-                            window.randomNumbers.push(parseInt(num));
+                        refs.posname[j].innerText = no.innerText;
+                        if (!randomNumbers.includes(num))
+                            randomNumbers.push(num);
                     }
-                }
+                } else
+                    refs.posname[j].innerHTML = '&nbsp;';
             });
 
-            const leader_a = document.getElementById('no_'+ storeRefs.leader_a.value.innerText);
-            if (leader_a)
-                storeRefs.leader_a.value.closest('.oneset').querySelector('.sname').innerText = leader_a.innerText;
-
-            const leader_b = document.getElementById('no_'+ storeRefs.leader_b.value.innerText);
-            if (leader_b)
-                storeRefs.leader_b.value.closest('.oneset').querySelector('.sname').innerText = leader_b.innerText;
-
-            storeRefs.leaders.value.forEach((i) => {
-                const num = i.innerText.trim();
-                if (num.length) {
-                    const no = document.getElementById('no_'+ num);
-                    if (no) {
-                        i.closest('.oneset').querySelector('.sname').innerText = no.innerText;
-                    }
+            storeRefs.leaders.forEach((i, j) => {
+                const num = parseInt(i.innerText.trim());
+                if (!isNaN(num)) {
+                    const no = storeRefs.namelist[num - 1];
+                    if (no)
+                        refs.leadersname[j].innerText = no.innerText;
                 }
             });
 
@@ -185,12 +167,17 @@ createApp({
             const tojson = {};
             datakeys.forEach((i) => {
 
-                if (Array.isArray(storeRefs[i].value)) {
+                if (Array.isArray(storeRefs[i])) {
                     tojson[i] = [];
-                    Object.keys(storeRefs[i].value).forEach((j) => {
-                        const value = storeRefs[i].value[j].innerText;
-                        tojson[i].push(value);
-                    });
+                    if (i == 'posdata') {
+                        const posNum = storeRefs.totalX.value * storeRefs.totalY.value;
+                        for (let k = 0; k < posNum; k++) {
+                            tojson[i].push(storeRefs[i][k].innerText);
+                        }
+                    } else
+                        Object.keys(storeRefs[i]).forEach((j) => {
+                            tojson[i].push(storeRefs[i][j].innerText);
+                        });
                 } else {
                     const value = storeRefs[i].value?.innerText || storeRefs[i].value;
                     tojson[i] = value;
@@ -199,6 +186,7 @@ createApp({
             });
 
             localStorage.setItem('data', JSON.stringify(tojson));
+            updatedisplay();
 
         };
 
@@ -214,15 +202,17 @@ createApp({
             if (!confirm("確定要清除目前的座位排列嗎?"))
                 return;
 
-            storeRefs.posdata.value.forEach((i) => { i.innerHTML = '&nbsp;'; });
+            storeRefs.posdata.forEach((i) => { i.innerHTML = '&nbsp;'; });
             store();
-            location.reload();
+            window.randomNumbers = [];
+            // location.reload();
         };
 
-        const clickToEdit = (n, y) => {
-            let divContainer = n ? document.getElementById('no_'+ n) : event.target;
-            if (y)
-                divContainer = n ? document.getElementById('pos_'+ n +'_'+ y) : event.target;
+        const clickToEdit = (n) => {
+            // let divContainer = n ? document.getElementById('no_'+ n) : event.target;
+            // if (y)
+                // divContainer = n ? document.getElementById('pos_'+ n +'_'+ y) : event.target;
+            const divContainer = event.target;
 
             if (divContainer) {
                 const inputElement = document.createElement('input');
@@ -248,16 +238,11 @@ createApp({
                         divContainer.innerHTML = inputElement.value.length ? inputElement.value : '&nbsp;';
 
                     store();
-
-                    if (divContainer.id.includes('no_')) {
-                        updatedisplay();
-                    }
-
                     refs.storeData.value = 1;
-
                 });
+
                 inputElement.addEventListener('keydown', (e) => {
-                    n = parseInt(n);
+                    n = parseInt(event.target.parentElement.id.replace(/[^\d]+/, ''));
                     if (e.shiftKey && e.key === 'Tab' || e.key === 'ArrowUp') {
                         e.preventDefault();
                         if (y) {
@@ -269,12 +254,12 @@ createApp({
                             clickToEdit(String(n - 1).padStart(2, '0'));
                     } else if (['Enter', 'Tab', 'ArrowDown'].includes(e.key)) {
                         e.preventDefault();
-                        if (y) {
-                            if (n >= totalX.value)
-                                clickToEdit(1, y + 1);
-                            else
-                                clickToEdit(n + 1, y);
-                        } else
+                        // if (y) {
+                        //     if (n >= totalX.value)
+                        //         clickToEdit(1, y + 1);
+                        //     else
+                        //         clickToEdit(n + 1, y);
+                        // } else
                             clickToEdit(String(n + 1).padStart(2, '0'));
                     }
                 });
@@ -320,26 +305,22 @@ createApp({
         };
 
         const randomPos = () => {
-            updatedisplay();
-
-            for (let y = storeRefs.totalY.value; y > 0; y--) {
-                for (let x = storeRefs.totalX.value; x > 0; x--) {
-                    const rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
-                    const pos = document.getElementById('pos_'+ y +'_'+ x);
-                    const sname = document.getElementById('no_'+ String(rNum).padStart(2, '0'));
-                    if (sname?.innerText.trim().length && !randomNumbers.includes(rNum) && !pos?.innerText.trim().length) {
-                        pos.innerText = String(rNum).padStart(2, '0');
-                        randomNumbers.push(rNum);
-                    } else if (!pos?.innerText.trim().length && randomNumbers.length < storeRefs.totalNum.value)  {
-                        if (!sname?.innerText.trim().length && !randomNumbers.includes(rNum)) {
-                            randomNumbers.push(rNum);
-                        }
-                        x++;
+            let rNum;
+            let j;
+            const posdatas = storeRefs.posdata.slice();
+            posdatas.reverse().forEach((i) => {
+                j = 0;
+                while(!i.innerText.trim().length) {
+                    if (j++ > storeRefs.totalNum.value << 2) break;
+                    rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
+                    if (!window.randomNumbers.includes(rNum)) {
+                        i.innerText = String(rNum).padStart(2, '0');
+                        window.randomNumbers.push(rNum);
                     }
                 }
-            }
+            });
+
             store();
-            updatedisplay();
         };
 
         const uploadfileChange = () => {
@@ -372,6 +353,8 @@ createApp({
             dkeys.forEach((i) => {
                 if ('tabletitle' == i)
                     document.title = data[i];
+                else if ('today' == i)
+                    this.today = data[i];
                 else if ('totalNum' == i)
                     this.totalNum = parseInt(data[i]);
                 else if ('totalX' == i)
@@ -384,6 +367,9 @@ createApp({
             });
         }
     }, mounted() {
+
+        if (!this.leadernames[0].innerText.length) this.leadernames[0].innerText = '班長';
+        if (!this.leadernames[1].innerText.length) this.leadernames[1].innerText = '副班長';
 
         if (data) {
             dkeys.forEach((i) => {
