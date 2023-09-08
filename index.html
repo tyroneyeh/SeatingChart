@@ -340,7 +340,7 @@ const app = createApp({
             let sCount = 0;
             const posdatas = storeRefs.posdata.slice();
             posdatas.reverse().forEach((i) => {
-                while(!i.innerText.trim().length && sCount++ < storeRefs.totalNum.value << 2) {
+                while(!i.innerText.trim().length && sCount++ < storeRefs.totalNum.value << 3) {
                     rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
                     if (!randomNumbers.includes(rNum) && storeRefs.namelist[rNum - 1]?.innerText.trim().length) {
                         i.innerText = String(rNum).padStart(2, '0');
