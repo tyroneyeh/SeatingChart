@@ -19,8 +19,8 @@
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav m-auto">
                         <span class="nav-link" aria-current="page">{{ $gettext('Number of people') }}: <input type="number" style="width:60px" v-model.lazy="totalNum" min="1" ref="totalnums" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model.lazy="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model.lazy="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model.lazy="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model.lazy="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link">{{ $gettext('Number of leaders') }}: <input type="number" style="width:60px" v-model.lazy="totalLeader" min="1" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearStore" :if="storeData">{{ $gettext('Clear data') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="download" :if="storeData">{{ $gettext('Download data') }}</button></span>
@@ -128,15 +128,15 @@ const app = createApp({
 
         watch(storeRefs.totalX, async(i) => {
             if (i > 8) {
-                xColClass.value = 'col-lg-12 col-md-12';
-                xColClassStart.value = 'col-1';
-                xColClassCenter.value = 'col-9';
-                xColClassEnd.value = 'col-2';
+                refs.xColClass.value = 'col-lg-12 col-md-12';
+                refs.xColClassStart.value = 'col-1';
+                refs.xColClassCenter.value = 'col-9';
+                refs.xColClassEnd.value = 'col-2';
             } else {
-                xColClass.value = 'col-lg-8';
-                xColClassStart.value = 'col-2 col-md-2';
-                xColClassCenter.value = 'col-7';
-                xColClassEnd.value = 'col-3 col-md-1';
+                refs.xColClass.value = 'col-lg-8';
+                refs.xColClassStart.value = 'col-2 col-md-2';
+                refs.xColClassCenter.value = 'col-7';
+                refs.xColClassEnd.value = 'col-3 col-md-1';
             }
         });
 
