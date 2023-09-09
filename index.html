@@ -36,7 +36,7 @@
     </div>
     <div class="row m-auto" :class="xColClass">
         <div class="col-2"></div>
-        <div class="text-center col-7 fs-4" @click="clickToEdit('tabletitle')" ref="tabletitle">{{ $gettext('Seats tables') }}</div>
+        <div class="text-center col-8 fs-4" @click="clickToEdit('tabletitle')" ref="tabletitle">{{ $gettext('Seats tables') }}</div>
         <div class="col-2 align-self-end text-nowrap">{{ $gettext('Update') }}: <span @click="clickToEdit()" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
     </div>
 
