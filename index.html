@@ -43,9 +43,14 @@
     <div class="row col-sm-12 mx-auto" :class="xColClass">
         <div class="pt-1" :class="xColClassStart">
             <!-- left area -->
-            <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">{{ $gettext('Student list') }}</div>
+            <div class="border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">
+                <div class="row">
+                    <div class="col-2 ms-2"><input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl"></div>
+                    <div class="col-9 text-center">{{ $gettext('Student list') }}</div>
+                </div>
+            </div>
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNum">
-                <div class="col-4 border-start border-bottom text-center ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl"> {{ String(n).padStart(2, '0') }}</div>
+                <div class="col-4 border-start border-bottom text-center ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl"> {{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit('namelist', n)" ref="namelist"></div>
             </div>
 
@@ -115,6 +120,7 @@ const app = createApp({
             leadersname: reactive([]),
             clearBtnCtl: ref(0),
             isDataChanged: ref(0),
+            namesBgCtl: ref(0),
             nameBgCtl: reactive([])
         };
 
@@ -268,7 +274,7 @@ const app = createApp({
             inputElement.addEventListener('blur', () => blurFunc(o, n, y));
 
             inputElement.addEventListener('keydown', (e) => {
-                if ((e.shiftKey && 'Tab' == e.key) || ('ArrowUp' == e.key && !y)) {
+                if ((e.shiftKey && 'Tab' == e.key) || (e.shiftKey && 'Enter' == e.key) || ('ArrowUp' == e.key && !y)) {
                     e.preventDefault();
                     if (y)
                         storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
