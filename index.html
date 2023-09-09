@@ -231,7 +231,7 @@ const app = createApp({
                     const inputData = parseInt(inputElement.value);
                     if (!isNaN(inputData)) {
                         if (randomNumbers.includes(inputData)) {
-                            alert($gettext('Seat assigned');
+                            alert($gettext('Seat assigned'));
                             return;
                         }
                         editInput.innerText = String(inputElement.value).padStart(2, '0');
