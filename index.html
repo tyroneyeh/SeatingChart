@@ -45,7 +45,7 @@
             <!-- left area -->
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">{{ $gettext('Student list') }}</div>
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNum">
-                <div class="col-4 border-start border-bottom text-center ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" disabled> {{ String(n).padStart(2, '0') }}</div>
+                <div class="col-4 border-start border-bottom text-center ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl"> {{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit('namelist', n)" ref="namelist"></div>
             </div>
 
