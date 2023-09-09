@@ -228,7 +228,12 @@ const app = createApp({
                 editInput.innerHTML = '';
                 editInput.appendChild(inputElement);
                 inputElement.addEventListener('blur', () => {
-                    if (!isNaN(parseInt(inputElement.value))) {
+                    const inputData = parseInt(inputElement.value);
+                    if (!isNaN(inputData)) {
+                        if (randomNumbers.includes(inputData)) {
+                            alert($gettext('Seat assigned');
+                            return;
+                        }
                         editInput.innerText = String(inputElement.value).padStart(2, '0');
                         const pname = editInput.closest('div.oneset') || editInput.closest('tr.oneset');
                         const sname = document.getElementById('no_'+ editInput.innerText);
@@ -434,7 +439,7 @@ const gettext = createGettext({
     },
     silent: true,
     defaultLanguage: navigator.language.replace(/-/, '_'),
-    translations: {"zh_TW":{"Are you sure you want to clear all entered data?":"確定要清除全部輸入的資料嗎?","Are you sure you want to clear your current seating arrangement?":"確定要清除目前的座位排列嗎?","Class president":"班長","Clear data":"清除資料","Desk":"講桌","Download data":"下載資料","Not enough seats!":"座位數不夠坐!","Number of columns":"排數","Number of leaders":"股長數","Number of people":"全班人數","Number of rows":"列數","Please directly click on the name or seat number area to enter information":"請直接點選姓名或座號區域輸入資料","Random seats":"隨機座位","Reset seats":"重置座位","Seats tables":"座位表","Student list":"班級名條","Teacher":"導師","Update":"更新日期","Upload data":"上傳資料","Vice class president":"副班長"}}
+    translations: {"zh_TW":{"Seat assigned":"已排位子","Are you sure you want to clear all entered data?":"確定要清除全部輸入的資料嗎?","Are you sure you want to clear your current seating arrangement?":"確定要清除目前的座位排列嗎?","Class president":"班長","Clear data":"清除資料","Desk":"講桌","Download data":"下載資料","Not enough seats!":"座位數不夠坐!","Number of columns":"排數","Number of leaders":"股長數","Number of people":"全班人數","Number of rows":"列數","Please directly click on the name or seat number area to enter information":"請直接點選姓名或座號區域輸入資料","Random seats":"隨機座位","Reset seats":"重置座位","Seats tables":"座位表","Student list":"班級名條","Teacher":"導師","Update":"更新日期","Upload data":"上傳資料","Vice class president":"副班長"}}
 
 });
 
