@@ -45,7 +45,7 @@
             <!-- left area -->
             <div class="text-center border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">{{ $gettext('Student list') }}</div>
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNum">
-                <div class="col-4 border-start border-bottom text-center pe-0">{{ String(n).padStart(2, '0') }}</div>
+                <div class="col-4 border-start border-bottom text-center ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" disabled> {{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit('namelist', n)" ref="namelist"></div>
             </div>
 
@@ -55,7 +55,7 @@
             <div class="row flex-nowrap" v-for="x in totalY">
                 <div class="col p-1" v-for="y in totalX">
                     <div class="col p-0">
-                        <div class="col border text-center" @click="clickToEdit('posdata', x, y)" ref="posdata">&nbsp;</div>
+                        <div class="col border text-center" @click="clickToEdit('posdata', x, y)" style="min-height:26px" ref="posdata"></div>
                         <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname">&nbsp;</span></div>
                     </div>
                 </div>
@@ -76,7 +76,7 @@
                 </thead>
                 <tr v-for="n in totalLeader">
                     <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="text-center ps-0 pe-0" style="display:block;width:50px" @click="clickToEdit('leaders', n)" ref="leaders">&nbsp;</td>
+                    <td class="text-center" style="width:50px" @click="clickToEdit('leaders', n)" ref="leaders">&nbsp;</td>
                     <td class="text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
@@ -108,13 +108,14 @@ const app = createApp({
             storeData: ref(0),
             xColClass: ref('col-xl-7 col-md-12'),
             xColClassStart: ref('col-2 col-md-2'),
-            xColClassCenter: ref('col-7'),
+            xColClassCenter: ref('col-7 col-md-8'),
             xColClassEnd: ref('col-3 col-md-1'),
             posname: reactive([]),
             posindex: ref(0),
             leadersname: reactive([]),
             clearBtnCtl: ref(0),
-            isDataChanged: ref(0)
+            isDataChanged: ref(0),
+            nameBgCtl: reactive([])
         };
 
         watch([storeRefs.totalNum, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
@@ -135,15 +136,23 @@ const app = createApp({
             } else {
                 refs.xColClass.value = 'col-lg-8';
                 refs.xColClassStart.value = 'col-2 col-md-2';
-                refs.xColClassCenter.value = 'col-7';
+                refs.xColClassCenter.value = 'col-7 col-md-8';
                 refs.xColClassEnd.value = 'col-3 col-md-1';
             }
         });
 
+        const updatedisplay = (o, num, pos) => {
 
-        const updatedisplay = () => {
+            if ('posdata' == o && num) {
+                const no = storeRefs?.namelist[num - 1];
+                if (no) {
+                    refs.posname[pos].innerText = no.innerText;
+                    if (!randomNumbers.includes(num))
+                        randomNumbers.push(num);
+                }
+            } else
             storeRefs.posdata.forEach((i, j) => {
-                const num = parseInt(i.innerText.trim());
+                num = parseInt(i.innerText.trim());
                 if (!isNaN(num)) {
                     const no = storeRefs?.namelist[num - 1];
                     if (no) {
@@ -151,12 +160,13 @@ const app = createApp({
                         if (!randomNumbers.includes(num))
                             randomNumbers.push(num);
                     }
-                } else
-                    refs.posname[j].innerHTML = '&nbsp;';
+                    refs.nameBgCtl[num - 1].checked = true;
+                    // refs.nameBgCtl[num - 1].classList.add('bg-warning');
+                }
             });
 
             storeRefs.leaders.forEach((i, j) => {
-                const num = parseInt(i.innerText.trim());
+                num = parseInt(i.innerText.trim());
                 if (!isNaN(num)) {
                     const no = storeRefs.namelist[num - 1];
                     if (no)
@@ -166,7 +176,7 @@ const app = createApp({
 
         };
 
-        const store = () => {
+        const store = (o, num, pos) => {
             const datakeys = Object.keys(storeRefs);
             const tojson = {};
             datakeys.forEach((i) => {
@@ -190,7 +200,7 @@ const app = createApp({
             });
 
             localStorage.setItem('data', JSON.stringify(tojson));
-            updatedisplay();
+            updatedisplay(o, num, pos);
 
         };
 
@@ -206,123 +216,127 @@ const app = createApp({
             if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?")))
                 return;
 
-            storeRefs.posdata.forEach((i) => { i.innerHTML = '&nbsp;'; });
+            storeRefs.posdata.forEach((i) => { i.innerText = ''; });
             store();
-            window.randomNumbers = [];
-            refs.clearBtnCtl.value = 1;
+            // window.randomNumbers = [];
+            // refs.clearBtnCtl.value = 1;
+            location.reload();
         };
 
         const clickToEdit = (o, n, y) => {
             const editInput = event.target;
 
-            if (editInput) {
-                const inputElement = document.createElement('input');
-                inputElement.classList.add('from-control-sm');
-                inputElement.setAttribute('type', ['posdata', 'leaders'].includes(o) ? 'number' : 'text');
-                inputElement.setAttribute('min', 1);
-                inputElement.style.width = "100%";
-                inputElement.style.height = "24px";
+            if (!editInput)
+                return;
 
-                inputElement.value = editInput.innerText.trim();
+            const inputElement = document.createElement('input');
+            inputElement.classList.add('from-control-sm');
+            inputElement.setAttribute('type', ['posdata', 'leaders'].includes(o) ? 'number' : 'text');
+            inputElement.setAttribute('min', 1);
+            inputElement.style.width = "100%";
+            inputElement.style.minWidth = '50px'
+            inputElement.style.height = "24px";
 
-                editInput.innerHTML = '';
-                editInput.appendChild(inputElement);
-                inputElement.addEventListener('blur', () => {
-                    const inputData = parseInt(inputElement.value);
-                    if (!isNaN(inputData)) {
-                        if (randomNumbers.includes(inputData)) {
-                            alert($gettext('Seat assigned'));
-                            return;
-                        }
-                        editInput.innerText = String(inputElement.value).padStart(2, '0');
-                        const pname = editInput.closest('div.oneset') || editInput.closest('tr.oneset');
-                        const sname = document.getElementById('no_'+ editInput.innerText);
-                        if (pname && sname && sname.innerText.length) {
-                            pname.querySelector('.sname').innerText = sname.innerText;
-                        }
-                    } else if (inputElement.value.length)
-                        editInput.innerText = inputElement.value;
-                    else
-                        editInput.innerHTML = '&nbsp;';
+            inputElement.value = editInput.innerText.trim();
 
-                    store();
-                    updatedisplay();
-                    refs.storeData.value = 1;
-                });
+            randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
 
-                inputElement.addEventListener('keydown', (e) => {
-                    if ((e.shiftKey && 'Tab' == e.key) || ('ArrowUp' == e.key && !y)) {
-                        e.preventDefault();
-                        if (y)
-                            storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
-                        else
-                            storeRefs[o][n - 2]?.click();
-                    } else if (['Enter', 'Tab'].includes(e.key) || ('ArrowDown' == e.key && !y)) {
-                        e.preventDefault();
-                        if (y)
-                            storeRefs[o][(n - 1) * storeRefs.totalX.value + y]?.click();
-                        else if (['leadernames', 'leaders'].includes(o)) {
-                            if (storeRefs.totalLeader.value <= storeRefs.leadernames.length && n == storeRefs.leadernames.length)
-                                storeRefs.totalLeader.value++;
-                            setTimeout(() => {
-                                storeRefs[o][n]?.click();
-                            }, 50);
-                        } else if ('namelist' == o) {
-                            storeRefs.totalNum.value++;
-                            setTimeout(() => {
-                                storeRefs[o][n]?.click();
-                            }, 50);
-                        } else if (undefined != storeRefs[o] && storeRefs[o][n])
-                            storeRefs[o][n]?.click();
-                    } else if (e.shiftKey && 'Tab' == e.key && y || 'ArrowLeft' == e.key) {
-                        e.preventDefault();
+            editInput.innerHTML = '';
+            editInput.appendChild(inputElement);
+
+            const blurFunc = (o, n, y) => {
+                const num = parseInt(inputElement.value);
+                const pos = ((n - 1) * storeRefs.totalX.value + y) - 1;
+                if ('posdata' == o && !isNaN(num)) {
+                    if (randomNumbers.includes(num)) {
+                        alert($gettext('Seat assigned'));
+                        storeRefs[o][pos].innerText = '';
+                        storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
+                        return;
+                    }
+                    editInput.innerText = String(inputElement.value).padStart(2, '0');
+                    refs.nameBgCtl[num - 1].checked = true;
+                    // refs.nameBgCtl[num - 1].classList.add('bg-warning');
+
+                } else if (inputElement.value.length)
+                    editInput.innerText = inputElement.value;
+
+                store(o, num, pos);
+                refs.storeData.value = 1;
+            };
+
+            inputElement.addEventListener('blur', () => blurFunc(o, n, y));
+
+            inputElement.addEventListener('keydown', (e) => {
+                if ((e.shiftKey && 'Tab' == e.key) || ('ArrowUp' == e.key && !y)) {
+                    e.preventDefault();
+                    if (y)
                         storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
-                    } else if (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key) {
-                        e.preventDefault();
+                    else
+                        storeRefs[o][n - 2]?.click();
+                } else if (['Enter', 'Tab'].includes(e.key) || ('ArrowDown' == e.key && !y)) {
+                    e.preventDefault();
+                    if (y)
                         storeRefs[o][(n - 1) * storeRefs.totalX.value + y]?.click();
-                    } else if ('Backspace' == e.key && ['namelist', 'leadernames', 'leaders'].includes(o)) {
-                        switch(o) {
-                        case 'namelist':
-                            if (!e.target.value.length) {
-                                e.preventDefault();
-                                storeRefs[o][n - 2]?.click();
-                                if (!storeRefs[o][n - 2].innerText.trim().length)
-                                    storeRefs.totalNum.value--;
-                            }
-                            break;
-                        case 'leadernames':
-                        case 'leaders':
-                            if (!e.target.value.length) {
-                                e.preventDefault();
-                                storeRefs[o][n - 2]?.click();
-                                if (!storeRefs[o][n - 2].innerText.trim().length)
-                                    storeRefs.totalLeader.value--;
-                            }
-                            break;
+                    else if (['leadernames', 'leaders'].includes(o)) {
+                        if (storeRefs.totalLeader.value <= storeRefs.leadernames.length && n == storeRefs.leadernames.length)
+                            storeRefs.totalLeader.value++;
+                        setTimeout(() => {
+                            storeRefs[o][n]?.click();
+                        }, 50);
+                    } else if ('namelist' == o) {
+                        storeRefs.totalNum.value++;
+                        setTimeout(() => {
+                            storeRefs[o][n]?.click();
+                        }, 50);
+                    } else if (undefined != storeRefs[o] && storeRefs[o][n])
+                        storeRefs[o][n]?.click();
+                } else if (e.shiftKey && 'Tab' == e.key && y || 'ArrowLeft' == e.key) {
+                    e.preventDefault();
+                    storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
+                } else if (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key) {
+                    e.preventDefault();
+                    storeRefs[o][(n - 1) * storeRefs.totalX.value + y]?.click();
+                } else if ('Backspace' == e.key && ['namelist', 'leadernames', 'leaders'].includes(o)) {
+                    switch(o) {
+                    case 'namelist':
+                        if (!e.target.value.length) {
+                            e.preventDefault();
+                            storeRefs[o][n - 2]?.click();
+                            if (!storeRefs[o][n - 2].innerText.trim().length)
+                                storeRefs.totalNum.value--;
+                        }
+                        break;
+                    case 'leadernames':
+                    case 'leaders':
+                        if (!e.target.value.length) {
+                            e.preventDefault();
+                            storeRefs[o][n - 2]?.click();
+                            if (!storeRefs[o][n - 2].innerText.trim().length)
+                                storeRefs.totalLeader.value--;
                         }
                     }
+                }
 
-                });
+            });
 
-                const pasteNameImport = (n) => {
-                    let pasteData = event.clipboardData.getData('text').trim();
-                    pasteData = pasteData.split(/\r\n| |,|\n/);
-                    if (pasteData?.length > 1) {
-                        event.preventDefault();
-                        storeRefs.namelist[n - 1].innerText = pasteData[0];
-                        pasteData.forEach((i, j) => {
-                            if (storeRefs.namelist[n - 1 + j])
-                                storeRefs.namelist[n - 1 + j].innerText = i;
-                        });
-                        store();
-                    }
-                };
+            const pasteNameImport = (o, n) => {
+                const pasteData = event.clipboardData.getData('text').replace(/\d+[\r\n\s]+/g, '').trim().split(/\r\n|[ ,\n]/);
+                if (pasteData?.length > 1) {
+                    event.preventDefault();
+                    storeRefs[o][n - 1].innerText = pasteData[0];
+                    pasteData.forEach((i, j) => {
+                        if (storeRefs[o][n - 1 + j])
+                            storeRefs[o][n - 1 + j].innerText = i;
+                    });
+                    store();
+                }
+            };
 
-                inputElement.addEventListener('paste', () => pasteNameImport(n));
+            inputElement.addEventListener('paste', () => pasteNameImport(o, n));
 
-                inputElement.focus();
+            inputElement.focus();
 
-            }
         };
 
         const download = () => {
