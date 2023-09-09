@@ -36,8 +36,8 @@
     </div>
     <div class="row m-auto" :class="xColClass">
         <div class="col-2"></div>
-        <div class="text-center col-8 fs-4" @click="clickToEdit('tabletitle')" ref="tabletitle">{{ $gettext('Seats tables') }}</div>
-        <div class="col-2 align-self-end text-nowrap">{{ $gettext('Update') }}: <span @click="clickToEdit()" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
+        <div class="text-center col-7 fs-4" @click="clickToEdit('tabletitle')" ref="tabletitle">{{ $gettext('Seats tables') }}</div>
+        <div class="col-3 align-self-end text-nowrap">{{ $gettext('Update') }}: <span @click="clickToEdit()" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
     </div>
 
     <div class="row col-sm-12 mx-auto" :class="xColClass">
@@ -108,8 +108,8 @@ const app = createApp({
             storeData: ref(0),
             xColClass: ref('col-xl-7 col-md-12'),
             xColClassStart: ref('col-2 col-md-2'),
-            xColClassCenter: ref('col-7 col-md-8'),
-            xColClassEnd: ref('col-3 col-md-1'),
+            xColClassCenter: ref('col-7'),
+            xColClassEnd: ref('col-3'),
             posname: reactive([]),
             posindex: ref(0),
             leadersname: reactive([]),
@@ -136,8 +136,8 @@ const app = createApp({
             } else {
                 refs.xColClass.value = 'col-lg-8';
                 refs.xColClassStart.value = 'col-2 col-md-2';
-                refs.xColClassCenter.value = 'col-7 col-md-8';
-                refs.xColClassEnd.value = 'col-3 col-md-1';
+                refs.xColClassCenter.value = 'col-7';
+                refs.xColClassEnd.value = 'col-3';
             }
         });
 
