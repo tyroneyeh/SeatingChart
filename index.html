@@ -298,23 +298,22 @@ const app = createApp({
                     }
 
                 });
-                inputElement.addEventListener('paste', (e) => {
-                    let pasteData = e.clipboardData.getData('text');
-                    pasteData = pasteData.trim().split(/\r\n| |,|\n/);
-                    if (pasteData?.length > 1) {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const no = parseInt(e.target.parentElement.id.replace(/no_/, '')) - 1;
-                        if (!isNaN(no)) {
-                            storeRefs.namelist[0].innerText = pasteData[0];
-                            pasteData.forEach((i, j) => {
-                                storeRefs.namelist[no + j].innerText = i;
-                            });
-                            store();
-                        }
 
+                const pasteNameImport = (n) => {
+                    let pasteData = event.clipboardData.getData('text').trim();
+                    pasteData = pasteData.split(/\r\n| |,|\n/);
+                    if (pasteData?.length > 1) {
+                        event.preventDefault();
+                        storeRefs.namelist[n - 1].innerText = pasteData[0];
+                        pasteData.forEach((i, j) => {
+                            if (storeRefs.namelist[n - 1 + j])
+                                storeRefs.namelist[n - 1 + j].innerText = i;
+                        });
+                        store();
                     }
-                });
+                };
+
+                inputElement.addEventListener('paste', () => pasteNameImport(n));
 
                 inputElement.focus();
 
