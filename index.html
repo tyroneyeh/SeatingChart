@@ -290,7 +290,7 @@ const app = createApp({
                         setTimeout(() => {
                             storeRefs[o][n]?.click();
                         }, 50);
-                    } else if ('namelist' == o) {
+                    } else if ('namelist' == o && storeRefs.totalNum.value <= storeRefs[o].length) {
                         storeRefs.totalNum.value++;
                         setTimeout(() => {
                             storeRefs[o][n]?.click();
