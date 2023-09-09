@@ -278,18 +278,20 @@ const app = createApp({
                     } else if ('Backspace' == e.key && ['namelist', 'leadernames', 'leaders'].includes(o)) {
                         switch(o) {
                         case 'namelist':
-                            if (!e.target.value.length && !storeRefs[o][n - 2].innerText.trim().length) {
+                            if (!e.target.value.length) {
                                 e.preventDefault();
                                 storeRefs[o][n - 2]?.click();
-                                storeRefs.totalNum.value--;
+                                if (!storeRefs[o][n - 2].innerText.trim().length)
+                                    storeRefs.totalNum.value--;
                             }
                             break;
                         case 'leadernames':
                         case 'leaders':
-                            if (!storeRefs[o][n - 2].innerText.trim().length) {
+                            if (!e.target.value.length) {
                                 e.preventDefault();
                                 storeRefs[o][n - 2]?.click();
-                                storeRefs.totalLeader.value--;
+                                if (!storeRefs[o][n - 2].innerText.trim().length)
+                                    storeRefs.totalLeader.value--;
                             }
                             break;
                         }
