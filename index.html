@@ -61,7 +61,7 @@
                 <div class="col p-1" v-for="y in totalX">
                     <div class="col p-0">
                         <div class="col border text-center" @click="clickToEdit('posdata', x, y)" style="min-height:26px" ref="posdata"></div>
-                        <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname">&nbsp;</span></div>
+                        <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
@@ -76,12 +76,12 @@
                 <thead>
                 <tr>
                     <th style="text-align-last:justify">{{ $gettext('Teacher') }}</th>
-                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit()" ref="teacher">&nbsp;</th>
+                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit()" ref="teacher"></th>
                 </tr>
                 </thead>
                 <tr v-for="n in totalLeader">
                     <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="text-center" style="width:50px" @click="clickToEdit('leaders', n)" ref="leaders">&nbsp;</td>
+                    <td class="text-center" style="width:50px" @click="clickToEdit('leaders', n)" ref="leaders"></td>
                     <td class="text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
