@@ -218,7 +218,7 @@ const app = createApp({
             if (editInput) {
                 const inputElement = document.createElement('input');
                 inputElement.classList.add('from-control-sm');
-                inputElement.setAttribute('type', ['pos_', 'leader_'].includes(editInput.id.slice(0, editInput.id.indexOf('_') + 1)) ? 'number' : 'text');
+                inputElement.setAttribute('type', ['posdata', 'leaders'].includes(o) ? 'number' : 'text');
                 inputElement.setAttribute('min', 1);
                 inputElement.style.width = "100%";
                 inputElement.style.height = "24px";
