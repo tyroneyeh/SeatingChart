@@ -31,7 +31,7 @@
                 </div>
             </div>
         </nav>
-        <div class="input-group-text m-auto" onclick="this.style.display='none'">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
+        <div class="input-group-text m-auto" @click="tipsToHide" ref="tips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
 
     </div>
     <div class="row m-auto" :class="xColClass">
@@ -121,7 +121,8 @@ const app = createApp({
             clearBtnCtl: ref(0),
             isDataChanged: ref(0),
             namesBgCtl: ref(0),
-            nameBgCtl: reactive([])
+            nameBgCtl: reactive([]),
+            tips: ref(1)
         };
 
         watch([storeRefs.totalNum, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
@@ -147,6 +148,26 @@ const app = createApp({
             }
         });
 
+        const getCookie = (name) => {
+            let value = '; ' + document.cookie;
+            let parts = value.split(`; ${name}=`);
+            if (parts.length == 2) return parts.pop().split(';').shift();
+        };
+
+        const setCookie = (name, value, age) => {
+            age = undefined != age ? age : 60 * 60 * 24 * 14;
+            document.cookie = `${name}=${value}; path=${location.pathname}; max-age=${age};`;
+        };
+
+        const removeCookie = (name, value) => {
+            setCookie(name, value, 0);
+        };
+
+        const tipsToHide = () => {
+            event.target.style.display = 'none';
+            setCookie('hideTips', 1);
+        };
+
         const updatedisplay = (o, num, pos) => {
 
             if ('posdata' == o && num) {
@@ -167,7 +188,6 @@ const app = createApp({
                             randomNumbers.push(num);
                     }
                     refs.nameBgCtl[num - 1].checked = true;
-                    // refs.nameBgCtl[num - 1].classList.add('bg-warning');
                 }
             });
 
@@ -224,8 +244,6 @@ const app = createApp({
 
             storeRefs.posdata.forEach((i) => { i.innerText = ''; });
             store();
-            // window.randomNumbers = [];
-            // refs.clearBtnCtl.value = 1;
             location.reload();
         };
 
@@ -262,7 +280,6 @@ const app = createApp({
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
                     refs.nameBgCtl[num - 1].checked = true;
-                    // refs.nameBgCtl[num - 1].classList.add('bg-warning');
 
                 } else if (inputElement.value.length)
                     editInput.innerText = inputElement.value;
@@ -400,7 +417,9 @@ const app = createApp({
             randomPos,
             clearPos,
             uploadfileChange,
-            updatedisplay
+            updatedisplay,
+            tipsToHide,
+            getCookie
         };
     }, beforeCreate() {
         window.data = localStorage.getItem('data');
@@ -447,6 +466,9 @@ const app = createApp({
             this.storeData = 1;
             this.clearBtnCtl = !randomNumbers.length;
         }
+
+        if (this.getCookie('hideTips'))
+            this.tips.style.display = 'none';
 
     }
 
