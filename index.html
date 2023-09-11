@@ -247,6 +247,7 @@ const app = createApp({
             inputElement.addEventListener('blur', () => blurFunc(o, n, y));
 
             inputElement.addEventListener('keydown', (e) => {
+                if (undefined == n) return;
                 if ((e.shiftKey && 'Tab' == e.key) || (e.shiftKey && 'Enter' == e.key) || ('ArrowUp' == e.key && !y)) {
                     e.preventDefault();
                     if (y)
