@@ -130,28 +130,30 @@ const app = createApp({
                     if (!randomNumbers.includes(num))
                         randomNumbers.push(num);
                 }
-            } else
-            storeRefs.posdata.forEach((i, j) => {
-                num = parseInt(i.innerText.trim());
-                if (!isNaN(num)) {
-                    const no = storeRefs?.namelist[num - 1];
-                    if (no) {
-                        refs.posname[j].innerText = no.innerText;
-                        if (!randomNumbers.includes(num))
-                            randomNumbers.push(num);
-                    }
-                    refs.nameBgCtl[num - 1].checked = true;
-                }
-            });
 
-            storeRefs.leaders.forEach((i, j) => {
-                num = parseInt(i.innerText.trim());
-                if (!isNaN(num)) {
-                    const no = storeRefs.namelist[num - 1];
-                    if (no)
-                        refs.leadersname[j].innerText = no.innerText;
-                }
-            });
+            } else if (!o) {
+                storeRefs.posdata.forEach((i, j) => {
+                    num = parseInt(i.innerText.trim());
+                    if (!isNaN(num)) {
+                        const no = storeRefs?.namelist[num - 1];
+                        if (no) {
+                            refs.posname[j].innerText = no.innerText;
+                            if (!randomNumbers.includes(num))
+                                randomNumbers.push(num);
+                            refs.nameBgCtl[num - 1].checked = true;
+                        }
+                    }
+                });
+
+                storeRefs.leaders.forEach((i, j) => {
+                    num = parseInt(i.innerText.trim());
+                    if (!isNaN(num)) {
+                        const no = storeRefs.namelist[num - 1];
+                        if (no)
+                            refs.leadersname[j].innerText = no.innerText;
+                    }
+                });
+            }
 
         };
 
@@ -211,6 +213,9 @@ const app = createApp({
             inputElement.value = editInput.innerText.trim();
 
             window.randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
+            const num = parseInt(inputElement.value);
+            if (num)
+                refs.nameBgCtl[num - 1].checked = false;
 
             editInput.innerHTML = '';
             editInput.appendChild(inputElement);
@@ -222,7 +227,6 @@ const app = createApp({
                     if ('posdata' == o) {
                         if (randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
-                            // storeRefs[o][pos].innerText = '';
                             editInput.innerText = '';
                             setTimeout(() => {
                                 storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
@@ -490,10 +494,10 @@ const app = createApp({
 
 }); //.mount('#app')
 
-const gettext = createGettext({
+const vue3gettext = createGettext({
     availableLanguages: {
-    en: "English",
-    zh_TW: "Chinese"
+        en: "English",
+        zh_TW: "Chinese"
     },
     silent: true,
     defaultLanguage: navigator.language.replace(/-/, '_'),
@@ -501,9 +505,9 @@ const gettext = createGettext({
 
 });
 
-window.$gettext = gettext.$gettext;
+window.$gettext = vue3gettext.$gettext;
 
-app.use(gettext).mount('#app');
+app.use(vue3gettext).mount('#app');
 
 </script>
 
