@@ -212,22 +212,10 @@ const app = createApp({
             const tojson = {};
             datakeys.forEach((i) => {
 
-                if (Array.isArray(storeRefs[i])) {
+                if (Array.isArray(storeRefs[i]))
                     tojson[i] = storeRefs[i].map((i) => { return i.innerText; });
-                    // tojson[i] = [];
-                    // if (i == 'posdata') {
-                    //     const posNum = storeRefs.totalX.value * storeRefs.totalY.value;
-                    //     for (let k = 0; k < posNum; k++) {
-                    //         tojson[i].push(storeRefs[i][k].innerText);
-                    //     }
-                    // } else
-                    //     Object.keys(storeRefs[i]).forEach((j) => {
-                    //         tojson[i].push(storeRefs[i][j].innerText);
-                    //     });
-                } else {
-                    const value = storeRefs[i].value?.innerText || storeRefs[i].value;
-                    tojson[i] = value;
-                }
+                else
+                    tojson[i] = undefined != storeRefs[i].value?.innerText ? storeRefs[i].value?.innerText : tojson[i] = storeRefs[i].value;
 
             });
 
@@ -277,17 +265,18 @@ const app = createApp({
             const blurFunc = (o, n, y) => {
                 const num = parseInt(inputElement.value);
                 const pos = ((n - 1) * storeRefs.totalX.value + y) - 1;
-                if ('posdata' == o && !isNaN(num)) {
-                    if (randomNumbers.includes(num)) {
-                        alert($gettext('Seat assigned'));
-                        storeRefs[o][pos].innerText = '';
-                        storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
-                        return;
+                if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
+                    if ('posdata' == o) {
+                        if (randomNumbers.includes(num)) {
+                            alert($gettext('Seat assigned'));
+                            storeRefs[o][pos].innerText = '';
+                            storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
+                            return;
+                        }
+                        refs.nameBgCtl[num - 1].checked = true;
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
-                    refs.nameBgCtl[num - 1].checked = true;
-
-                } else if (inputElement.value.length)
+                } else
                     editInput.innerText = inputElement.value;
 
                 store(o, num, pos);
