@@ -215,7 +215,7 @@ const app = createApp({
                 if (Array.isArray(storeRefs[i]))
                     tojson[i] = storeRefs[i].map((i) => { return i.innerText; });
                 else
-                    tojson[i] = undefined != storeRefs[i].value?.innerText ? storeRefs[i].value?.innerText : tojson[i] = storeRefs[i].value;
+                    tojson[i] = undefined != storeRefs[i].value?.innerText ? storeRefs[i].value.innerText : storeRefs[i].value;
 
             });
 
