@@ -100,58 +100,6 @@ const { createApp, ref, reactive, watch } = Vue;
 
 const app = createApp({
     setup() {
-        const storeRefs = {
-            tabletitle: ref($gettext('Seats tables')),
-            today: ref(new Date().toLocaleDateString()),
-            totalNum: ref(40),
-            totalX: ref(6),
-            totalY: ref(8),
-            totalLeader: ref(8),
-            namelist: reactive([]),
-            posdata: reactive([]),
-            teacher: ref(null),
-            leadernames: reactive([]),
-            leaders: reactive([])
-        };
-        const refs = {
-            uploadfile: ref(null),
-            storeData: ref(0),
-            xColClass: ref('col-xl-7 col-md-12'),
-            xColClassStart: ref('col-2 col-md-2'),
-            xColClassCenter: ref('col-7'),
-            xColClassEnd: ref('col-3'),
-            posname: reactive([]),
-            posindex: ref(0),
-            leadersname: reactive([]),
-            clearBtnCtl: ref(0),
-            isDataChanged: ref(0),
-            namesBgCtl: ref(0),
-            nameBgCtl: reactive([]),
-            tips: ref(1)
-        };
-
-        watch([storeRefs.totalNum, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
-            if (storeRefs.totalX.value * storeRefs.totalY.value < storeRefs.totalNum.value) {
-                storeRefs.totalNum.value = oldValues[0];
-                storeRefs.totalX.value = oldValues[1];
-                storeRefs.totalY.value = oldValues[2];
-                alert($gettext('Not enough seats!'));
-            }
-        });
-
-        watch(storeRefs.totalX, async(i) => {
-            if (i > 6) {
-                refs.xColClass.value = 'col-lg-12 col-md-12';
-                refs.xColClassStart.value = 'col-1';
-                refs.xColClassCenter.value = 'col-9';
-                refs.xColClassEnd.value = 'col-2';
-            } else {
-                refs.xColClass.value = 'col-lg-8';
-                refs.xColClassStart.value = 'col-2 col-md-2';
-                refs.xColClassCenter.value = 'col-7';
-                refs.xColClassEnd.value = 'col-3';
-            }
-        });
 
         const getCookie = (name) => {
             let value = '; ' + document.cookie;
@@ -249,15 +197,20 @@ const app = createApp({
 
             const inputElement = document.createElement('input');
             inputElement.classList.add('from-control-sm');
-            inputElement.setAttribute('type', ['posdata', 'leaders'].includes(o) ? 'number' : 'text');
-            inputElement.setAttribute('min', 1);
+            if (['posdata', 'leaders'].includes(o)) {
+                inputElement.setAttribute('type', 'number');
+                inputElement.setAttribute('min', 1);
+                inputElement.setAttribute('max', storeRefs.totalNum.value);
+            } else
+                inputElement.setAttribute('type', 'text');
+
             inputElement.style.width = "100%";
             inputElement.style.minWidth = '50px'
             inputElement.style.height = "24px";
 
             inputElement.value = editInput.innerText.trim();
 
-            randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
+            window.randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
 
             editInput.innerHTML = '';
             editInput.appendChild(inputElement);
@@ -269,10 +222,18 @@ const app = createApp({
                     if ('posdata' == o) {
                         if (randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
-                            storeRefs[o][pos].innerText = '';
-                            storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
+                            // storeRefs[o][pos].innerText = '';
+                            editInput.innerText = '';
+                            setTimeout(() => {
+                                storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
+                            }, 50);
                             return;
                         }
+                        if (num > storeRefs.totalNum.value) {
+                            editInput.innerText = '';
+                            return;
+                        }
+
                         refs.nameBgCtl[num - 1].checked = true;
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
@@ -315,7 +276,7 @@ const app = createApp({
                 } else if (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key) {
                     e.preventDefault();
                     storeRefs[o][(n - 1) * storeRefs.totalX.value + y]?.click();
-                } else if ('Backspace' == e.key && ['namelist', 'leadernames', 'leaders'].includes(o)) {
+                } else if ('Backspace' == e.key) {
                     switch(o) {
                     case 'namelist':
                         if (!e.target.value.length) {
@@ -332,6 +293,12 @@ const app = createApp({
                             storeRefs[o][n - 2]?.click();
                             if (!storeRefs[o][n - 2].innerText.trim().length)
                                 storeRefs.totalLeader.value--;
+                        }
+                        break;
+                    case 'posdata':
+                        if (!e.target.value.length) {
+                            e.preventDefault();
+                            storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
                         }
                     }
                 }
@@ -401,6 +368,60 @@ const app = createApp({
             }
         };
 
+        const storeRefs = {
+            tabletitle: ref($gettext('Seats tables')),
+            today: ref(new Date().toLocaleDateString()),
+            totalNum: ref(40),
+            totalX: ref(6),
+            totalY: ref(8),
+            totalLeader: ref(8),
+            namelist: reactive([]),
+            posdata: reactive([]),
+            teacher: ref(null),
+            leadernames: reactive([]),
+            leaders: reactive([])
+        };
+
+        watch([storeRefs.totalNum, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
+            if (storeRefs.totalX.value * storeRefs.totalY.value < storeRefs.totalNum.value) {
+                storeRefs.totalNum.value = oldValues[0];
+                storeRefs.totalX.value = oldValues[1];
+                storeRefs.totalY.value = oldValues[2];
+                alert($gettext('Not enough seats!'));
+            }
+        });
+
+        watch(storeRefs.totalX, async(i) => {
+            if (i > 6) {
+                refs.xColClass.value = 'col-lg-12 col-md-12';
+                refs.xColClassStart.value = 'col-1';
+                refs.xColClassCenter.value = 'col-9';
+                refs.xColClassEnd.value = 'col-2';
+            } else {
+                refs.xColClass.value = 'col-lg-8';
+                refs.xColClassStart.value = 'col-2 col-md-2';
+                refs.xColClassCenter.value = 'col-7';
+                refs.xColClassEnd.value = 'col-3';
+            }
+        });
+
+        const refs = {
+            uploadfile: ref(null),
+            storeData: ref(0),
+            xColClass: ref('col-xl-7 col-md-12'),
+            xColClassStart: ref('col-2 col-md-2'),
+            xColClassCenter: ref('col-7'),
+            xColClassEnd: ref('col-3'),
+            posname: reactive([]),
+            posindex: ref(0),
+            leadersname: reactive([]),
+            clearBtnCtl: ref(0),
+            isDataChanged: ref(0),
+            namesBgCtl: ref(0),
+            nameBgCtl: reactive([]),
+            tips: ref(1)
+        };
+
         return {
             ...storeRefs,
             ...refs,
@@ -446,14 +467,13 @@ const app = createApp({
             dkeys.forEach((i) => {
                 if (data[i][0] != null && Array.isArray(data[i])) {
                     data[i].forEach((_, j) => {
-                        if (this[i][j]?.innerText != undefined)
+                        if (undefined != this[i][j]?.innerText)
                             this[i][j].innerText = data[i][j];
                     });
-                } else if (this[i]?.innerText != undefined)
+                } else if (undefined != this[i]?.innerText)
                     this[i].innerText = data[i];
-                else if (this[i]?.value != undefined)
+                else if (undefined != this[i]?.value)
                     this[i].value = data[i];
-
 
             });
 
