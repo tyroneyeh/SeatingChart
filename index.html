@@ -130,7 +130,10 @@ const app = createApp({
                     if (!randomNumbers.includes(num))
                         randomNumbers.push(num);
                 }
-
+            } else if ('leaders' == o && num) {
+                const no = storeRefs?.namelist[num - 1];
+                if (no)
+                    refs.leadersname[pos - 1].innerText = no.innerText;
             } else if (!o) {
                 storeRefs.posdata.forEach((i, j) => {
                     num = parseInt(i.innerText.trim());
@@ -214,7 +217,7 @@ const app = createApp({
 
             window.randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
             const num = parseInt(inputElement.value);
-            if (num)
+            if ('posdata' == o && num)
                 refs.nameBgCtl[num - 1].checked = false;
 
             editInput.innerHTML = '';
@@ -222,9 +225,10 @@ const app = createApp({
 
             const blurFunc = (o, n, y) => {
                 const num = parseInt(inputElement.value);
-                const pos = ((n - 1) * storeRefs.totalX.value + y) - 1;
+                let pos = n;
                 if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
                     if ('posdata' == o) {
+                        pos = ((n - 1) * storeRefs.totalX.value + y) - 1;
                         if (randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
                             editInput.innerText = '';
@@ -346,18 +350,26 @@ const app = createApp({
         };
 
         const randomPos = () => {
-            let rNum;
-            let sCount = 0;
-            const posdatas = storeRefs.posdata.slice();
-            posdatas.reverse().forEach((i) => {
-                while(!i.innerText.trim().length && sCount++ <= storeRefs.totalNum.value << 4) {
-                    rNum = Math.floor(Math.random() * storeRefs.totalNum.value) + 1;
-                    if (!randomNumbers.includes(rNum) && storeRefs.namelist[rNum - 1]?.innerText.trim().length) {
-                        i.innerText = String(rNum).padStart(2, '0');
-                        randomNumbers.push(rNum);
-                    }
+            let rNum, lastNum, i, studentNums;
+            const studentNames = storeRefs.namelist.map((x) => { return x.innerText; }).reverse();
+            for (i = 0, lastNum = storeRefs.totalNum.value; lastNum > 0; lastNum--, i++)
+                if (studentNames[i].length) break;
+
+            if (lastNum <= randomNumbers.length) return;
+
+            studentNums = Array.from({length: lastNum - 1 + 1}, (_, index) => 1 + index);
+            if (randomNumbers.length)
+                studentNums = studentNums.filter(i => !randomNumbers.includes(i));
+
+            const posdatas = storeRefs.posdata.slice().reverse();
+            for (i = 0; i < posdatas.length; i++) {
+                if (!posdatas[i].innerText.length) {
+                    rNum = Math.floor(Math.random() * studentNums.length);
+                    posdatas[i].innerText = String(studentNums[rNum]).padStart(2, '0');
+                    studentNums.splice(studentNums.indexOf(studentNums[rNum]), 1);
+                    if (!studentNums.length) break;
                 }
-            });
+            }
 
             store();
             updatedisplay();
