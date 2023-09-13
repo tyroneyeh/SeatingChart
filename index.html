@@ -356,7 +356,7 @@ const app = createApp({
 
             if (i <= randomNumbers.length) return;
 
-            studentNums = Array.from({length: i - 1 + 1}, (_, index) => 1 + index);
+            studentNums = Array.from({length: i}, (_, index) => 1 + index);
             if (randomNumbers.length)
                 studentNums = studentNums.filter(i => !randomNumbers.includes(i));
 
@@ -371,7 +371,6 @@ const app = createApp({
             }
 
             store();
-            updatedisplay();
             refs.clearBtnCtl.value = !randomNumbers.length;
         };
 
