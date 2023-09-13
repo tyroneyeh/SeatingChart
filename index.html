@@ -351,7 +351,7 @@ const app = createApp({
 
         const randomPos = () => {
             let rNum, i, studentNums;
-            for (i = storeRefs.totalNum.value; i >= 0; i++)
+            for (i = storeRefs.totalNum.value; i >= 0; i--)
                 if (storeRefs.namelist[i - 1].innerText.trim().length) break;
 
             if (i <= randomNumbers.length) return;
