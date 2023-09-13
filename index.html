@@ -62,8 +62,8 @@
         </div>
         <div class="ps-4 pb-3" :class="xColClassCenter">
             <!-- center area -->
-            <div class="row flex-nowrap" v-for="x in totalY">
-                <div class="col p-1" v-for="y in totalX">
+            <div class="row flex-nowrap" v-for="y in totalY">
+                <div class="col p-1" v-for="x in totalX">
                     <div class="col p-0">
                         <div class="col border text-center" @click="clickToEdit('posdata', x, y)" style="min-height:26px" ref="posdata"></div>
                         <div class="col border text-center w-100 p-3 overflow-auto" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname"></span></div>
@@ -227,6 +227,10 @@ const app = createApp({
                 const num = parseInt(inputElement.value);
                 let pos = n;
                 if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
+                    if (num > storeRefs.totalNum.value) {
+                        editInput.innerText = '';
+                        return;
+                    }
                     if ('posdata' == o) {
                         pos = ((n - 1) * storeRefs.totalX.value + y) - 1;
                         if (randomNumbers.includes(num)) {
@@ -237,12 +241,8 @@ const app = createApp({
                             }, 50);
                             return;
                         }
-                        if (num > storeRefs.totalNum.value) {
-                            editInput.innerText = '';
-                            return;
-                        }
-
-                        refs.nameBgCtl[num - 1].checked = true;
+                        if (num > 0)
+                            refs.nameBgCtl[num - 1].checked = true;
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
                 } else
@@ -350,14 +350,13 @@ const app = createApp({
         };
 
         const randomPos = () => {
-            let rNum, lastNum, i, studentNums;
-            const studentNames = storeRefs.namelist.map((x) => { return x.innerText; }).reverse();
-            for (i = 0, lastNum = storeRefs.totalNum.value; lastNum > 0; lastNum--, i++)
-                if (studentNames[i].length) break;
+            let rNum, i, studentNums;
+            for (i = storeRefs.totalNum.value; i >= 0; i++)
+                if (storeRefs.namelist[i - 1].innerText.trim().length) break;
 
-            if (lastNum <= randomNumbers.length) return;
+            if (i <= randomNumbers.length) return;
 
-            studentNums = Array.from({length: lastNum - 1 + 1}, (_, index) => 1 + index);
+            studentNums = Array.from({length: i - 1 + 1}, (_, index) => 1 + index);
             if (randomNumbers.length)
                 studentNums = studentNums.filter(i => !randomNumbers.includes(i));
 
