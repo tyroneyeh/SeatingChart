@@ -36,7 +36,7 @@
                 </div>
             </div>
         </nav>
-        <div class="input-group-text m-auto" @click="tipsToHide" :show="hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
+        <div class="input-group-text m-auto" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
 
     </div>
     <div class="row m-auto" :class="xColClass">
@@ -117,7 +117,7 @@ const app = createApp({
         };
 
         const tipsToHide = () => {
-            event.target.style.display = 'none';
+            refs.hideTips.value = true;
             setCookie('hideTips', 1);
         };
 
@@ -445,7 +445,7 @@ const app = createApp({
             isDataChanged: ref(0),
             namesBgCtl: ref(0),
             nameBgCtl: reactive([]),
-            hideTips: ref(0)
+            hideTips: ref(false)
         };
 
         return {
@@ -485,6 +485,8 @@ const app = createApp({
 
             });
         }
+        this.hideTips = this.getCookie('hideTips') == 1;
+
     },
     mounted() {
 
@@ -511,8 +513,6 @@ const app = createApp({
             this.clearBtnCtl = !randomNumbers.length;
         }
 
-        if (this.getCookie('hideTips'))
-            this.hideTips = 1;
 
     }
 
