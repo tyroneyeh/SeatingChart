@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant-TW">
 <head>
-<title>{{ $gettext('Seats tables') }}</title>
+<title>Loading</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://tyroneyeh.github.io/SeatingTable/index.js"></script>
@@ -24,9 +24,9 @@
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav m-auto">
                         <span class="nav-link" aria-current="page">{{ $gettext('Number of people') }}: <input type="number" style="width:60px" v-model.lazy="totalNum" min="1" ref="totalnums" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model.lazy="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model.lazy="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of leaders') }}: <input type="number" style="width:60px" v-model.lazy="totalLeader" min="1" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model.lazy="totalX" min="1" :max="totalNum" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model.lazy="totalY" min="1" :max="totalNum" ref="totalys" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of leaders') }}: <input type="number" style="width:60px" v-model.lazy="totalLeader" min="1" :max="totalNum" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearStore" :if="storeData">{{ $gettext('Clear data') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="download" :if="storeData">{{ $gettext('Download data') }}</button></span>
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload data') }}</button></span>
@@ -36,7 +36,7 @@
                 </div>
             </div>
         </nav>
-        <div class="input-group-text m-auto" @click="tipsToHide" ref="tips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
+        <div class="input-group-text m-auto" @click="tipsToHide" :show="hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
 
     </div>
     <div class="row m-auto" :class="xColClass">
@@ -48,14 +48,14 @@
     <div class="row col-sm-12 mx-auto" :class="xColClass">
         <div class="pt-1" :class="xColClassStart">
             <!-- left area -->
-            <div class="border-start border border-secondary" style="margin-left:-12px;margin-right:-12px">
+            <div class="border-start border border-secondary" style="margin-left:-12px;margin-right:-12px" :class="{'d-none': !totalNum}">
                 <div class="row">
                     <div class="col-2 ms-2"><input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl"></div>
                     <div class="col-9 text-center">{{ $gettext('Student list') }}</div>
                 </div>
             </div>
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNum">
-                <div class="col-4 border-start border-bottom text-center ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl"> {{ String(n).padStart(2, '0') }}</div>
+                <div class="col-4 border-start border-bottom text-center text-nowrap ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl"> {{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit('namelist', n)" ref="namelist"></div>
             </div>
 
@@ -167,8 +167,10 @@ const app = createApp({
 
                 if (Array.isArray(storeRefs[i]))
                     tojson[i] = storeRefs[i].map((i) => { return i.innerText; });
-                else
-                    tojson[i] = undefined != storeRefs[i].value?.innerText ? storeRefs[i].value.innerText : storeRefs[i].value;
+                else if (storeRefs[i].value && storeRefs[i].value?.innerText && storeRefs[i].value?.innerText.trim().length)
+                    tojson[i] = storeRefs[i].value.innerText;
+                else if (storeRefs[i].value && storeRefs[i].value > 0)
+                    tojson[i] = storeRefs[i].value;
 
             });
 
@@ -273,7 +275,8 @@ const app = createApp({
                             storeRefs[o][n]?.click();
                         }, 50);
                     } else if ('namelist' == o && storeRefs.totalNum.value <= storeRefs[o].length) {
-                        storeRefs.totalNum.value++;
+                        if (n == storeRefs.totalNum.value)
+                            storeRefs.totalNum.value++;
                         setTimeout(() => {
                             storeRefs[o][n]?.click();
                         }, 50);
@@ -291,7 +294,7 @@ const app = createApp({
                         if (!e.target.value.length) {
                             e.preventDefault();
                             storeRefs[o][n - 2]?.click();
-                            if (!storeRefs[o][n - 2].innerText.trim().length)
+                            if (!storeRefs[o][n - 2]?.innerText.trim().length)
                                 storeRefs.totalNum.value--;
                         }
                         break;
@@ -300,7 +303,7 @@ const app = createApp({
                         if (!e.target.value.length) {
                             e.preventDefault();
                             storeRefs[o][n - 2]?.click();
-                            if (!storeRefs[o][n - 2].innerText.trim().length)
+                            if (!storeRefs[o][n - 2]?.innerText.trim().length)
                                 storeRefs.totalLeader.value--;
                         }
                         break;
@@ -404,6 +407,10 @@ const app = createApp({
                 storeRefs.totalY.value = oldValues[2];
                 alert($gettext('Not enough seats!'));
             }
+            if (storeRefs.totalX.value > storeRefs.totalNum.value)
+                storeRefs.totalX.value = storeRefs.totalNum.value;
+            else if (storeRefs.totalY.value > storeRefs.totalNum.value)
+                storeRefs.totalY.value = storeRefs.totalNum.value;
         });
 
         watch(storeRefs.totalX, async(i) => {
@@ -434,7 +441,7 @@ const app = createApp({
             isDataChanged: ref(0),
             namesBgCtl: ref(0),
             nameBgCtl: reactive([]),
-            tips: ref(1)
+            hideTips: ref(0)
         };
 
         return {
@@ -452,7 +459,8 @@ const app = createApp({
             tipsToHide,
             getCookie
         };
-    }, beforeCreate() {
+    },
+    beforeCreate() {
         window.data = localStorage.getItem('data');
         if (data) {
             window.data = JSON.parse(data);
@@ -473,16 +481,18 @@ const app = createApp({
 
             });
         }
-    }, mounted() {
+    },
+    mounted() {
 
-        if (!this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('Class president');
-        if (!this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice class president');
-
+        if (this.leadernames) {
+            if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('Class president');
+            if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice class president');
+        }
         if (data) {
             dkeys.forEach((i) => {
                 if (data[i][0] != null && Array.isArray(data[i])) {
                     data[i].forEach((_, j) => {
-                        if (undefined != this[i][j]?.innerText)
+                        if (this[i] && undefined != this[i][j]?.innerText)
                             this[i][j].innerText = data[i][j];
                     });
                 } else if (undefined != this[i]?.innerText)
@@ -498,7 +508,7 @@ const app = createApp({
         }
 
         if (this.getCookie('hideTips'))
-            this.tips.style.display = 'none';
+            this.hideTips = 1;
 
     }
 
