@@ -54,7 +54,7 @@
                     <div class="col-9 text-center">{{ $gettext('Student list') }}</div>
                 </div>
             </div>
-            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNamelist">
+            <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)">
                 <div class="col-4 border-start border-bottom text-center text-nowrap ps-0 pe-0"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl"> {{ String(n).padStart(2, '0') }}</div>
                 <div class="col border-start border-bottom border-end text-nowrap overflow-auto" @click="clickToEdit('namelist', n)" ref="namelist"></div>
             </div>
@@ -234,12 +234,12 @@ const app = createApp({
                         return;
                     }
                     if ('posdata' == o) {
-                        pos = ((n - 1) * storeRefs.totalX.value + y) - 1;
+                        pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
                         if (randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
                             editInput.innerText = '';
                             setTimeout(() => {
-                                storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 1]?.click();
+                                storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 1]?.click();
                             }, 50);
                             return;
                         }
@@ -267,24 +267,22 @@ const app = createApp({
                 } else if (['Enter', 'Tab'].includes(e.key) || ('ArrowDown' == e.key && !y)) {
                     e.preventDefault();
                     if (y)
-                        storeRefs[o][(n - 1) * storeRefs.totalX.value + y]?.click();
+                        storeRefs[o][(y - 1) * storeRefs.totalX.value + n]?.click();
                     else if (['leadernames', 'leaders'].includes(o) && storeRefs.totalLeader.value <= storeRefs.leadernames.length && n == storeRefs.leadernames.length)
                         storeRefs.totalLeader.value++;
                     else if ('namelist' == o && storeRefs.totalNamelist.value <= storeRefs[o].length && n == storeRefs.totalNamelist.value)
                         storeRefs.totalNamelist.value++;
-                    else if (undefined != storeRefs[o] && storeRefs[o][n])
-                        storeRefs[o][n]?.click();
 
-                    if (['namelist', 'leadernames', 'leaders'].includes(o))
+                    if (['namelist', 'leadernames', 'leaders'].includes(o) && undefined != storeRefs[o] && storeRefs[o][n])
                         setTimeout(() => {
                             storeRefs[o][n]?.click();
                         }, 50);
                 } else if (e.shiftKey && 'Tab' == e.key && y || 'ArrowLeft' == e.key) {
                     e.preventDefault();
-                    storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
+                    storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
                 } else if (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key) {
                     e.preventDefault();
-                    storeRefs[o][(n - 1) * storeRefs.totalX.value + y]?.click();
+                    storeRefs[o][(y - 1) * storeRefs.totalX.value + n]?.click();
                 } else if ('Backspace' == e.key) {
                     switch(o) {
                     case 'namelist':
@@ -305,7 +303,7 @@ const app = createApp({
                     case 'posdata':
                         if (!e.target.value.length) {
                             e.preventDefault();
-                            storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
+                            storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
                         }
                     }
                 }
@@ -385,6 +383,16 @@ const app = createApp({
             }
         };
 
+        const showPos = (n, show) => {
+            const pos = storeRefs.posdata.map(item => item.innerText).indexOf(String(n).padStart(2, '0'));
+            if (pos > 0 && storeRefs.posdata[pos]) {
+                if (show)
+                    storeRefs.posdata[pos].closest('div.p-0').classList.add('bg-warning');
+                else
+                    storeRefs.posdata[pos].closest('div.p-0').classList.remove('bg-warning');
+            }
+        };
+
         const storeRefs = {
             tabletitle: ref($gettext('Seats tables')),
             today: ref(new Date().toLocaleDateString()),
@@ -456,7 +464,8 @@ const app = createApp({
             uploadfileChange,
             updatedisplay,
             tipsToHide,
-            getCookie
+            getCookie,
+            showPos
         };
     },
     beforeCreate() {
