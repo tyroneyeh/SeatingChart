@@ -290,9 +290,10 @@ const app = createApp({
                     case 'leaders':
                         if (!e.target.value.length && !storeRefs[o][n - 1]?.innerText.trim().length) {
                             e.preventDefault();
-                            if (storeRefs['total'+ o.charAt(0).toUpperCase() + o.slice(1)])
-                                storeRefs['total'+ o.charAt(0).toUpperCase() + o.slice(1)].value--;
-                            else
+                            const totalObj = storeRefs['total'+ o.charAt(0).toUpperCase() + o.slice(1)];
+                            if (totalObj && n == totalObj.value)
+                                totalObj.value--;
+                            else if (n == storeRefs.totalLeader.value)
                                 storeRefs.totalLeader.value--;
 
                             setTimeout(() => {
