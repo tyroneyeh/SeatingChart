@@ -386,7 +386,7 @@ const app = createApp({
 
         const showPos = (n, show) => {
             const pos = storeRefs.posdata.map(item => item.innerText).indexOf(String(n).padStart(2, '0'));
-            if (pos > 0 && storeRefs.posdata[pos]) {
+            if (pos >= 0 && storeRefs.posdata[pos]) {
                 if (show)
                     storeRefs.posdata[pos].closest('div.p-0').classList.add('bg-warning');
                 else
