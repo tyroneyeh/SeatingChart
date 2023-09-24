@@ -261,7 +261,7 @@ const app = createApp({
                 if ((e.shiftKey && 'Tab' == e.key) || (e.shiftKey && 'Enter' == e.key) || ('ArrowUp' == e.key && !y)) {
                     e.preventDefault();
                     if (y)
-                        storeRefs[o][((n - 1) * storeRefs.totalX.value + y) - 2]?.click();
+                        storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
                     else
                         storeRefs[o][n - 2]?.click();
                 } else if (['Enter', 'Tab'].includes(e.key) || ('ArrowDown' == e.key && !y)) {
@@ -273,7 +273,7 @@ const app = createApp({
                     else if ('namelist' == o && storeRefs.totalNamelist.value <= storeRefs[o].length && n == storeRefs.totalNamelist.value)
                         storeRefs.totalNamelist.value++;
 
-                    if (['namelist', 'leadernames', 'leaders'].includes(o) && undefined != storeRefs[o] && storeRefs[o][n])
+                    if (['namelist', 'leadernames', 'leaders'].includes(o) && undefined != storeRefs[o])
                         setTimeout(() => {
                             storeRefs[o][n]?.click();
                         }, 50);
