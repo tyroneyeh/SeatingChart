@@ -202,6 +202,8 @@ const app = createApp({
             if (!editInput)
                 return;
 
+            const hasFS4Class = editInput.classList.value.includes('fs-4');
+            editInput.classList.remove('fs-4');
             const inputElement = document.createElement('input');
             inputElement.classList.add('from-control-sm');
             if (['posdata', 'leaders'].includes(o)) {
@@ -225,7 +227,7 @@ const app = createApp({
             editInput.innerHTML = '';
             editInput.appendChild(inputElement);
 
-            const blurFunc = (o, n, y) => {
+            const blurFunc = (o, n, y, hasFS4Class) => {
                 const num = parseInt(inputElement.value);
                 let pos = n;
                 if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
@@ -247,14 +249,16 @@ const app = createApp({
                             refs.nameBgCtl[num - 1].checked = true;
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
-                } else
+                } else {
+                    hasFS4Class && editInput.classList.add('fs-4');
                     editInput.innerText = inputElement.value;
+                }
 
                 store(o, num, pos);
                 refs.storeData.value = 1;
             };
 
-            inputElement.addEventListener('blur', () => blurFunc(o, n, y));
+            inputElement.addEventListener('blur', () => blurFunc(o, n, y, hasFS4Class));
 
             inputElement.addEventListener('keydown', (e) => {
                 if (undefined == n) return;
