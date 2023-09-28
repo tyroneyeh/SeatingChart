@@ -312,13 +312,13 @@ const app = createApp({
             });
 
             const pasteNameImport = (o, n) => {
-                const pasteData = event.clipboardData.getData('text').replace(/\d+[\r\n\s]+/g, '').trim().split(/\r\n|[ ,\n]/);
-                if (pasteData?.length > 1) {
+                const pasteData = event.clipboardData.getData('text').trim().replace(/[\d\r\n~`!@#$%^&*()\-=+{}\[\]\\\|;:'"<>\./]+/g, '').split(/\r\n|[ ,\n]/);
+                if (pasteData?.length) {
                     event.preventDefault();
                     storeRefs[o][n - 1].innerText = pasteData[0];
                     pasteData.forEach((i, j) => {
-                        if (storeRefs[o][n - 1 + j])
-                            storeRefs[o][n - 1 + j].innerText = i;
+                        const nobj = storeRefs[o][n - 1 + j];
+                        nobj && (nobj.innerText = i.trim());
                     });
                     store();
                 }
