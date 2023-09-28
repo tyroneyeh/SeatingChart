@@ -51,7 +51,7 @@
             <div class="border-start border border-secondary" style="margin-left:-12px;margin-right:-12px" :class="{'d-none': !totalNamelist}">
                 <div class="row">
                     <div class="col-2 ms-2"><input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl"></div>
-                    <div class="col-9 text-center">{{ $gettext('Student list') }}</div>
+                    <div class="col-9 text-center" @click="clickToEdit" ref="studentListLabel">{{ $gettext('Student list') }}</div>
                 </div>
             </div>
             <div class="row" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'background-color': n % 2 == 0 ? '#eee' : ''}" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)">
@@ -412,7 +412,8 @@ const app = createApp({
             leaders: reactive([]),
             deskname: ref($gettext('Desk')),
             updateLabel: ref($gettext('Update')),
-            teacherLabel: ref($gettext('Teacher'))
+            teacherLabel: ref($gettext('Teacher')),
+            studentListLabel: ref($gettext('Student list'))
         };
 
         watch([storeRefs.totalNamelist, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
@@ -524,8 +525,6 @@ const app = createApp({
             this.storeData = 1;
             this.clearBtnCtl = !randomNumbers.length;
         }
-
-
     }
 
 }); //.mount('#app')
