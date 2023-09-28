@@ -71,7 +71,7 @@
                 </div>
             </div>
             <div class="row m-4">
-                <div class="mx-auto pt-2 mb-5 text-center" style="text-align-last:justify;width:90px;height:63px;background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAABACAYAAACa5WD/AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAc1JREFUeJzt2LFqwmAYheHzf0RB6eaVOInX4J6Lc3Z3EgdxayveQnsL2WwqxJp0sW3UxIL5PbHpeTalhY8XOZC4+XyeQW5ms9kEYRjure5D/guFJlFoEoUmUWgShSZRaBKFJlFoEoUmUWgShSZRaBKFJlFoEoUmCeo+4JLVagWzy7+FNE0xHA5JF13vrkObGQaDwcW/Wa/XpGuq0XSQKDSJQpMoNIlCkyg0iUKTKDSJQpPc9ZNhFEW/PvlFUUS6ppq7Dj0ajeo+wRtNB4lCkyg0iUKTKDSJQpMoNIlCkyg0iUKTKDSJQpME0+m07hsaq9/vo9frAQAsCO76Bd6f1Wq10O12vz/bbrdLarynsZIkSRaLxUMYhnsAMOfca91HNdTLZDKJvz5YmqYzAB81HtREezOb5b8w59wSQFzyD3KdNwDL/BfmnHvMsqxT00GNlGVZJ47j5/x3Nh6P37XT3h3tM3B4YNFOe3W2z8AhtHbaq7N9Bn5Ca6c9Kdpn4BBaO+3V2T4DuZdK2mkvCvcZyIXWTntRuM/AcWjtdEVl+wzkQmunvSjcZ+Dkxb92upLSfQZOQmunKyndZ+Ak9Ha7fQLQvvVFDdUu22cRkSt9AicbkgadtfvPAAAAAElFTkSuQmCC');">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto pt-2 mb-5 text-center" style="text-align-last:justify;width:90px;height:63px;background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFoAAABACAYAAACa5WD/AAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAc1JREFUeJzt2LFqwmAYheHzf0RB6eaVOInX4J6Lc3Z3EgdxayveQnsL2WwqxJp0sW3UxIL5PbHpeTalhY8XOZC4+XyeQW5ms9kEYRjure5D/guFJlFoEoUmUWgShSZRaBKFJlFoEoUmUWgShSZRaBKFJlFoEoUmCeo+4JLVagWzy7+FNE0xHA5JF13vrkObGQaDwcW/Wa/XpGuq0XSQKDSJQpMoNIlCkyg0iUKTKDSJQpPc9ZNhFEW/PvlFUUS6ppq7Dj0ajeo+wRtNB4lCkyg0iUKTKDSJQpMoNIlCkyg0iUKTKDSJQpME0+m07hsaq9/vo9frAQAsCO76Bd6f1Wq10O12vz/bbrdLarynsZIkSRaLxUMYhnsAMOfca91HNdTLZDKJvz5YmqYzAB81HtREezOb5b8w59wSQFzyD3KdNwDL/BfmnHvMsqxT00GNlGVZJ47j5/x3Nh6P37XT3h3tM3B4YNFOe3W2z8AhtHbaq7N9Bn5Ca6c9Kdpn4BBaO+3V2T4DuZdK2mkvCvcZyIXWTntRuM/AcWjtdEVl+wzkQmunvSjcZ+Dkxb92upLSfQZOQmunKyndZ+Ak9Ha7fQLQvvVFDdUu22cRkSt9AicbkgadtfvPAAAAAElFTkSuQmCC');" @click="clickToEdit('deskname')" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="pt-1" :class="xColClassEnd">
@@ -409,7 +409,8 @@ const app = createApp({
             posdata: reactive([]),
             teacher: ref(null),
             leadernames: reactive([]),
-            leaders: reactive([])
+            leaders: reactive([]),
+            deskname: ref($gettext('Desk'))
         };
 
         watch([storeRefs.totalNamelist, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
