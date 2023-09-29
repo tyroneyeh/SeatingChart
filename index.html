@@ -127,13 +127,11 @@ const app = createApp({
                 const no = storeRefs?.namelist[num - 1];
                 if (no) {
                     refs.posname[pos].innerText = no.innerText;
-                    if (!randomNumbers.includes(num))
-                        randomNumbers.push(num);
+                    !randomNumbers.includes(num) && randomNumbers.push(num);
                 }
             } else if ('leaders' == o && num) {
                 const no = storeRefs?.namelist[num - 1];
-                if (no)
-                    refs.leadersname[pos - 1].innerText = no.innerText;
+                no && (refs.leadersname[pos - 1].innerText = no.innerText);
             } else if (!o) {
                 storeRefs.posdata.forEach((i, j) => {
                     num = parseInt(i.innerText.trim());
@@ -141,8 +139,7 @@ const app = createApp({
                         const no = storeRefs?.namelist[num - 1];
                         if (no) {
                             refs.posname[j].innerText = no.innerText;
-                            if (!randomNumbers.includes(num))
-                                randomNumbers.push(num);
+                            !randomNumbers.includes(num) && randomNumbers.push(num);
                             refs.nameBgCtl[num - 1].checked = true;
                         }
                     }
@@ -152,8 +149,7 @@ const app = createApp({
                     num = parseInt(i.innerText.trim());
                     if (!isNaN(num)) {
                         const no = storeRefs.namelist[num - 1];
-                        if (no)
-                            refs.leadersname[j].innerText = no.innerText;
+                        no && (refs.leadersname[j].innerText = no.innerText);
                     }
                 });
             }
@@ -206,17 +202,16 @@ const app = createApp({
             editInput.classList.remove('fs-4');
             const inputElement = document.createElement('input');
             inputElement.classList.add('from-control-sm');
+            inputElement.setAttribute('type', 'text');
             if (['posdata', 'leaders'].includes(o)) {
                 inputElement.setAttribute('type', 'number');
                 inputElement.setAttribute('min', 1);
                 inputElement.setAttribute('max', storeRefs.totalNamelist.value);
-            } else
-                inputElement.setAttribute('type', 'text');
+            }
 
             inputElement.style.width = "100%";
             inputElement.style.minWidth = '50px'
             inputElement.style.height = "24px";
-
             inputElement.value = editInput.innerText.trim();
 
             window.randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
@@ -245,8 +240,7 @@ const app = createApp({
                             }, 50);
                             return;
                         }
-                        if (num > 0)
-                            refs.nameBgCtl[num - 1].checked = true;
+                        num && (refs.nameBgCtl[num - 1].checked = true);
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
                 } else {
@@ -391,10 +385,8 @@ const app = createApp({
         const showPos = (n, show) => {
             const pos = storeRefs.posdata.map(item => item.innerText).indexOf(String(n).padStart(2, '0'));
             if (pos >= 0 && storeRefs.posdata[pos]) {
-                if (show)
-                    storeRefs.posdata[pos].closest('div.p-0').classList.add('bg-warning');
-                else
-                    storeRefs.posdata[pos].closest('div.p-0').classList.remove('bg-warning');
+                storeRefs.posdata[pos].closest('div.p-0').classList.remove('bg-warning');
+                show && storeRefs.posdata[pos].closest('div.p-0').classList.add('bg-warning');
             }
         };
 
