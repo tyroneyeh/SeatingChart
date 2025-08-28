@@ -1,4 +1,18 @@
-## SeatingTable 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁座位表
+## SeatingChart
+
+**SeatingChart** is a pure front-end online seating chart built with **VueJS 3** + **Bootstrap 5**.
+
+### Features
+- Simple and real-time seat arrangement, accessible directly from the browser  
+- Built purely with VueJS 3 syntax and Bootstrap 5 CSS  
+- Customizable class size, rows, columns, and group leaders for data input  
+- Click on a name or seat number area to enter edit mode  
+- Stores data using JSON and the browser’s Local Storage  
+- Supports downloading JSON files for backup and uploading saved data  
+- Paste-in roster feature  
+- Random seating assignment  
+
+## SeatingChart 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上座位表
 
 - 簡單即時的座位安排，用瀏覽器即可操作
 - 純粹使用 VueJS 3 語法與 Bootstrap 5 的 CSS
@@ -11,4 +25,4 @@
 
 ---
 
-- Demo: https://tyroneyeh.github.io/SeatingTable
+- Demo: https://tyroneyeh.github.io/SeatingChart
