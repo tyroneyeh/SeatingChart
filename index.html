@@ -310,7 +310,7 @@ const app = createApp({
             });
 
             const pasteNameImport = (o, n) => {
-                const pasteData = event.clipboardData.getData('text').trim().replace(/[\d\r\n~`!@#$%^&*()\-=+{}\[\]\\\|;:'"<>\./]+/g, '').split(/\r\n|[ ,\n]/);
+                const pasteData = event.clipboardData.getData('text').trim().split(/[\s,]+/);
                 if (pasteData?.length) {
                     event.preventDefault();
                     storeRefs[o][n - 1].innerText = pasteData[0];
