@@ -359,7 +359,9 @@ const app = createApp({
                     storeRefs[o][n - 1].innerText = pasteData[0];
                     pasteData.forEach((i, j) => {
                         const nobj = storeRefs[o][n - 1 + j];
-                        nobj && (nobj.innerText = i.trim());
+                        if (nobj) {
+                            nobj.innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
+                        }
                     });
                     store();
                 }
