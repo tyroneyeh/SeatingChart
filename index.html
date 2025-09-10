@@ -524,14 +524,8 @@ const app = createApp({
             if (studentNumber < 1 || studentNumber > storeRefs.totalNamelist.value) return;
 
             const targetNum = parseInt(storeRefs.leaders[targetIndex]?.innerText || '');
-            if (targetNum) {
-                randomNumbers = randomNumbers.filter(num => num !== targetNum);
-                refs.nameBgCtl[targetNum - 1].checked = false;
-            }
             if (storeRefs.leaders[targetIndex]) {
                 storeRefs.leaders[targetIndex].innerText = String(studentNumber).padStart(2, '0');
-                !randomNumbers.includes(studentNumber) && randomNumbers.push(studentNumber);
-                refs.nameBgCtl[studentNumber - 1].checked = true;
             }
             document.querySelectorAll('.seat-container, .student-row, .leader-row').forEach(el => el.classList.remove('dragging', 'student-row', 'drag-over'));
             store();
