@@ -55,10 +55,10 @@
         <!-- top area -->
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#"></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                <a class="navbar-brand" href="#"></a>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav m-auto">
                         <span class="nav-link" aria-current="page">{{ $gettext('Number of people') }}: <input type="number" style="width:60px" v-model.lazy="totalNamelist" min="1" ref="totalnums" @change="store" @focus="$event.target.select()"></span>
