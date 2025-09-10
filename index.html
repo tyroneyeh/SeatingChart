@@ -649,10 +649,14 @@ const app = createApp({
     },
     mounted() {
 
+        if (document.title == 'Loading') document.title = $gettext('Seats charts');
+
         if (this.leadernames) {
             if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('Class president');
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice class president');
         }
+        const data = window.data;
+        const dkeys = window.dkeys;
         if (data) {
             dkeys.forEach((i) => {
                 if (Array.isArray(data[i]) && data[i][0] != null) {
