@@ -363,21 +363,27 @@ const app = createApp({
 
             });
 
-function splitNames(str) {
-  // 匹配至少兩個字（可以中間有空格），名字間由空白、tab、換行或逗號分隔
-  const regex = /\S(?:.*?\S)?/g;
-
-  // 先將連續分隔符統一為單個空格
-  const normalized = str.replace(/[ \t\n,]+/g, ' ');
-
-  // 用正則匹配名字元素
-  const matches = normalized.match(regex) || [];
-
-  // 過濾掉長度小於 2（去掉內部空格後）
-  return matches.filter(s => s.replace(/\s+/g, '').length >= 2);
+function splitTextWithNameList(text, specialNames = ['林 芸', 'A B', 'あ い']) {
+  let currentText = text;
+  // 保護特殊名字中的空格
+  for (const name of specialNames) {
+    const escapedName = name.replace(/\s/g, '\\s');
+    const regex = new RegExp(`\\b${escapedName}\\b`, 'g');
+    currentText = currentText.replace(regex, match => match.replace(/\s/g, '_'));
+  }
+  
+  // 分割並還原
+  const regex = /[\s\n\t,]+/;
+  const result = currentText.split(regex)
+    .filter(segment => segment.length > 0)
+    .map(segment => segment.replace(/_/g, ' '))
+    .filter(segment => segment.length >= 2);
+  
+  return result;
 }
+
             const pasteNameImport = (o, n, event) => {
-                const pasteData = splitNames(event.clipboardData.getData('text').trim());
+                const pasteData = splitTextWithNameList(event.clipboardData.getData('text').trim());
                 if (pasteData?.length) {
                     event.preventDefault();
                     storeRefs[o][n - 1].innerText = pasteData[0];
