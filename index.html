@@ -69,9 +69,9 @@
 
     </div>
     <div class="row m-auto" :class="xColClass">
-        <div class="col-2"></div>
-        <div class="text-center col-7 fs-4" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
-        <div class="col-3 align-self-end text-nowrap"><span @click="clickToEdit(undefined, undefined, undefined, $event)" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit(undefined, undefined, undefined, $event)" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
+        <div class="col-1"></div>
+        <div class="text-center col-9 fs-4" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
+        <div class="col-1 align-self-end text-nowrap"><span @click="clickToEdit(undefined, undefined, undefined, $event)" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit(undefined, undefined, undefined, $event)" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
     </div>
 
     <div class="row col-sm-12 mx-auto" :class="xColClass">
