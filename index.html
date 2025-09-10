@@ -165,7 +165,7 @@ const app = createApp({
 
         const updatedisplay = (o, num, pos) => {
 
-            if ('posdata' == o && num) {
+            if ('posdata' == o && num && pos) {
                 const no = storeRefs?.namelist[num - 1];
                 if (no) {
                     refs.posname[pos].innerText = no.innerText;
@@ -274,12 +274,15 @@ const app = createApp({
                         return;
                     }
                     if ('posdata' == o) {
-                        pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
+                        if (!isNaN(n) && !isNaN(y)) {
+                            pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
+                        }
                         if (randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
                             editInput.innerText = '';
                             setTimeout(() => {
-                                storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 1]?.click();
+                                const targetEl = storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 1];
+                                if (targetEl) targetEl.click();
                             }, 50);
                             return;
                         }
