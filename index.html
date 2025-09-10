@@ -9,6 +9,35 @@
 [v-cloak] {
     display: none;
 }
+.seat-cell {
+    min-height: 26px;
+    border: 1px solid gray;
+    text-align: center;
+}
+.seat-name {
+    writing-mode: vertical-lr;
+    -webkit-writing-mode: vertical-lr;
+    height: 100px;
+    padding: 3px;
+}
+.seat-container {
+    cursor: move;
+}
+.seat-container[draggable="true"]:hover {
+    background-color: #f8f9fa;
+}
+.seat-container.dragging {
+    opacity: 0.5;
+}
+.input-sm {
+    width: 60px;
+    height: 24px;
+}
+.table-cell {
+    text-align: center;
+    white-space: nowrap;
+    padding: 1px;
+}
 </style>
 </head>
 <body>
@@ -61,7 +90,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="(n, index) in totalNamelist" :key="index" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        :class="{'border-bottom border-secondary': (index + 1) % 5 === 0}">
+                        class="seat-container" :class="{'border-bottom border-secondary': (index + 1) % 5 === 0}" draggable="true" @dragstart="dragStartStudent(n, $event)">
                         <td class="text-center text-nowrap ps-0 pe-0 border-start border-end py-1">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
@@ -77,7 +106,8 @@
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="col p-0">
+                    <div class="col p-0 seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" 
+                         draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="col border text-center" @click="clickToEdit('posdata', x, y, $event)" style="min-height:26px" ref="posdata"></div>
                         <div class="col border text-center w-100 p-3" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname"></span></div>
                     </div>
@@ -96,7 +126,7 @@
                     <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="teacher"></th>
                 </tr>
                 </thead>
-                <tr v-for="n in totalLeader">
+                <tr v-for="n in totalLeader" :key="n" class="leader-row" @dragover="dragOver($event)" @drop="dropLeader(n-1, $event)">
                     <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit('leadernames', n, undefined, $event)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
                     <td class="text-center" style="width:50px" @click="clickToEdit('leaders', n, undefined, $event)" ref="leaders"></td>
                     <td class="text-nowrap" ref="leadersname">&nbsp;</td>
@@ -139,13 +169,14 @@ const app = createApp({
                 const no = storeRefs?.namelist[num - 1];
                 if (no) {
                     refs.posname[pos].innerText = no.innerText;
-                    !randomNumbers.includes(num) && randomNumbers.push(num);
+                    !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
                 }
             } else if ('leaders' == o && num) {
                 const no = storeRefs?.namelist[num - 1];
                 no && (refs.leadersname[pos - 1].innerText = no.innerText);
             } else if (!o) {
                 storeRefs.posdata.forEach((i, j) => {
+                    refs.posname[j].innerText = '';
                     num = parseInt(i.innerText.trim());
                     if (!isNaN(num)) {
                         const no = storeRefs?.namelist[num - 1];
@@ -226,7 +257,7 @@ const app = createApp({
             inputElement.style.height = "24px";
             inputElement.value = editInput.innerText.trim();
 
-            window.randomNumbers = randomNumbers.filter(e => e != parseInt(inputElement.value));
+            window.randomNumbers = window.randomNumbers.filter(e => e != parseInt(inputElement.value));
             const num = parseInt(inputElement.value);
             if ('posdata' == o && num)
                 refs.nameBgCtl[num - 1].checked = false;
@@ -371,11 +402,11 @@ const app = createApp({
                 ) break;
             }
 
-            if (i <= randomNumbers.length) return;
+            if (i <= window.randomNumbers.length) return;
 
             studentNums = Array.from({length: i}, (_, index) => 1 + index);
-            if (randomNumbers.length)
-                studentNums = studentNums.filter(num => !randomNumbers.includes(num));
+            if (window.randomNumbers.length)
+                studentNums = studentNums.filter(num => !window.randomNumbers.includes(num));
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (let j = 0; j < posdatas.length; j++) {
@@ -413,14 +444,96 @@ const app = createApp({
         };
 
         const showPos = (n, show) => {
-            const pos = storeRefs.posdata.map(item => item.innerText).indexOf(String(n).padStart(2, '0'));
-            if (pos >= 0 && storeRefs.posdata[pos]) {
-                const divP0 = storeRefs.posdata[pos].closest('div.p-0');
-                if (divP0) {
-                    divP0.classList.remove('bg-warning');
-                    if (show) divP0.classList.add('bg-warning');
+            const seatNumber = String(n).padStart(2, '0');
+            refs.highlightedPos.value = show ? seatNumber : null;
+        };
+
+        const dragStart = (index, event) => {
+            event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'seat', index: index }));
+            event.target.classList.add('dragging');
+        };
+
+        const dragStartStudent = (studentNumber, event) => {
+            event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'student', number: studentNumber }));
+            event.target.classList.add('dragging', 'student-row');
+        };
+
+        const dragOver = (event) => {
+            event.preventDefault();
+            const target = event.target.closest('.seat-container, .leader-row');
+            if (target) target.classList.add('drag-over');
+        };
+
+        const drop = (targetIndex, event) => {
+            event.preventDefault();
+            const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
+            const targetNum = parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
+
+            if (data.type === 'student') {
+                // 從學生名單拖曳到座位
+                const studentNumber = parseInt(data.number);
+                if (studentNumber < 1 || studentNumber > storeRefs.totalNamelist.value) return;
+                if (window.randomNumbers.includes(studentNumber)) {
+                    alert($gettext('Seat assigned'));
+                    return;
                 }
+                if (targetNum) {
+                    window.randomNumbers = window.randomNumbers.filter(num => num !== targetNum);
+                    refs.nameBgCtl[targetNum - 1].checked = false;
+                }
+                if (storeRefs.posdata[targetIndex]) {
+                    storeRefs.posdata[targetIndex].innerText = String(studentNumber).padStart(2, '0');
+                    !window.randomNumbers.includes(studentNumber) && window.randomNumbers.push(studentNumber);
+                    refs.nameBgCtl[studentNumber - 1].checked = true;
+                }
+            } else if (data.type === 'seat') {
+                // 座位間拖曳
+                const sourceIndex = parseInt(data.index);
+                if (sourceIndex === targetIndex) return;
+                const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
+                // 交換 posdata
+                if (storeRefs.posdata[sourceIndex]) {
+                    storeRefs.posdata[sourceIndex].innerText = targetNum ? String(targetNum).padStart(2, '0') : '';
+                }
+                if (storeRefs.posdata[targetIndex]) {
+                    storeRefs.posdata[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
+                }
+                // 更新 randomNumbers
+                if (sourceNum && !window.randomNumbers.includes(sourceNum)) window.randomNumbers.push(sourceNum);
+                if (targetNum && !window.randomNumbers.includes(targetNum)) window.randomNumbers.push(targetNum);
+                if (!sourceNum || !targetNum) {
+                    window.randomNumbers = window.randomNumbers.filter(num => storeRefs.posdata.some(el => parseInt(el.innerText || '') === num));
+                }
+                // 更新核取方塊
+                if (sourceNum) refs.nameBgCtl[sourceNum - 1].checked = true;
+                if (targetNum) refs.nameBgCtl[targetNum - 1].checked = true;
             }
+
+            document.querySelectorAll('.seat-container, .student-row').forEach(el => el.classList.remove('dragging', 'student-row'));
+            store();
+            updatedisplay();
+        };
+
+        const dropLeader = (targetIndex, event) => {
+            event.preventDefault();
+            const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
+            if (data.type !== 'student') return;
+            const studentNumber = parseInt(data.number);
+            if (studentNumber < 1 || studentNumber > storeRefs.totalNamelist.value) return;
+
+            const targetNum = parseInt(storeRefs.leaders[targetIndex]?.innerText || '');
+            if (targetNum) {
+                randomNumbers = randomNumbers.filter(num => num !== targetNum);
+                refs.nameBgCtl[targetNum - 1].checked = false;
+            }
+            if (storeRefs.leaders[targetIndex]) {
+                storeRefs.leaders[targetIndex].innerText = String(studentNumber).padStart(2, '0');
+                !randomNumbers.includes(studentNumber) && randomNumbers.push(studentNumber);
+                refs.nameBgCtl[studentNumber - 1].checked = true;
+            }
+            document.querySelectorAll('.seat-container, .student-row, .leader-row').forEach(el => el.classList.remove('dragging', 'student-row', 'drag-over'));
+            store();
+            updatedisplay();
         };
 
         const storeRefs = {
@@ -482,7 +595,8 @@ const app = createApp({
             isDataChanged: ref(0),
             namesBgCtl: ref(0),
             nameBgCtl: reactive([]),
-            hideTips: ref(false)
+            hideTips: ref(false),
+            highlightedPos: ref(null)
         };
 
         return {
@@ -499,7 +613,12 @@ const app = createApp({
             updatedisplay,
             tipsToHide,
             getCookie,
-            showPos
+            showPos,
+            dragStart,
+            dragStartStudent,
+            dragOver,
+            drop,
+            dropLeader
         };
     },
     beforeCreate() {
@@ -548,7 +667,7 @@ const app = createApp({
 
             this.updatedisplay();
             this.storeData = 1;
-            this.clearBtnCtl = !randomNumbers.length;
+            this.clearBtnCtl = !window.randomNumbers.length;
         }
     }
 
@@ -561,7 +680,7 @@ const vue3gettext = createGettext({
     },
     silent: true,
     defaultLanguage: navigator.language.replace(/-/, '_'),
-    translations: {"zh_TW":{"Seat assigned":"已排位子","Are you sure you want to clear all entered data?":"確定要清除全部輸入的資料嗎?","Are you sure you want to clear your current seating arrangement?":"確定要清除目前的座位排列嗎?","Class president":"班長","Clear data":"清除資料","Desk":"講桌","Download data":"下載資料","Not enough seats!":"座位數不夠坐!","Number of columns":"排數","Number of leaders":"股長數","Number of people":"全班人數","Number of rows":"列數","Please directly click on the name or seat number area to enter information":"請直接點選姓名或座號區域輸入資料","Random seats":"隨機座位","Reset seats":"重置座位","Seats charts":"座位表","Student list":"班級名條","Teacher":"導師","Update":"更新日期","Upload data":"上傳資料","Vice class president":"副班長"}}
+    translations: { "zh_TW": { "Seat assigned": "已排位子", "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?", "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?", "Class president": "班長", "Clear data": "清除資料", "Desk": "講桌", "Download data": "下載資料", "Not enough seats!": "座位數不夠坐!", "Number of columns": "排數", "Number of leaders": "股長數", "Number of people": "全班人數", "Number of rows": "列數", "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料", "Random seats": "隨機座位", "Reset seats": "重置座位", "Seats charts": "座位表", "Student list": "班級名條", "Teacher": "導師", "Update": "更新日期", "Upload data": "上傳資料", "Vice class president": "副班長" } }
 
 });
 
