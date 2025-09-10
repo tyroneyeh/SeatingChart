@@ -364,7 +364,7 @@ const app = createApp({
             });
 
             const pasteNameImport = (o, n, event) => {
-                const pasteData = event.clipboardData.getData('text').trim()..split(/[,\s]+/).map(s => s.trim()).filter(s => s.length >= 2);
+                const pasteData = event.clipboardData.getData('text').trim().split(/[,\s]+/).map(s => s.trim()).filter(s => s.length >= 2);
                 if (pasteData?.length) {
                     event.preventDefault();
                     storeRefs[o][n - 1].innerText = pasteData[0];
