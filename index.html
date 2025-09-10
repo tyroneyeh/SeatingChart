@@ -23,6 +23,15 @@
 .seat-container {
     cursor: move;
 }
+.seat-container.color-0 {
+    background-color: #e0f7fa;
+}
+.seat-container.color-1 {
+    background-color: #e8f5e9;
+}
+.seat-container.color-2 {
+    background-color: #fffde7;
+}
 .seat-container[draggable="true"]:hover {
     background-color: #f8f9fa;
 }
@@ -70,8 +79,8 @@
     </div>
     <div class="row m-auto" :class="xColClass">
         <div class="col-1"></div>
-        <div class="text-center col-9 fs-4" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
-        <div class="col-1 align-self-end text-nowrap"><span @click="clickToEdit(undefined, undefined, undefined, $event)" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit(undefined, undefined, undefined, $event)" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
+        <div class="text-center col-9 fs-4" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
+        <div class="col-1 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
     </div>
 
     <div class="row col-sm-12 mx-auto" :class="xColClass">
@@ -96,7 +105,7 @@
                             {{ String(n).padStart(2, '0') }}
                         </td>
                         <td class="text-nowrap border-start border-end border-end py-1"
-                            @click="clickToEdit('namelist', n, undefined, $event)" ref="namelist"></td>
+                            @click="clickToEdit($event, 'namelist', n)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -106,15 +115,14 @@
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="col p-0 seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" 
-                         draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="col border text-center" @click="clickToEdit('posdata', x, y, $event)" style="min-height:26px" ref="posdata"></div>
-                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr;" ref="posname"></span></div>
+                    <div class="col p-0 seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                        <div class="col border text-center" @click="clickToEdit($event, 'posdata', x, y)" style="min-height:26px" ref="posdata"></div>
+                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
             <div class="row m-4">
-                <div class="mx-auto text-center" style="border: 1px solid gray;" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="deskname">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto text-center" style="border: 1px solid gray;" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="pt-1" :class="xColClassEnd">
@@ -122,13 +130,13 @@
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th style="text-align-last:justify" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
-                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit(undefined, undefined, undefined, $event)" ref="teacher"></th>
+                    <th style="text-align-last:justify" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit" ref="teacher"></th>
                 </tr>
                 </thead>
-                <tr v-for="n in totalLeader" :key="n" class="leader-row" @dragover="dragOver($event)" @drop="dropLeader(n-1, $event)">
-                    <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit('leadernames', n, undefined, $event)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="text-center" style="width:50px" @click="clickToEdit('leaders', n, undefined, $event)" ref="leaders"></td>
+                <tr v-for="n in totalLeader" :key="n" class="leader-row" @dragover="dragOver" @drop="dropLeader(n-1, $event)">
+                    <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit($event, 'leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
+                    <td class="text-center" style="width:50px" @click="clickToEdit($event, 'leaders', n)" ref="leaders"></td>
                     <td class="text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
@@ -235,7 +243,7 @@ const app = createApp({
             location.reload();
         };
 
-        const clickToEdit = (o, n, y, event) => {
+        const clickToEdit = (event, o, n, y) => {
             const editInput = event?.target;
 
             if (!editInput)
@@ -475,7 +483,6 @@ const app = createApp({
             const targetNum = parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
 
             if (data.type === 'student') {
-                // 從學生名單拖曳到座位
                 const studentNumber = parseInt(data.number);
                 if (studentNumber < 1 || studentNumber > storeRefs.totalNamelist.value) return;
                 if (window.randomNumbers.includes(studentNumber)) {
@@ -492,24 +499,20 @@ const app = createApp({
                     refs.nameBgCtl[studentNumber - 1].checked = true;
                 }
             } else if (data.type === 'seat') {
-                // 座位間拖曳
                 const sourceIndex = parseInt(data.index);
                 if (sourceIndex === targetIndex) return;
                 const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                // 交換 posdata
                 if (storeRefs.posdata[sourceIndex]) {
                     storeRefs.posdata[sourceIndex].innerText = targetNum ? String(targetNum).padStart(2, '0') : '';
                 }
                 if (storeRefs.posdata[targetIndex]) {
                     storeRefs.posdata[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
                 }
-                // 更新 randomNumbers
                 if (sourceNum && !window.randomNumbers.includes(sourceNum)) window.randomNumbers.push(sourceNum);
                 if (targetNum && !window.randomNumbers.includes(targetNum)) window.randomNumbers.push(targetNum);
                 if (!sourceNum || !targetNum) {
                     window.randomNumbers = window.randomNumbers.filter(num => storeRefs.posdata.some(el => parseInt(el.innerText || '') === num));
                 }
-                // 更新核取方塊
                 if (sourceNum) refs.nameBgCtl[sourceNum - 1].checked = true;
                 if (targetNum) refs.nameBgCtl[targetNum - 1].checked = true;
             }
@@ -533,6 +536,21 @@ const app = createApp({
             document.querySelectorAll('.seat-container, .student-row, .leader-row').forEach(el => el.classList.remove('dragging', 'student-row', 'drag-over'));
             store();
             updatedisplay();
+        };
+
+        const toggleColor = (event) => {
+            const colors = ['color-0', 'color-1', 'color-2'];
+            const el = event.currentTarget;
+            let currentIndex = colors.findIndex(c => el.classList.contains(c));
+            if (currentIndex === -1) {
+                el.classList.add(colors[0]);
+                return;
+            }
+            el.classList.remove(colors[currentIndex]);
+            if (currentIndex === colors.length - 1) {
+                return;
+            }
+            el.classList.add(colors[currentIndex + 1]);
         };
 
         const storeRefs = {
@@ -617,7 +635,8 @@ const app = createApp({
             dragStartStudent,
             dragOver,
             drop,
-            dropLeader
+            dropLeader,
+            toggleColor
         };
     },
     beforeCreate() {
