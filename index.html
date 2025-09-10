@@ -363,8 +363,21 @@ const app = createApp({
 
             });
 
+function splitNames(str) {
+  // 匹配至少兩個字（可以中間有空格），名字間由空白、tab、換行或逗號分隔
+  const regex = /\S(?:.*?\S)?/g;
+
+  // 先將連續分隔符統一為單個空格
+  const normalized = str.replace(/[ \t\n,]+/g, ' ');
+
+  // 用正則匹配名字元素
+  const matches = normalized.match(regex) || [];
+
+  // 過濾掉長度小於 2（去掉內部空格後）
+  return matches.filter(s => s.replace(/\s+/g, '').length >= 2);
+}
             const pasteNameImport = (o, n, event) => {
-                const pasteData = event.clipboardData.getData('text').trim().split(/[,\s]+/).map(s => s.trim()).filter(s => s.length >= 2);
+                const pasteData = splitNames(event.clipboardData.getData('text').trim());
                 if (pasteData?.length) {
                     event.preventDefault();
                     storeRefs[o][n - 1].innerText = pasteData[0];
