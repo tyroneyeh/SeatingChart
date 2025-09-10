@@ -363,27 +363,31 @@ const app = createApp({
 
             });
 
-function splitTextWithNameList(text, specialNames = ['林 芸', 'A B', 'あ い']) {
-  let currentText = text;
-  // 保護特殊名字中的空格
-  for (const name of specialNames) {
-    const escapedName = name.replace(/\s/g, '\\s');
-    const regex = new RegExp(`\\b${escapedName}\\b`, 'g');
-    currentText = currentText.replace(regex, match => match.replace(/\s/g, '_'));
+function splitTextWithSpecialCaseSimple(text) {
+  // 先分割成單詞
+  const regex = /[\s\n\t,]+/;
+  const segments = text.split(regex).filter(segment => segment.length > 0);
+  
+  // 合併 "單字元 單字元" 模式
+  const result = [];
+  let i = 0;
+  while (i < segments.length) {
+    // 檢查是否為單字元後跟另一單字元
+    if (i + 1 < segments.length && segments[i].length === 1 && segments[i + 1].length === 1) {
+      result.push(`${segments[i]} ${segments[i + 1]}`);
+      i += 2; // 跳過下一個單字元
+    } else {
+      result.push(segments[i]);
+      i++;
+    }
   }
   
-  // 分割並還原
-  const regex = /[\s\n\t,]+/;
-  const result = currentText.split(regex)
-    .filter(segment => segment.length > 0)
-    .map(segment => segment.replace(/_/g, ' '))
-    .filter(segment => segment.length >= 2);
-  
-  return result;
+  // 過濾長度 < 2 的元素（去除空格後）
+  return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
 }
 
             const pasteNameImport = (o, n, event) => {
-                const pasteData = splitTextWithNameList(event.clipboardData.getData('text').trim());
+                const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
                 if (pasteData?.length) {
                     event.preventDefault();
                     storeRefs[o][n - 1].innerText = pasteData[0];
