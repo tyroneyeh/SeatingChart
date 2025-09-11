@@ -3,6 +3,7 @@
 <head>
 <title>Loading</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://tyroneyeh.github.io/SeatingChart/index.js"></script>
 <style>
@@ -58,12 +59,12 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a class="navbar-brand" href="#"></a>
+                <a class="navbar-brand" href="/">🏠</a>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav m-auto">
-                        <span class="nav-link" aria-current="page">{{ $gettext('Number of people') }}: <input type="number" style="width:60px" v-model.lazy="totalNamelist" min="1" ref="totalnums" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model.lazy="totalX" min="1" :max="totalNamelist" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model.lazy="totalY" min="1" :max="totalNamelist" ref="totalys" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model.lazy="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model.lazy="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link" aria-current="page">{{ $gettext('Number of seats') }}: <input type="number" style="width:60px" v-model="totalNamelist" min="1" ref="totalnums" @change="store" :value="totalX * totalY" disabled></span>
                         <span class="nav-link">{{ $gettext('Number of leaders') }}: <input type="number" style="width:60px" v-model.lazy="totalLeader" min="1" :max="totalNamelist" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear data') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download data') }}</button></span>
@@ -88,18 +89,18 @@
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
-                    <tr class="border-secondary">
+                    <tr class="border-secondary small">
                         <th class="col-2 ps-2 py-1 border-end">
                             <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl">
                         </th>
-                        <th class="col text-center text-nowrap py-1" @click="clickToEdit" ref="studentListLabel">
-                            {{ $gettext('Student list') }}
+                        <th class="col text-center text-nowrap py-1 small" @click="clickToEdit" ref="studentListLabel">
+                            {{ $gettext('Lists') }}
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(n, index) in totalNamelist" :key="index" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container" :class="{'border-bottom border-secondary': (index + 1) % 5 === 0}" draggable="true" @dragstart="dragStartStudent(n, $event)">
+                        class="seat-container small" :class="{'border-bottom border-secondary': (index + 1) % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
                         <td class="text-center text-nowrap ps-0 pe-0 border-start border-end py-1">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
@@ -115,9 +116,9 @@
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="col p-0 seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                    <div class="col p-0 seat-row seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="col border text-center" @click="clickToEdit($event, 'posdata', x, y)" style="min-height:26px" ref="posdata"></div>
-                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode: vertical-lr" ref="posname"></span></div>
+                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="text-nowrap fs-5" :style="$randomNumbers.length && {'-webkit-writing-mode': 'vertical-lr', 'writing-mode':'vertical-lr'}" ref="posname">{{ `${totalY - y + 1} - ${x}` }}</span></div>
                     </div>
                 </div>
             </div>
@@ -134,7 +135,7 @@
                     <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit" ref="teacher"></th>
                 </tr>
                 </thead>
-                <tr v-for="n in totalLeader" :key="n" class="leader-row" @dragover="dragOver" @drop="dropLeader(n-1, $event)">
+                <tr v-for="(n, index) in totalLeader" class="leader-row seat-container" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
                     <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit($event, 'leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
                     <td class="text-center" style="width:50px" @click="clickToEdit($event, 'leaders', n)" ref="leaders"></td>
                     <td class="text-nowrap" ref="leadersname">&nbsp;</td>
@@ -363,28 +364,23 @@ const app = createApp({
 
             });
 
-function splitTextWithSpecialCaseSimple(text) {
-  // 先分割成單詞
-  const regex = /[\s\n\t,]+/;
-  const segments = text.split(regex).filter(segment => segment.length > 0);
-  
-  // 合併 "單字元 單字元" 模式
-  const result = [];
-  let i = 0;
-  while (i < segments.length) {
-    // 檢查是否為單字元後跟另一單字元
-    if (i + 1 < segments.length && segments[i].length === 1 && segments[i + 1].length === 1) {
-      result.push(`${segments[i]} ${segments[i + 1]}`);
-      i += 2; // 跳過下一個單字元
-    } else {
-      result.push(segments[i]);
-      i++;
-    }
-  }
-  
-  // 過濾長度 < 2 的元素（去除空格後）
-  return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
-}
+            function splitTextWithSpecialCaseSimple(text) {
+
+                const segments = text.split(/[\s\n\t,]+/).filter(segment => segment.length > 0);
+                const result = [];
+                let i = 0;
+                while (i < segments.length) {
+                    if (i + 1 < segments.length && segments[i].length === 1 && segments[i + 1].length === 1) {
+                        result.push(`${segments[i]} ${segments[i + 1]}`);
+                        i += 2;
+                    } else {
+                        result.push(segments[i]);
+                        i++;
+                    }
+                }
+
+                return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
+            }
 
             const pasteNameImport = (o, n, event) => {
                 const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
@@ -484,31 +480,20 @@ function splitTextWithSpecialCaseSimple(text) {
             refs.highlightedPos.value = show ? seatNumber : null;
         };
 
-        const dragStart = (index, event) => {
-            event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'seat', index: index }));
-            event.target.classList.add('dragging');
-        };
-
-        const dragStartStudent = (studentNumber, event) => {
-            event.dataTransfer.setData('text/plain', JSON.stringify({ type: 'student', number: studentNumber }));
-            event.target.classList.add('dragging', 'student-row');
-        };
-
-        const dragOver = (event) => {
-            event.preventDefault();
-            const target = event.target.closest('.seat-container, .leader-row');
-            if (target) target.classList.add('drag-over');
+        const dragStart = (index, type, event) => {
+            event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
+            event.target.classList.add('dragging', `${type}-row`);
         };
 
         const drop = (targetIndex, event) => {
             event.preventDefault();
             const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
-            const targetNum = parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
+            const targetNum = event.currentTarget.classList.contains('leader-row') ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
+            const sourceIndex = parseInt(data.index);
 
-            if (data.type === 'student') {
-                const studentNumber = parseInt(data.number);
-                if (studentNumber < 1 || studentNumber > storeRefs.totalNamelist.value) return;
-                if (window.randomNumbers.includes(studentNumber)) {
+            if (data.type === 'student' && event.currentTarget.classList.contains('seat-row')) {
+                if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                if (window.randomNumbers.includes(sourceIndex)) {
                     alert($gettext('Seat assigned'));
                     return;
                 }
@@ -517,12 +502,11 @@ function splitTextWithSpecialCaseSimple(text) {
                     refs.nameBgCtl[targetNum - 1].checked = false;
                 }
                 if (storeRefs.posdata[targetIndex]) {
-                    storeRefs.posdata[targetIndex].innerText = String(studentNumber).padStart(2, '0');
-                    !window.randomNumbers.includes(studentNumber) && window.randomNumbers.push(studentNumber);
-                    refs.nameBgCtl[studentNumber - 1].checked = true;
+                    storeRefs.posdata[targetIndex].innerText = String(sourceIndex).padStart(2, '0');
+                    !window.randomNumbers.includes(sourceIndex) && window.randomNumbers.push(sourceIndex);
+                    refs.nameBgCtl[sourceIndex - 1].checked = true;
                 }
-            } else if (data.type === 'seat') {
-                const sourceIndex = parseInt(data.index);
+            } else if (data.type === 'seat' && event.currentTarget.classList.contains('seat-row')) {
                 if (sourceIndex === targetIndex) return;
                 const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
                 if (storeRefs.posdata[sourceIndex]) {
@@ -538,25 +522,29 @@ function splitTextWithSpecialCaseSimple(text) {
                 }
                 if (sourceNum) refs.nameBgCtl[sourceNum - 1].checked = true;
                 if (targetNum) refs.nameBgCtl[targetNum - 1].checked = true;
+            } else if (data.type == 'seat' && event.currentTarget.classList.contains('leader-row')) {
+                if (sourceIndex === targetIndex) return;
+                const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
+                if (storeRefs.leaders[targetIndex]) {
+                    storeRefs.leaders[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
+                }
+            } else if (data.type === 'leader' && event.currentTarget.classList.contains('leader-row')) {
+                if (sourceIndex === targetIndex) return;
+                const sourceNum = parseInt(storeRefs.leaders[sourceIndex]?.innerText || '');
+                if (storeRefs.leaders[sourceIndex]) {
+                    storeRefs.leaders[sourceIndex].innerText = targetNum ? String(targetNum).padStart(2, '0') : '';
+                }
+                if (storeRefs.leaders[targetIndex]) {
+                    storeRefs.leaders[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
+                }
+            } else if (data.type == 'student' && event.currentTarget.classList.contains('leader-row')) {
+                if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                if (storeRefs.leaders[targetIndex]) {
+                    storeRefs.leaders[targetIndex].innerText = String(sourceIndex).padStart(2, '0');
+                }
             }
 
-            document.querySelectorAll('.seat-container, .student-row').forEach(el => el.classList.remove('dragging', 'student-row'));
-            store();
-            updatedisplay();
-        };
-
-        const dropLeader = (targetIndex, event) => {
-            event.preventDefault();
-            const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
-            if (data.type !== 'student') return;
-            const studentNumber = parseInt(data.number);
-            if (studentNumber < 1 || studentNumber > storeRefs.totalNamelist.value) return;
-
-            const targetNum = parseInt(storeRefs.leaders[targetIndex]?.innerText || '');
-            if (storeRefs.leaders[targetIndex]) {
-                storeRefs.leaders[targetIndex].innerText = String(studentNumber).padStart(2, '0');
-            }
-            document.querySelectorAll('.seat-container, .student-row, .leader-row').forEach(el => el.classList.remove('dragging', 'student-row', 'drag-over'));
+            document.querySelectorAll('.seat-container').forEach(el => el.classList.remove('dragging'));
             store();
             updatedisplay();
         };
@@ -579,9 +567,9 @@ function splitTextWithSpecialCaseSimple(text) {
         const storeRefs = {
             tabletitle: ref($gettext('Seats charts')),
             today: ref(new Date().toLocaleDateString()),
-            totalNamelist: ref(40),
             totalX: ref(6),
             totalY: ref(8),
+            totalNamelist: ref(6 * 8),
             totalLeader: ref(8),
             namelist: reactive([]),
             posdata: reactive([]),
@@ -591,21 +579,8 @@ function splitTextWithSpecialCaseSimple(text) {
             deskname: ref($gettext('Desk')),
             updateLabel: ref($gettext('Update')),
             teacherLabel: ref($gettext('Teacher')),
-            studentListLabel: ref($gettext('Student list'))
+            studentListLabel: ref($gettext('Lists'))
         };
-
-        watch([storeRefs.totalNamelist, storeRefs.totalX, storeRefs.totalY], async(_, oldValues) => {
-            if (storeRefs.totalX.value * storeRefs.totalY.value < storeRefs.totalNamelist.value) {
-                storeRefs.totalNamelist.value = oldValues[0];
-                storeRefs.totalX.value = oldValues[1];
-                storeRefs.totalY.value = oldValues[2];
-                alert($gettext('Not enough seats!'));
-            }
-            if (storeRefs.totalX.value > storeRefs.totalNamelist.value)
-                storeRefs.totalX.value = Math.max(1, Math.floor(storeRefs.totalNamelist.value / storeRefs.totalY.value));
-            else if (storeRefs.totalY.value > storeRefs.totalNamelist.value)
-                storeRefs.totalY.value = Math.max(1, Math.floor(storeRefs.totalNamelist.value / storeRefs.totalX.value));
-        });
 
         watch(storeRefs.totalX, async(i) => {
             if (i > 6) {
@@ -655,10 +630,7 @@ function splitTextWithSpecialCaseSimple(text) {
             getCookie,
             showPos,
             dragStart,
-            dragStartStudent,
-            dragOver,
             drop,
-            dropLeader,
             toggleColor
         };
     },
@@ -725,17 +697,37 @@ const vue3gettext = createGettext({
     },
     silent: true,
     defaultLanguage: navigator.language.replace(/-/, '_'),
-    translations: { "zh_TW": { "Seat assigned": "已排位子", "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?", "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?", "Class president": "班長", "Clear data": "清除資料", "Desk": "講桌", "Download data": "下載資料", "Not enough seats!": "座位數不夠坐!", "Number of columns": "排數", "Number of leaders": "股長數", "Number of people": "全班人數", "Number of rows": "列數", "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料", "Random seats": "隨機座位", "Reset seats": "重置座位", "Seats charts": "座位表", "Student list": "班級名條", "Teacher": "導師", "Update": "更新日期", "Upload data": "上傳資料", "Vice class president": "副班長" } }
-
+    translations: {
+        "zh_TW": {
+            "Seat assigned": "已排位子",
+            "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
+            "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?",
+            "Class president": "班長",
+            "Clear data": "清除資料",
+            "Desk": "講桌",
+            "Download data": "下載資料",
+            "Not enough seats!": "座位數不夠坐!",
+            "Number of columns": "排數",
+            "Number of leaders": "股長數",
+            "Number of seats": "座位數",
+            "Number of rows": "列數",
+            "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料",
+            "Random seats": "隨機座位",
+            "Reset seats": "重置座位",
+            "Seats charts": "座位表",
+            "Lists": "名單",
+            "Teacher": "導師",
+            "Update": "更新日期",
+            "Upload data": "上傳資料",
+            "Vice class president": "副班長"
+        }
+    }
 });
 
 window.$gettext = vue3gettext.$gettext;
-
+app.config.globalProperties.$randomNumbers = window.randomNumbers;
 app.use(vue3gettext).mount('#app');
 
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
-
 </body>
 </html>
