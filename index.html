@@ -132,9 +132,9 @@
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="col p-0 seat-row seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="col border text-center" @click="clickToEdit($event, 'posdata', x, y)" style="min-height:26px" ref="posdata"></div>
-                        <div class="col border text-center w-100 small" style="min-height:100px"><div class="small text-light text-end">{{ `${totalY - y + 1} - ${x}` }}</div><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode:vertical-lr" ref="posname"></span></div>
+                    <div class="col p-0 seat-row seat-container border h-100" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                        <div class="col border-bottom text-center" @click="clickToEdit($event, 'posdata', x, y)" style="min-height:26px" ref="posdata"></div>
+                        <div class="col text-center w-100 small" style="min-height:100px"><div class="small text-light text-end">{{ `${totalY - y + 1} - ${x}` }}</div><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode:vertical-lr" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
