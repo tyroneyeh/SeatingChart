@@ -99,7 +99,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(n, index) in totalNamelist" :key="index" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
+                    <tr v-for="(n, index) in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
                         class="seat-container small" :class="{'border-bottom border-secondary': (index + 1) % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
                         <td class="text-center text-nowrap ps-0 pe-0 border-start border-end py-1">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
@@ -118,7 +118,7 @@
                 <div class="col p-1" v-for="x in totalX">
                     <div class="col p-0 seat-row seat-container" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="col border text-center" @click="clickToEdit($event, 'posdata', x, y)" style="min-height:26px" ref="posdata"></div>
-                        <div class="col border text-center w-100 p-3" style="height:100px"><span class="text-nowrap fs-5" :style="$randomNumbers.length && {'-webkit-writing-mode': 'vertical-lr', 'writing-mode':'vertical-lr'}" ref="posname">{{ `${totalY - y + 1} - ${x}` }}</span></div>
+                        <div class="col border text-center w-100 small" style="min-height:100px"><div class="small text-light text-end">{{ `${totalY - y + 1} - ${x}` }}</div><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode:vertical-lr" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
@@ -135,10 +135,10 @@
                     <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit" ref="teacher"></th>
                 </tr>
                 </thead>
-                <tr v-for="(n, index) in totalLeader" class="leader-row seat-container" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
+                <tr v-for="(n, index) in totalLeader" class="leader-row" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
                     <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit($event, 'leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="text-center" style="width:50px" @click="clickToEdit($event, 'leaders', n)" ref="leaders"></td>
-                    <td class="text-nowrap" ref="leadersname">&nbsp;</td>
+                    <td class="seat-container text-center" style="width:50px" @click="clickToEdit($event, 'leaders', n)" ref="leaders"></td>
+                    <td class="seat-container text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
         </div>
@@ -533,6 +533,9 @@ const app = createApp({
                 const sourceNum = parseInt(storeRefs.leaders[sourceIndex]?.innerText || '');
                 if (storeRefs.leaders[sourceIndex]) {
                     storeRefs.leaders[sourceIndex].innerText = targetNum ? String(targetNum).padStart(2, '0') : '';
+                    if (storeRefs.leaders[sourceIndex].innerText == '') {
+                        refs.leadersname[sourceIndex].innerHTML = '&nbsp;';
+                    }
                 }
                 if (storeRefs.leaders[targetIndex]) {
                     storeRefs.leaders[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
