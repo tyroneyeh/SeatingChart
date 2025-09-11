@@ -605,13 +605,13 @@ const app = createApp({
             if (i > 6) {
                 refs.xColClass.value = 'col-lg-12 col-md-12';
                 refs.xColClassStart.value = 'col-1';
-                refs.xColClassCenter.value = 'col-9';
-                refs.xColClassEnd.value = 'col-2';
+                refs.xColClassCenter.value = 'col-10';
+                refs.xColClassEnd.value = 'col-1';
             } else {
                 refs.xColClass.value = 'col-lg-8';
                 refs.xColClassStart.value = 'col-2 col-md-2';
                 refs.xColClassCenter.value = 'col-7';
-                refs.xColClassEnd.value = 'col-3';
+                refs.xColClassEnd.value = 'col-2';
             }
         });
 
@@ -620,8 +620,8 @@ const app = createApp({
             storeData: ref(0),
             xColClass: ref('col-xl-7 col-md-12'),
             xColClassStart: ref('col-2 col-md-2'),
-            xColClassCenter: ref('col-7'),
-            xColClassEnd: ref('col-3'),
+            xColClassCenter: ref('col-6'),
+            xColClassEnd: ref('col-2'),
             posname: reactive([]),
             posindex: ref(0),
             leadersname: reactive([]),
