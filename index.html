@@ -96,7 +96,7 @@
     </div>
     <div class="row m-auto" :class="xColClass">
         <div class="col-1"></div>
-        <div class="text-center col-9 fs-4" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
+        <div class="text-center col-10" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
         <div class="col-1 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
     </div>
 
