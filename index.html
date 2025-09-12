@@ -306,6 +306,8 @@ const app = createApp({
                 inputElement.setAttribute('type', 'number');
                 inputElement.setAttribute('min', 1);
                 inputElement.setAttribute('max', storeRefs.totalNamelist.value);
+            } else if ('namelist' == o) {
+                refs.highlightedPos.value = String(n).padStart(2, '0');
             }
 
             inputElement.style.width = "100%";
