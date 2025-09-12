@@ -82,15 +82,15 @@
                 <a class="navbar-brand" href="">🏠</a>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav m-auto">
-                        <span class="nav-link">{{ $gettext('Number of columns') }}: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Number of rows') }}: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link" aria-current="page">{{ $gettext('Number of seats') }}: <input type="number" style="width:60px" v-model="totalNamelist" min="1" ref="totalnums" @change="store" :value="totalX * totalY" disabled></span>
-                        <span class="nav-link">{{ $gettext('Number of leaders') }}: <input type="number" style="width:60px" v-model="totalLeader" min="1" :max="totalNamelist" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear data') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download data') }}</button></span>
-                        <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload data') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset seats') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="randomPos">{{ $gettext('Random seats') }}</button></span>
+                        <span class="nav-link">{{ $gettext('Columns') }}: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Rows') }}: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" style="width:60px" v-model="totalNamelist" min="1" ref="totalnums" @change="store" :value="totalX * totalY" disabled></span>
+                        <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" style="width:60px" v-model="totalLeader" min="1" :max="totalNamelist" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
+                        <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="randomPos">{{ $gettext('Random') }}</button></span>
                     </div>
                 </div>
             </div>
@@ -668,8 +668,8 @@ const app = createApp({
         if (document.title == 'Loading') document.title = $gettext('Seats charts');
 
         if (this.leadernames) {
-            if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('Class president');
-            if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice class president');
+            if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
+            if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
         const data = window.data;
         const dkeys = window.dkeys;
@@ -707,24 +707,24 @@ const vue3gettext = createGettext({
             "Seat assigned": "已排位子",
             "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
             "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?",
-            "Class president": "班長",
-            "Clear data": "清除資料",
+            "President": "班長",
+            "Clear": "清除",
             "Desk": "講桌",
-            "Download data": "下載資料",
+            "Download": "下載",
             "Not enough seats!": "座位數不夠坐!",
-            "Number of columns": "排數",
-            "Number of leaders": "股長數",
-            "Number of seats": "座位數",
-            "Number of rows": "列數",
+            "Columns": "排",
+            "Leaders": "股長",
+            "Seats": "座位",
+            "Rows": "列",
             "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料",
-            "Random seats": "隨機座位",
-            "Reset seats": "重置座位",
+            "Random": "隨機",
+            "Reset": "重置",
             "Seats charts": "座位表",
             "Lists": "名單",
             "Teacher": "導師",
             "Update": "更新日期",
-            "Upload data": "上傳資料",
-            "Vice class president": "副班長"
+            "Upload": "上傳",
+            "Vice president": "副班長"
         }
     }
 });
