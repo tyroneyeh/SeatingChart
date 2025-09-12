@@ -40,15 +40,17 @@
 .seat-container {
     cursor: move;
 }
-.seat-container.color-0 {
-    background-color: #e0f7fa;
-}
-.seat-container.color-1 {
-    background-color: #e8f5e9;
-}
-.seat-container.color-2 {
-    background-color: #fffde7;
-}
+.seat-container.color-0 { background-color: #fff; }
+.seat-container.color-1 { background-color: #e0f7fa; }
+.seat-container.color-2 { background-color: #e8f5e9; }
+.seat-container.color-3 { background-color: #fffde7; }
+.seat-container.color-4 { background-color: #f3e5f5; }
+.seat-container.color-5 { background-color: #fce4ec; }
+.seat-container.color-6 { background-color: #e3f2fd; }
+.seat-container.color-7 { background-color: #ede7f6; }
+.seat-container.color-8 { background-color: #f9fbe7; }
+.seat-container.color-9 { background-color: #fff3e0; }
+.seat-container.color-10 { background-color: #efebe9; }
 .seat-container[draggable="true"]:hover {
     background-color: #f8f9fa;
 }
@@ -101,7 +103,11 @@
             </div>
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
-
+        <div class="row justify-content-center">
+            <div class="col-auto" v-for="(color, i) in colors" :key="i">
+                <div class="color-box seat-container p-2" :class="[color, {'border': i == 0}]" style="cursor:pointer" @click="selectColor(i)"></div>
+            </div>
+        </div>
     </div>
     <div class="row m-auto">
         <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
@@ -607,19 +613,23 @@ const app = createApp({
         };
 
         const toggleColor = (event) => {
-            const colors = ['color-0', 'color-1', 'color-2'];
             const el = event.currentTarget;
-            let currentIndex = colors.findIndex(c => el.classList.contains(c));
+            let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
+
             if (currentIndex === -1) {
-                el.classList.add(colors[0]);
+                el.classList.add(refs.colors[(refs.colorIndex.value > -1) ? refs.colorIndex.value : 0]);
                 return;
             }
-            el.classList.remove(colors[currentIndex]);
-            if (currentIndex === colors.length - 1) {
+            el.classList.remove(refs.colors[currentIndex]);
+            if (currentIndex === refs.colors.length - 1) {
                 return;
             }
-            el.classList.add(colors[currentIndex + 1]);
+            if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
         };
+
+        const selectColor = (i) => {
+            refs.colorIndex.value = i;
+        }
 
         const storeRefs = {
             tabletitle: ref($gettext('Seats charts')),
@@ -650,7 +660,9 @@ const app = createApp({
             namesBgCtl: ref(0),
             nameBgCtl: reactive([]),
             hideTips: ref(false),
-            highlightedPos: ref(null)
+            highlightedPos: ref(null),
+            colors: reactive([...Array(10)].map((_, i) => `color-${i}`)),
+            colorIndex: ref(-1)
         };
 
         return {
@@ -670,7 +682,8 @@ const app = createApp({
             showPos,
             dragStart,
             drop,
-            toggleColor
+            toggleColor,
+            selectColor
         };
     },
     mounted() {
