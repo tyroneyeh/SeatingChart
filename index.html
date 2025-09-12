@@ -104,7 +104,7 @@
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
         <div class="row justify-content-center m-2">
-            <div class="col-auto" v-for="(color, i) in colors">
+            <div class="col-auto px-1" v-for="(color, i) in colors">
                 <div class="color-box seat-container p-2" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"></div>
             </div>
         </div>
