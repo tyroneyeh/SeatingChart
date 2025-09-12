@@ -135,7 +135,7 @@
                     <div class="col p-0 seat-row seat-container card h-100" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="col card-header text-center p-0" style="min-width:30px" @click="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
                         <div class="small text-light text-end">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="col text-center p-0 mx-auto" style="min-height:80px"><span class="text-nowrap fs-5" style="-webkit-writing-mode:vertical-lr;writing-mode:vertical-lr" ref="posname"></span></div>
+                        <div class="col p-0 mx-auto" style="min-height:80px"><span class="text-nowrap fs-5 p-0 mx-auto" style="-webkit-writing-mode:vertical-lr;writing-mode:vertical-lr" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
