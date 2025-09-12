@@ -103,9 +103,9 @@
             </div>
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
-        <div class="row justify-content-center">
-            <div class="col-auto" v-for="(color, i) in colors" :key="i">
-                <div class="color-box seat-container p-2" :class="[color, {'border': i == 0}]" style="cursor:pointer" @click="selectColor(i)"></div>
+        <div class="row justify-content-center m-2">
+            <div class="col-auto" v-for="(color, i) in colors">
+                <div class="color-box seat-container p-2" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"></div>
             </div>
         </div>
     </div>
@@ -617,7 +617,7 @@ const app = createApp({
             let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
 
             if (currentIndex === -1) {
-                el.classList.add(refs.colors[(refs.colorIndex.value > -1) ? refs.colorIndex.value : 0]);
+                el.classList.add(refs.colors[(refs.colorIndex.value > 0) ? refs.colorIndex.value : 0]);
                 return;
             }
             el.classList.remove(refs.colors[currentIndex]);
@@ -626,10 +626,6 @@ const app = createApp({
             }
             if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
         };
-
-        const selectColor = (i) => {
-            refs.colorIndex.value = i;
-        }
 
         const storeRefs = {
             tabletitle: ref($gettext('Seats charts')),
@@ -682,8 +678,7 @@ const app = createApp({
             showPos,
             dragStart,
             drop,
-            toggleColor,
-            selectColor
+            toggleColor
         };
     },
     mounted() {
