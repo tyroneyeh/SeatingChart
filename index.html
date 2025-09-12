@@ -68,6 +68,11 @@
     -webkit-writing-mode:vertical-lr;
     writing-mode:vertical-lr;
 }
+.resize-y {
+  resize: vertical;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 </style>
 </head>
 <body>
@@ -105,7 +110,7 @@
     </div>
 
     <div class="row m-auto">
-        <div class="pt-1 col-2">
+        <div class="pt-1 col-2 resize-y">
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
@@ -132,7 +137,7 @@
             </table>
 
         </div>
-        <div class="col-8">
+        <div class="col-8 resize-y">
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
@@ -147,7 +152,7 @@
                 <div class="mx-auto text-center" style="border: 1px solid gray;" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
-        <div class="col-2 pt-1">
+        <div class="col-2 pt-1 resize-y">
             <!-- right area -->
             <table class="table table-bordered table-striped">
                 <thead>
