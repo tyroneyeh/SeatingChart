@@ -95,7 +95,7 @@
                 </div>
             </div>
         </nav>
-        <div class="alert alert-primary p-1 m-auto" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
+        <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
 
     </div>
     <div class="row m-auto">
@@ -255,6 +255,7 @@ const app = createApp({
         const store = (o, num, pos) => {
 
             storeRefs.today.value = new Date().toLocaleDateString();
+            storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             const datakeys = Object.keys(storeRefs);
             const tojson = {};
