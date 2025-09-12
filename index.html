@@ -253,6 +253,9 @@ const app = createApp({
         };
 
         const store = (o, num, pos) => {
+
+            storeRefs.today.value = new Date().toLocaleDateString();
+
             const datakeys = Object.keys(storeRefs);
             const tojson = {};
             datakeys.forEach((i) => {
