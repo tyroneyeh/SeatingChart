@@ -112,7 +112,7 @@
     <div class="row m-auto">
         <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
         <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
-        <div class="col-3 col-xl-2 col-lg-2 col-md-3 sol-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">{{ new Date().toLocaleDateString() }} </span></div>
+        <div class="col-3 col-xl-2 col-lg-2 col-md-3 sol-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">&nbsp;</span></div>
     </div>
 
     <div class="row m-auto">
@@ -265,11 +265,13 @@ const app = createApp({
 
         const store = (o, num, pos) => {
 
-            storeRefs.today.value = new Date().toLocaleDateString();
             storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             const datakeys = Object.keys(storeRefs);
             const tojson = {};
+
+            tojson.today = new Date().toLocaleDateString();
+
             datakeys.forEach((i) => {
 
                 if (Array.isArray(storeRefs[i]))
