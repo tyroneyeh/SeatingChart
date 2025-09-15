@@ -5,21 +5,22 @@
 ![Seating Charts](seatingchart.png)
 
 ### Features
-- Simple and real-time seat arrangement, accessible directly from the browser  
-- Built purely with VueJS 3 syntax and Bootstrap 5 CSS  
-- Customizable class size, rows, columns, and group leaders for data input  
-- Click on a name or seat number area to enter edit mode  
-- Stores data using JSON and the browser’s Local Storage  
-- Supports downloading JSON files for backup and uploading saved data  
+- Simple and real-time seat arrangement, directly accessible from the browser
+- Built purely with VueJS 3 syntax and Bootstrap 5 CSS
+- Define rows, columns, and group leaders for data input
+- Click on a name or seat number area to enter edit mode
+- Store data using JSON and the browser’s Local Storage
+- Download JSON files to back up entered data and upload saved files
 - Paste-in roster feature
 - Random seating assignment
-- Drag the name list to the seat and swap seats
+- Drag and drop to place or swap seats
 
 ## SeatingChart 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上學生座位表
 
+### 功能
 - 簡單即時的座位安排，用瀏覽器即可操作
 - 純粹使用 VueJS 3 語法與 Bootstrap 5 的 CSS
-- 可自訂全班人數與排、列數與股長數以便輸入資料
+- 定義排、列數與股長數以便輸入資料
 - 點選姓名或座號區域進入編輯模式
 - 利用 JSON 與瀏覽器的本地儲存庫來儲存資料
 - 可下載 JSON 資料檔備份所輸入的內容與上傳資料
@@ -29,4 +30,4 @@
 
 ---
 
-- Demo: https://tyroneyeh.github.io/SeatingChart
+- Demo: https://tyroneyeh.github.io/SeatingChart/
