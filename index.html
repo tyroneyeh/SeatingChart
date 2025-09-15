@@ -111,7 +111,7 @@
     <div class="row m-auto">
         <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
         <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
-        <div class="col-3 col-xl-2 col-lg-2 col-md-3 sol-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">&nbsp;</span></div>
+        <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">&nbsp;</span></div>
     </div>
 
     <div class="row m-auto">
@@ -146,10 +146,10 @@
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="col p-0 seat-row seat-container border h-100" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="col border-bottom text-center p-0 bg-light" style="min-width:30px;min-height:26px" @click="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
+                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                        <div class="border-bottom text-center p-0 bg-light" style="min-width:30px;min-height:26px" @click.stop="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
                         <div class="small text-light text-end">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="col fs-5 p-0 text-center mx-auto" style="min-height:80px"><span class="col text-nowrap p-0 vertical-text" ref="posname"></span></div>
+                        <div class="fs-5 p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
@@ -245,7 +245,7 @@ const app = createApp({
                         const no = storeRefs?.namelist[num - 1];
                         if (no) {
                             refs.posname[j].innerText = no.innerText;
-                            !randomNumbers.includes(num) && randomNumbers.push(num);
+                            !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
                             refs.nameBgCtl[num - 1].checked = true;
                         }
                     }
@@ -313,7 +313,7 @@ const app = createApp({
             const hasFS4Class = editInput.classList.value.includes('fs-4');
             editInput.classList.remove('fs-4');
             const inputElement = document.createElement('input');
-            inputElement.classList.add('from-control-sm');
+            inputElement.classList.add('form-control-sm');
             inputElement.setAttribute('type', 'text');
             if (['posdata', 'leaders'].includes(o)) {
                 inputElement.setAttribute('type', 'number');
@@ -348,7 +348,7 @@ const app = createApp({
                         if (!isNaN(n) && !isNaN(y)) {
                             pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
                         }
-                        if (randomNumbers.includes(num)) {
+                        if (window.randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
                             editInput.innerText = '';
                             setTimeout(() => {
@@ -456,6 +456,7 @@ const app = createApp({
                         }
                     });
                     store();
+                    location.reload();
                 }
             };
 
@@ -489,11 +490,7 @@ const app = createApp({
             let rNum, i, studentNums;
             // Ensure namelist is not empty and has valid elements
             for (i = storeRefs.totalNamelist.value; i > 0; i--) {
-                if (
-                    storeRefs.namelist[i - 1] &&
-                    typeof storeRefs.namelist[i - 1].innerText === 'string' &&
-                    storeRefs.namelist[i - 1].innerText.trim().length
-                ) break;
+                if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
             }
 
             if (i <= window.randomNumbers.length) return;
@@ -507,17 +504,13 @@ const app = createApp({
                 if (!posdatas[j].innerText.length) {
                     rNum = Math.floor(Math.random() * studentNums.length);
                     // Check for valid index and valid namelist entry
-                    if (
-                        storeRefs.namelist[studentNums[rNum] - 1] &&
-                        typeof storeRefs.namelist[studentNums[rNum] - 1].innerText === 'string' &&
-                        storeRefs.namelist[studentNums[rNum] - 1].innerText.trim().length
-                    ) {
+                    if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
                         posdatas[j].innerText = String(studentNums[rNum]).padStart(2, '0');
                     } else {
-                        j--;
+                        continue;
                     }
 
-                    studentNums.splice(studentNums.indexOf(studentNums[rNum]), 1);
+                    studentNums.splice(rNum, 1);
                     if (!studentNums.length) break;
                 }
             }
@@ -748,8 +741,8 @@ const vue3gettext = createGettext({
     }
 });
 
-window.$gettext = vue3gettext.$gettext;
 app.config.globalProperties.$randomNumbers = window.randomNumbers;
+window.$gettext = vue3gettext.$gettext;
 app.use(vue3gettext).mount('#app');
 
 </script>
