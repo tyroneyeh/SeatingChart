@@ -70,6 +70,9 @@
     -webkit-writing-mode:vertical-lr;
     writing-mode:vertical-lr;
 }
+.text-justify-last {
+  text-align-last: justify;
+}
 .resize-y {
   resize: vertical;
   overflow-y: auto;
@@ -90,7 +93,7 @@
                     <div class="navbar-nav m-auto">
                         <span class="nav-link">{{ $gettext('Columns') }}: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link">{{ $gettext('Rows') }}: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" style="width:60px" v-model="totalNamelist" min="1" ref="totalnums" @change="store" :value="totalX * totalY" disabled></span>
+                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" style="width:60px" v-model="totalNamelist" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></span>
                         <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" style="width:60px" v-model="totalLeader" min="1" :max="totalNamelist" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
@@ -148,7 +151,7 @@
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light" style="min-width:30px;min-height:26px" @click.stop="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
-                        <div class="small text-light text-end">{{ `${x}-${totalY - y + 1}` }}</div>
+                        <div class="small text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="fs-5 p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
                     </div>
                 </div>
@@ -162,12 +165,12 @@
             <table class="table table-bordered table-striped">
                 <thead>
                 <tr>
-                    <th style="text-align-last:justify" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th class="text-justify-last" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                     <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit" ref="teacher"></th>
                 </tr>
                 </thead>
                 <tr v-for="(n, index) in totalLeader" class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
-                    <td class="text-end text-nowrap" style="text-align-last:justify" @click="clickToEdit($event, 'leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
+                    <td class="text-end text-nowrap text-justify-last" @click="clickToEdit($event, 'leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
                     <td class="seat-container text-center" style="width:50px" @click="clickToEdit($event, 'leaders', n)" ref="leaders"></td>
                     <td class="seat-container text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
@@ -178,27 +181,27 @@
 
 <script>
 window.randomNumbers = [];
-const { createApp, ref, reactive, watch } = Vue;
+const { createApp, ref, reactive, computed } = Vue;
 
 const app = createApp({
     beforeCreate() {
-        window.data = localStorage.getItem('data');
-        if (window.data) {
-            window.data = JSON.parse(window.data);
-            window.dkeys = Object.keys(window.data);
-            window.dkeys.forEach((i) => {
+        const jsondata = localStorage.getItem('data');
+        if (jsondata) {
+            window.data = JSON.parse(jsondata);
+            window.dkeys = Object.keys(data);
+            dkeys.forEach((i) => {
                 if ('tabletitle' == i)
-                    document.title = window.data[i];
+                    document.title = data[i];
                 else if ('today' == i)
-                    this.today = window.data[i];
+                    this.today = data[i];
                 else if ('totalNamelist' == i)
-                    this.totalNamelist = parseInt(window.data[i]);
+                    this.totalNamelist = parseInt(data[i]);
                 else if ('totalX' == i)
-                    this.totalX = parseInt(window.data[i]);
+                    this.totalX = parseInt(data[i]);
                 else if ('totalY' == i)
-                    this.totalY = parseInt(window.data[i]);
+                    this.totalY = parseInt(data[i]);
                 else if ('totalLeader' == i)
-                    this.totalLeader = parseInt(window.data[i]);
+                    this.totalLeader = parseInt(data[i]);
 
             });
         }
@@ -227,6 +230,10 @@ const app = createApp({
         };
 
         const updatedisplay = (o, num, pos) => {
+
+            storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
+
+            refs.clearBtnCtl.value = storeRefs.posdata.filter(i => i.innerText != "").length == 0;
 
             if ('posdata' == o && num && pos) {
                 const no = storeRefs?.namelist[num - 1];
@@ -263,8 +270,6 @@ const app = createApp({
         };
 
         const store = (o, num, pos) => {
-
-            storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             const datakeys = Object.keys(storeRefs);
             const tojson = {};
@@ -310,7 +315,6 @@ const app = createApp({
             if (!editInput)
                 return;
 
-            const hasFS4Class = editInput.classList.value.includes('fs-4');
             editInput.classList.remove('fs-4');
             const inputElement = document.createElement('input');
             inputElement.classList.add('form-control-sm');
@@ -335,8 +339,9 @@ const app = createApp({
 
             editInput.innerHTML = '';
             editInput.appendChild(inputElement);
+            const hasFS4Class = editInput.classList.value.includes('fs-4');
 
-            const blurFunc = (o, n, y, hasFS4Class) => {
+            inputElement.addEventListener('blur', (o, n, y, hasFS4Class) => {
                 const num = parseInt(inputElement.value);
                 let pos = n;
                 if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
@@ -367,9 +372,7 @@ const app = createApp({
 
                 store(o, num, pos);
                 refs.storeData.value = 1;
-            };
-
-            inputElement.addEventListener('blur', () => blurFunc(o, n, y, hasFS4Class));
+            });
 
             inputElement.addEventListener('keydown', (e) => {
                 if (undefined == n) return;
@@ -444,23 +447,18 @@ const app = createApp({
                 return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
             }
 
-            const pasteNameImport = (o, n, event) => {
+            inputElement.addEventListener('paste', (event) => {
                 const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
                 if (pasteData?.length) {
                     event.preventDefault();
-                    storeRefs[o][n - 1].innerText = pasteData[0];
+                    storeRefs.namelist[0].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
                     pasteData.forEach((i, j) => {
-                        const nobj = storeRefs[o][n - 1 + j];
-                        if (nobj) {
-                            nobj.innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
-                        }
+                        if (storeRefs.namelist[j]) storeRefs.namelist[j].innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
                     });
                     store();
                     location.reload();
                 }
-            };
-
-            inputElement.addEventListener('paste', (event) => pasteNameImport(o, n, event));
+            });
 
             inputElement.focus();
 
@@ -516,7 +514,7 @@ const app = createApp({
             }
 
             store();
-            refs.clearBtnCtl.value = !randomNumbers.length;
+
         };
 
         const uploadfileChange = () => {
@@ -603,7 +601,6 @@ const app = createApp({
 
             document.querySelectorAll('.seat-container').forEach(el => el.classList.remove('dragging'));
             store();
-            updatedisplay();
         };
 
         const toggleColor = (event) => {
@@ -626,7 +623,7 @@ const app = createApp({
             today: ref(new Date().toLocaleDateString()),
             totalX: ref(6),
             totalY: ref(8),
-            totalNamelist: ref(6 * 8),
+            totalNamelist: ref(48),
             totalLeader: ref(8),
             namelist: reactive([]),
             posdata: reactive([]),
@@ -677,16 +674,18 @@ const app = createApp({
     },
     mounted() {
 
+        this.hideTips = this.getCookie('hideTips') == 1;
+
         if (document.title == 'Loading') document.title = $gettext('Seats charts');
 
         if (this.leadernames) {
             if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
-        const data = window.data;
-        const dkeys = window.dkeys;
-        if (data) {
+
+        if (window.data) {
             dkeys.forEach((i) => {
+
                 if (Array.isArray(data[i]) && data[i][0] != null) {
                     data[i].forEach((_, j) => {
                         if (this[i] && undefined != this[i][j]?.innerText)
@@ -696,12 +695,10 @@ const app = createApp({
                     this[i].innerText = data[i];
                 else if (undefined != this[i]?.value)
                     this[i].value = data[i];
-
             });
 
             this.updatedisplay();
             this.storeData = 1;
-            this.clearBtnCtl = !window.randomNumbers.length;
         }
     }
 
