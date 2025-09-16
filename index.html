@@ -77,6 +77,14 @@
   resize: vertical;
   overflow-y: auto;
 }
+.seats {
+    display: flex;
+    flex-direction: column;
+}
+.child {
+    flex: 1;
+    font-size: 1.8em;
+}
 </style>
 </head>
 <body>
@@ -93,8 +101,8 @@
                     <div class="navbar-nav m-auto">
                         <span class="nav-link">{{ $gettext('Columns') }}: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link">{{ $gettext('Rows') }}: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" style="width:60px" v-model="totalNamelist" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></span>
-                        <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" style="width:60px" v-model="totalLeader" min="1" :max="totalNamelist" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" style="width:60px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></span>
+                        <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" style="width:60px" v-model="totalLeader" min="1" :max="totalnums" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
@@ -145,14 +153,14 @@
             </table>
 
         </div>
-        <div class="col-8 resize-y">
+        <div class="col-8 seats">
             <!-- center area -->
-            <div class="row flex-nowrap" v-for="y in totalY">
+            <div class="row flex-nowrap child" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="border-bottom text-center p-0 bg-light" style="min-width:30px;min-height:26px" @click.stop="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
+                        <div class="border-bottom text-center p-0 bg-light" style="min-height: 1.5em" @click.stop="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
                         <div class="small text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="fs-5 p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
+                        <div class="p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
@@ -181,7 +189,7 @@
 
 <script>
 window.randomNumbers = [];
-const { createApp, ref, reactive, computed } = Vue;
+const { createApp, ref, reactive } = Vue;
 
 const app = createApp({
     beforeCreate() {
@@ -204,6 +212,8 @@ const app = createApp({
                     this.totalLeader = parseInt(data[i]);
 
             });
+
+            this.totalnums.value = this.totalX * this.totalY;
         }
         this.hideTips = this.getCookie('hideTips') == 1;
     },
@@ -231,7 +241,7 @@ const app = createApp({
 
         const updatedisplay = (o, num, pos) => {
 
-            storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
+            refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             refs.clearBtnCtl.value = storeRefs.posdata.filter(i => i.innerText != "").length == 0;
 
@@ -275,6 +285,8 @@ const app = createApp({
             const tojson = {};
 
             tojson.today = new Date().toLocaleDateString();
+
+            if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             datakeys.forEach((i) => {
 
@@ -413,6 +425,8 @@ const app = createApp({
                                 totalObj.value--;
                             else if (n == storeRefs.totalLeader.value)
                                 storeRefs.totalLeader.value--;
+                            else if (n == storeRefs.totalNamelist.value)
+                                storeRefs.totalNamelist.value--;
 
                             setTimeout(() => {
                                 storeRefs[o][n - 2]?.click();
@@ -499,7 +513,7 @@ const app = createApp({
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (let j = 0; j < posdatas.length; j++) {
-                if (!posdatas[j].innerText.length) {
+                if (!posdatas[j].innerText.trim().length) {
                     rNum = Math.floor(Math.random() * studentNums.length);
                     // Check for valid index and valid namelist entry
                     if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
@@ -637,6 +651,7 @@ const app = createApp({
         };
 
         const refs = {
+            totalnums: ref(48),
             uploadfile: ref(null),
             storeData: ref(0),
             posname: reactive([]),
