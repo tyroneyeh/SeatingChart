@@ -149,7 +149,7 @@
             <!-- center area -->
             <div class="row flex-nowrap" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-warning': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light" style="min-width:30px;min-height:26px" @click.stop="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
                         <div class="small text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="fs-5 p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
@@ -673,8 +673,6 @@ const app = createApp({
         };
     },
     mounted() {
-
-        this.hideTips = this.getCookie('hideTips') == 1;
 
         if (document.title == 'Loading') document.title = $gettext('Seats charts');
 
