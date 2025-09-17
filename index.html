@@ -107,7 +107,7 @@
                         <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="randomPos">{{ $gettext('Random') }}</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= totalNamelist">{{ $gettext('Random') }}</button></span>
                     </div>
                 </div>
             </div>
@@ -140,8 +140,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(n, index) in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container small" :class="{'border-bottom border-secondary': (index + 1) % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
+                    <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
+                        class="seat-container small" :class="{'border-bottom border-secondary': n % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
                         <td class="text-center text-nowrap ps-0 pe-0 border-start border-end py-1">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
@@ -159,7 +159,7 @@
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light" style="min-width:1.5em;min-height:1.5em" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
-                        <div class="small text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
+                        <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
                     </div>
                 </div>
