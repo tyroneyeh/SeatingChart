@@ -107,7 +107,7 @@
                         <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= totalNamelist">{{ $gettext('Random') }}</button></span>
+                        <span class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button></span>
                     </div>
                 </div>
             </div>
