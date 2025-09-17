@@ -147,7 +147,7 @@
                             {{ String(n).padStart(2, '0') }}
                         </td>
                         <td class="text-nowrap border-start border-end border-end py-1"
-                            @click="clickToEdit($event, 'namelist', n)" ref="namelist"></td>
+                            @click="clickToEdit('namelist', n)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -158,7 +158,7 @@
             <div class="row flex-nowrap child" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="border-bottom text-center p-0 bg-light" style="min-width:1.5em;min-height:1.5em" @click.stop="clickToEdit($event, 'posdata', x, y)" ref="posdata"></div>
+                        <div class="border-bottom text-center p-0 bg-light" style="min-width:1.5em;min-height:1.5em" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
                         <div class="small text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
                     </div>
@@ -178,8 +178,8 @@
                 </tr>
                 </thead>
                 <tr v-for="(n, index) in totalLeader" class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
-                    <td class="text-end text-nowrap text-justify-last" @click="clickToEdit($event, 'leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="seat-container text-center" style="width:50px" @click="clickToEdit($event, 'leaders', n)" ref="leaders"></td>
+                    <td class="text-end text-nowrap text-justify-last" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
+                    <td class="seat-container text-center" style="width:50px" @click="clickToEdit('leaders', n)" ref="leaders"></td>
                     <td class="seat-container text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
@@ -321,11 +321,14 @@ const app = createApp({
             location.reload();
         };
 
-        const clickToEdit = (event, o, n, y) => {
+        const clickToEdit = (o, n, y) => {
             const editInput = event?.target;
 
             if (!editInput)
                 return;
+
+            refs.currentTarget.value = o;
+            refs.currentIndex.value = n;
 
             editInput.classList.remove('fs-4');
             const inputElement = document.createElement('input');
@@ -445,7 +448,7 @@ const app = createApp({
 
             function splitTextWithSpecialCaseSimple(text) {
 
-                const segments = text.split(/[\s\n\t,]+/).filter(segment => segment.length > 0);
+                const segments = text.split(/[\s\n\t,，、]+/).filter(segment => segment.length > 0);
                 const result = [];
                 let i = 0;
                 while (i < segments.length) {
@@ -462,16 +465,25 @@ const app = createApp({
             }
 
             inputElement.addEventListener('paste', (event) => {
+
                 const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
-                if (pasteData?.length) {
-                    event.preventDefault();
-                    storeRefs.namelist[0].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
+
+                event.preventDefault();
+                if (refs.currentTarget.value == 'namelist' && pasteData?.length) {
+                    storeRefs.namelist[refs.currentIndex.value - 1].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
                     pasteData.forEach((i, j) => {
-                        if (storeRefs.namelist[j]) storeRefs.namelist[j].innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
+                        if (storeRefs.namelist[j + refs.currentIndex.value - 1]) storeRefs.namelist[j + refs.currentIndex.value - 1].innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
+                        else return;
                     });
-                    store();
-                    location.reload();
+                } else if (refs.currentTarget.value == 'leadernames' && pasteData?.length) {
+                    storeRefs.leadernames[refs.currentIndex.value - 1].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
+                    pasteData.forEach((i, j) => {
+                        if (storeRefs.leadernames[j + refs.currentIndex.value - 1]) storeRefs.leadernames[j + refs.currentIndex.value - 1].innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
+                        else return;
+                    });
                 }
+                store();
+                location.reload();
             });
 
             inputElement.focus();
@@ -664,7 +676,9 @@ const app = createApp({
             hideTips: ref(false),
             highlightedPos: ref(null),
             colors: reactive([...Array(10)].map((_, i) => `color-${i}`)),
-            colorIndex: ref(-1)
+            colorIndex: ref(-1),
+            currentTarget: ref(null),
+            currentIndex: ref(0)
         };
 
         return {
