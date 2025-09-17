@@ -18,24 +18,13 @@
   <meta name="twitter:title" content="SeatingChart - 教室座位表 & Teacher-Friendly Online Student Seating Chart">
   <meta name="twitter:description" content="管理學生座位表，支援即時編輯、拖拉、隨機座位、行列自訂、股長設定，以及 JSON/Local Storage 備份。Perfect for teachers.">
 <meta name="twitter:image" content="https://tyroneyeh.github.io/SeatingChart/seatingchart.png">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"></script>
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.min.js"></script>
 <script src="https://tyroneyeh.github.io/SeatingChart/index.js"></script>
 <style>
 [v-cloak] {
     display: none;
-}
-.seat-cell {
-    min-height: 26px;
-    border: 1px solid gray;
-    text-align: center;
-}
-.seat-name {
-    writing-mode: vertical-lr;
-    -webkit-writing-mode: vertical-lr;
-    height: 100px;
-    padding: 3px;
 }
 .seat-container {
     cursor: move;
@@ -330,7 +319,6 @@ const app = createApp({
             refs.currentTarget.value = o;
             refs.currentIndex.value = n;
 
-            editInput.classList.remove('fs-4');
             const inputElement = document.createElement('input');
             inputElement.classList.add('form-control-sm');
             inputElement.setAttribute('type', 'text');
@@ -345,18 +333,17 @@ const app = createApp({
             inputElement.style.width = "100%";
             inputElement.style.minWidth = '50px';
             inputElement.style.height = "24px";
-            inputElement.value = editInput.innerText.trim();
+            inputElement.value = editInput.innerText;
 
             window.randomNumbers = window.randomNumbers.filter(e => e != parseInt(inputElement.value));
             const num = parseInt(inputElement.value);
             if ('posdata' == o && num)
                 refs.nameBgCtl[num - 1].checked = false;
 
-            editInput.innerHTML = '';
+            editInput.innerText = '';
             editInput.appendChild(inputElement);
-            const hasFS4Class = editInput.classList.value.includes('fs-4');
 
-            inputElement.addEventListener('blur', (o, n, y, hasFS4Class) => {
+            inputElement.addEventListener('blur', () => {
                 const num = parseInt(inputElement.value);
                 let pos = n;
                 if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
@@ -365,9 +352,7 @@ const app = createApp({
                         return;
                     }
                     if ('posdata' == o) {
-                        if (!isNaN(n) && !isNaN(y)) {
-                            pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
-                        }
+                        pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
                         if (window.randomNumbers.includes(num)) {
                             alert($gettext('Seat assigned'));
                             editInput.innerText = '';
@@ -381,8 +366,7 @@ const app = createApp({
                     }
                     editInput.innerText = String(inputElement.value).padStart(2, '0');
                 } else {
-                    hasFS4Class && editInput.classList.add('fs-4');
-                    editInput.innerText = inputElement.value;
+                    editInput.innerHTML = inputElement.value.replace(/ /g, '&nbsp;');
                 }
 
                 store(o, num, pos);
@@ -410,10 +394,10 @@ const app = createApp({
                         setTimeout(() => {
                             if (storeRefs[o][n]) storeRefs[o][n].click();
                         }, 50);
-                } else if (e.shiftKey && 'Tab' == e.key && y || 'ArrowLeft' == e.key) {
+                } else if ('posdata' == o && (e.shiftKey && 'Tab' == e.key && y || 'ArrowLeft' == e.key)) {
                     e.preventDefault();
                     storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
-                } else if (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key) {
+                } else if ('posdata' == o && (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key)) {
                     e.preventDefault();
                     storeRefs[o][(y - 1) * storeRefs.totalX.value + n]?.click();
                 } else if ('Backspace' == e.key) {
