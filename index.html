@@ -465,28 +465,27 @@ const app = createApp({
             }
 
             inputElement.addEventListener('paste', (event) => {
+                const pasteData = splitTextWithSpecialCaseSimple(
+                    event.clipboardData.getData('text').trim()
+                );
 
-                const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
+                const target = refs.currentTarget.value;
+                if (!['namelist', 'leadernames'].includes(target) || !pasteData?.length) return;
 
-                if (refs.currentTarget.value == 'namelist' && pasteData?.length) {
-                    event.preventDefault();
-                    storeRefs.namelist[refs.currentIndex.value - 1].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
-                    pasteData.forEach((i, j) => {
-                        if (storeRefs.namelist[j + refs.currentIndex.value - 1]) storeRefs.namelist[j + refs.currentIndex.value - 1].innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
-                        else return;
-                    });
-                    store();
-                    location.reload();
-                } else if (refs.currentTarget.value == 'leadernames' && pasteData?.length) {
-                    event.preventDefault();
-                    storeRefs.leadernames[refs.currentIndex.value - 1].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
-                    pasteData.forEach((i, j) => {
-                        if (storeRefs.leadernames[j + refs.currentIndex.value - 1]) storeRefs.leadernames[j + refs.currentIndex.value - 1].innerText = i.replace(/(['"])(.*?)\1/g, '$2').trim();
-                        else return;
-                    });
-                    store();
-                    location.reload();
-                }
+                event.preventDefault();
+
+                const list = storeRefs[target];
+                const startIndex = refs.currentIndex.value - 1;
+
+                list[startIndex].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
+
+                pasteData.forEach((text, j) => {
+                    const item = list[startIndex + j];
+                    if (!item) return;
+                    item.innerText = text.replace(/(['"])(.*?)\1/g, '$2').trim();
+                });
+
+                store();
 
             });
 
@@ -544,7 +543,7 @@ const app = createApp({
             }
 
             store();
-
+            location.reload();
         };
 
         const uploadfileChange = () => {
