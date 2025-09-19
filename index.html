@@ -110,7 +110,7 @@
     </div>
     <div class="row m-auto">
         <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
-        <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seats charts') }}</div>
+        <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
         <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">&nbsp;</span></div>
     </div>
 
@@ -486,7 +486,7 @@ const app = createApp({
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", "seatingchart.json");
+                dlAnchorElem.setAttribute("download", `${storeRefs.tabletitle.value.textContent || $gettext('Seating charts')}.json`);
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
                 document.body.removeChild(dlAnchorElem);
@@ -642,7 +642,7 @@ const app = createApp({
         };
 
         const storeRefs = {
-            tabletitle: ref($gettext('Seats charts')),
+            tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
             totalX: ref(6),
             totalY: ref(8),
@@ -703,7 +703,7 @@ const app = createApp({
     },
     mounted() {
 
-        if (document.title == 'Loading') document.title = $gettext('Seats charts');
+        if (document.title == 'Loading') document.title = $gettext('Seating charts');
 
         if (this.leadernames) {
             if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
@@ -755,7 +755,7 @@ const vue3gettext = createGettext({
             "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料",
             "Random": "隨機",
             "Reset": "重置",
-            "Seats charts": "座位表",
+            "Seating charts": "座位表",
             "Lists": "名單",
             "Teacher": "導師",
             "Update": "更新日期",
