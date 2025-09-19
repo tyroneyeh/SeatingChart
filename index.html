@@ -25,6 +25,22 @@
 [v-cloak] {
     display: none;
 }
+@media print {
+  .a4 {
+    width: 210mm;
+    max-width: 210mm;
+    height: 297mm;
+    margin: 0 auto;
+  }
+  .col-2 {
+    flex: 0 0 18%;
+    max-width: 18%;
+  }
+  .col-8 {
+    flex: 0 0 60%;
+    max-width: 60%;
+  }
+}
 .seat-container {
     cursor: move;
 }
@@ -61,16 +77,16 @@
 .text-justify-last {
   text-align-last: justify;
 }
-.resize-y {
-  resize: vertical;
-  overflow-y: auto;
-}
 .seats {
     display: flex;
     flex-direction: column;
 }
 .child {
     flex: 1;
+}
+.possize {
+    min-width:1.5em;
+    min-height:1.5em;
 }
 </style>
 </head>
@@ -111,11 +127,11 @@
     <div class="row m-auto">
         <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
         <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span>: <span @click="clickToEdit" ref="today">&nbsp;</span></div>
+        <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @click="clickToEdit" ref="today">&nbsp;</span></div>
     </div>
 
-    <div class="row m-auto">
-        <div class="pt-1 col-2 resize-y">
+    <div class="row m-auto a4">
+        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1">
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
@@ -123,33 +139,32 @@
                         <th class="col-2 ps-2 py-1 border-end">
                             <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl">
                         </th>
-                        <th class="col text-center text-nowrap py-1 small" @click="clickToEdit" ref="studentListLabel">
+                        <th class="col text-center text-nowrap py-1" @click="clickToEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container small" :class="{'border-bottom border-secondary': n % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
-                        <td class="text-center text-nowrap ps-0 pe-0 border-start border-end py-1">
+                        class="seat-container" :class="{'border-bottom border-secondary': n % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
+                        <td class="text-center text-nowrap p-0 py-1 border-start border-end">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
                         </td>
-                        <td class="text-nowrap border-start border-end border-end py-1"
-                            @click="clickToEdit('namelist', n)" ref="namelist"></td>
+                        <td class="text-nowrap border-start border-end border-end py-1" @click="clickToEdit('namelist', n)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
 
         </div>
-        <div class="col-8 seats">
+        <div class="col-8 col-lg-8 col-md-6 col-sm-6 seats">
             <!-- center area -->
             <div class="row flex-nowrap child" :style="{ 'font-size': fontSize + 'em' }" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="border-bottom text-center p-0 bg-light" style="min-width:1.5em;min-height:1.5em" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
+                        <div class="border-bottom text-center p-0 bg-light possize" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 text-center mx-auto" style="min-height:80px"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
+                        <div class="p-0 text-center mx-auto"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
@@ -157,7 +172,7 @@
                 <div class="mx-auto text-center" style="border: 1px solid gray;" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
-        <div class="col-2 pt-1 resize-y">
+        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1">
             <!-- right area -->
             <table class="table table-bordered table-striped">
                 <thead>
