@@ -25,22 +25,6 @@
 [v-cloak] {
     display: none;
 }
-@media print {
-  .a4 {
-    width: 100%;
-    height: 297mm;
-    display: flex;
-  }
-  .col-left {
-    flex: 0 0 8%;
-  }
-  .col-8 {
-    flex: 1;
-  }
-  .col-right {
-    flex: 0 0 17%;
-  }
-}
 .seat-container {
     cursor: move;
 }
@@ -107,25 +91,27 @@
                 </button>
                 <a class="navbar-brand" href="">🏠</a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
-                    <div class="navbar-nav m-auto">
-                        <span class="nav-link">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></span>
-                        <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" class="w-50px" v-model="totalLeader" min="1" :max="totalnums" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
-                        <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button></span>
-                        <span class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button></span>
-                        <span class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontSize <= 1">-</button></span>
-                    </div>
+                    <ul class="navbar-nav m-auto">
+                        <a class="nav-link">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
+                        <a class="nav-link">{{ $gettext('Leaders') }}: <input type="number" class="w-50px" v-model="totalLeader" min="1" :max="totalnums" ref="totalleaders" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button></a>
+                        <a class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></a>
+                        <a class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></a>
+                        <a class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></a>
+                        <a class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button></a>
+                        <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button></a>
+                        <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontSize <= 1">-</button></a>
+                        <a class="nav-link"><label><input type="checkbox" v-model="showList">{{ $gettext('Show lists') }}</label></a>
+                        <a class="nav-link"><label><input type="checkbox" v-model="showLeader">{{ $gettext('Show leaders') }}</label></a>
+                    </ul>
                 </div>
             </div>
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
         <div class="row justify-content-center m-2">
-            <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"></a>
+            <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
         </div>
     </div>
     <div class="row m-auto">
@@ -134,8 +120,8 @@
         <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @click="clickToEdit" ref="today">&nbsp;</span></div>
     </div>
 
-    <div class="row m-auto a4">
-        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1 col-left">
+    <div class="row m-auto">
+        <div class="col-lg-1 col-md-2 col-sm-2 pt-1 col-left" v-show="showList">
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
@@ -161,7 +147,7 @@
             </table>
 
         </div>
-        <div class="col-8 col-lg-8 col-md-6 col-sm-6 bg-white seats">
+        <div class="bg-white seats" :class="{'col-lg-9 col-md-7 col-sm-7': showList && showLeader, 'col-lg-11 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
             <!-- center area -->
             <div class="row flex-nowrap child" :style="{ 'font-size': fontSize + 'em' }" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
@@ -176,7 +162,7 @@
                 <div class="mx-auto text-center desk" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
-        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1 col-right">
+        <div class="col-lg-2 col-md-3 col-sm-3 pt-1 col-right" v-show="showLeader">
             <!-- right area -->
             <table class="table table-bordered table-striped">
                 <thead>
@@ -453,7 +439,7 @@ const app = createApp({
 
             function splitTextWithSpecialCaseSimple(text) {
 
-                const segments = text.split(/[\s\n\t,，、]+/).filter(segment => segment.length > 0);
+                const segments = text.split(/[ 　\n\t,，、]+/).filter(segment => segment.length > 0);
                 const result = [];
                 let i = 0;
                 while (i < segments.length) {
@@ -532,12 +518,12 @@ const app = createApp({
                 studentNums = studentNums.filter(num => !window.randomNumbers.includes(num));
 
             const posdatas = storeRefs.posdata.slice().reverse();
-            for (let j = 0; j < posdatas.length; j++) {
-                if (!posdatas[j].innerText.trim().length) {
+            for (const element of posdatas) {
+                if (!element.innerText.trim().length) {
                     rNum = Math.floor(Math.random() * studentNums.length);
                     // Check for valid index and valid namelist entry
                     if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
-                        posdatas[j].innerText = String(studentNums[rNum]).padStart(2, '0');
+                        element.innerText = String(studentNums[rNum]).padStart(2, '0');
                     } else {
                         continue;
                     }
@@ -696,7 +682,9 @@ const app = createApp({
             colors: reactive([...Array(10)].map((_, i) => `color-${i}`)),
             colorIndex: ref(-1),
             currentTarget: ref(null),
-            currentIndex: ref(0)
+            currentIndex: ref(0),
+            showList: ref(true),
+            showLeader: ref(true)
         };
 
         return {
@@ -780,7 +768,9 @@ const vue3gettext = createGettext({
             "Update": "更新日期",
             "Upload": "上傳",
             "Vice president": "副班長",
-            "Font size": "字體大小"
+            "Font size": "字體大小",
+            "Show lists": "顯示名單",
+            "Show leaders": "顯示股長"
         }
     }
 });
