@@ -71,7 +71,6 @@
 }
 .child {
     flex: 1;
-    font-size: 1.8em;
 }
 </style>
 </head>
@@ -96,6 +95,8 @@
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button></span>
+                        <span class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button></span>
+                        <span class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontSize <= 1">-</button></span>
                     </div>
                 </div>
             </div>
@@ -143,7 +144,7 @@
         </div>
         <div class="col-8 seats">
             <!-- center area -->
-            <div class="row flex-nowrap child" v-for="y in totalY">
+            <div class="row flex-nowrap child" :style="{ 'font-size': fontSize + 'em' }" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light" style="min-width:1.5em;min-height:1.5em" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
@@ -198,6 +199,8 @@ const app = createApp({
                     this.totalY = parseInt(data[i]);
                 else if ('totalLeader' == i)
                     this.totalLeader = parseInt(data[i]);
+                else if ('fontSize' == i)
+                    this.fontSize = parseFloat(data[i]);
 
             });
 
@@ -630,6 +633,14 @@ const app = createApp({
             if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
         };
 
+        const adujstFont = (direction) => {
+            const val = storeRefs.fontSize.value + (direction === '+' ? 0.1 : -0.1);
+            if (val >= 1) {
+                storeRefs.fontSize.value = Math.round(val * 10) / 10;
+                store();
+            }
+        };
+
         const storeRefs = {
             tabletitle: ref($gettext('Seats charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -645,7 +656,8 @@ const app = createApp({
             deskname: ref($gettext('Desk')),
             updateLabel: ref($gettext('Update')),
             teacherLabel: ref($gettext('Teacher')),
-            studentListLabel: ref($gettext('Lists'))
+            studentListLabel: ref($gettext('Lists')),
+            fontSize: ref(1.8),
         };
 
         const refs = {
@@ -685,7 +697,8 @@ const app = createApp({
             showPos,
             dragStart,
             drop,
-            toggleColor
+            toggleColor,
+            adujstFont
         };
     },
     mounted() {
@@ -747,7 +760,8 @@ const vue3gettext = createGettext({
             "Teacher": "導師",
             "Update": "更新日期",
             "Upload": "上傳",
-            "Vice president": "副班長"
+            "Vice president": "副班長",
+            "Font size": "字體大小"
         }
     }
 });
