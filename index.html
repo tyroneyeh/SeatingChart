@@ -88,6 +88,12 @@
     min-width:1.5em;
     min-height:1.5em;
 }
+.desk {
+    border: 1px solid gray;
+}
+.w-50px {
+    width: 50px;
+}
 </style>
 </head>
 <body>
@@ -102,10 +108,10 @@
                 <a class="navbar-brand" href="">🏠</a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <div class="navbar-nav m-auto">
-                        <span class="nav-link">{{ $gettext('Columns') }}: <input type="number" style="width:60px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link">{{ $gettext('Rows') }}: <input type="number" style="width:60px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
-                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" style="width:60px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></span>
-                        <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" style="width:60px" v-model="totalLeader" min="1" :max="totalnums" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></span>
+                        <span class="nav-link" aria-current="page">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></span>
+                        <span class="nav-link">{{ $gettext('Leaders') }}: <input type="number" class="w-50px" v-model="totalLeader" min="1" :max="totalnums" ref="totalleaders" @change="store" @focus="$event.target.select()"></span>
                         <span class="nav-link"><button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button></span>
                         <span class="nav-link"><button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button></span>
                         <span class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></span>
@@ -119,9 +125,7 @@
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
         <div class="row justify-content-center m-2">
-            <div class="col-auto px-1" v-for="(color, i) in colors">
-                <div class="color-box seat-container p-2" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"></div>
-            </div>
+            <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"></a>
         </div>
     </div>
     <div class="row m-auto">
@@ -169,7 +173,7 @@
                 </div>
             </div>
             <div class="row m-4">
-                <div class="mx-auto text-center" style="border: 1px solid gray;" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto text-center desk" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1">
@@ -183,7 +187,7 @@
                 </thead>
                 <tr v-for="(n, index) in totalLeader" class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
                     <td class="text-end text-nowrap text-justify-last" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="seat-container text-center" style="width:50px" @click="clickToEdit('leaders', n)" ref="leaders"></td>
+                    <td class="seat-container text-center w-50px" @click="clickToEdit('leaders', n)" ref="leaders"></td>
                     <td class="seat-container text-nowrap" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
