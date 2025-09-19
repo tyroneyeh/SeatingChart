@@ -27,18 +27,18 @@
 }
 @media print {
   .a4 {
-    width: 210mm;
-    max-width: 210mm;
+    width: 100%;
     height: 297mm;
-    margin: 0 auto;
+    display: flex;
   }
-  .col-2 {
-    flex: 0 0 15%;
-    max-width: 15%;
+  .col-left {
+    flex: 0 0 8%;
   }
   .col-8 {
-    flex: 0 0 70%;
-    max-width: 70%;
+    flex: 1;
+  }
+  .col-right {
+    flex: 0 0 17%;
   }
 }
 .seat-container {
@@ -135,7 +135,7 @@
     </div>
 
     <div class="row m-auto a4">
-        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1">
+        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1 col-left">
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
@@ -172,11 +172,11 @@
                     </div>
                 </div>
             </div>
-            <div class="row m-4">
+            <div class="row m-2">
                 <div class="mx-auto text-center desk" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
-        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1">
+        <div class="col-2 col-lg-2 col-md-3 col-sm-3 pt-1 col-right">
             <!-- right area -->
             <table class="table table-bordered table-striped">
                 <thead>
