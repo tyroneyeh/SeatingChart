@@ -102,7 +102,7 @@
                         <a class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></a>
                         <a class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button></a>
                         <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button></a>
-                        <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontSize <= 1">-</button></a>
+                        <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontSize <= 0.5">-</button></a>
                         <a class="nav-link"><label><input type="checkbox" v-model="showList">{{ $gettext('Show lists') }}</label></a>
                         <a class="nav-link"><label><input type="checkbox" v-model="showLeader">{{ $gettext('Show leaders') }}</label></a>
                     </ul>
@@ -114,7 +114,7 @@
             <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
         </div>
     </div>
-    <div class="row m-auto">
+    <div class="row m-auto" :style="{'font-size': fontSize + 'em'}">
         <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
         <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
         <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @click="clickToEdit" ref="today">&nbsp;</span></div>
@@ -136,7 +136,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container" :class="{'border-bottom border-secondary': n % 5 === 0}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
+                        class="seat-container" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'font-size': fontSize + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
                         <td class="text-center text-nowrap p-0 py-1 border-start border-end">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
@@ -149,7 +149,7 @@
         </div>
         <div class="bg-white seats" :class="{'col-lg-9 col-md-7 col-sm-7': showList && showLeader, 'col-lg-11 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
             <!-- center area -->
-            <div class="row flex-nowrap child" :style="{ 'font-size': fontSize + 'em' }" v-for="y in totalY">
+            <div class="row flex-nowrap child" :style="{'font-size': fontSize + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light possize" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
@@ -158,13 +158,13 @@
                     </div>
                 </div>
             </div>
-            <div class="row m-2">
+            <div class="row m-2" :style="{'font-size': fontSize + 'em'}">
                 <div class="mx-auto text-center desk" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1 col-right" v-show="showLeader">
             <!-- right area -->
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped" :style="{'font-size': fontSize + 'em'}">
                 <thead>
                 <tr>
                     <th class="text-justify-last" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
@@ -640,7 +640,7 @@ const app = createApp({
 
         const adujstFont = (direction) => {
             const val = storeRefs.fontSize.value + (direction === '+' ? 0.1 : -0.1);
-            if (val >= 1) {
+            if (val >= 0.5) {
                 storeRefs.fontSize.value = Math.round(val * 10) / 10;
                 store();
             }
