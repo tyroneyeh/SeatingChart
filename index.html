@@ -78,6 +78,12 @@
 .w-50px {
     width: 50px;
 }
+.no-border-right {
+  border-right: none !important;
+}
+.no-border-left {
+  border-left: none !important;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css"></style>
 </head>
@@ -131,22 +137,22 @@
             <table class="table table-bordered table-striped small">
                 <thead>
                     <tr class="border-secondary small">
-                        <th class="col-2 ps-2 py-1 border-end">
+                        <th class="ps-3 py-1 no-border-right">
                             <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl">
                         </th>
-                        <th class="col text-center text-nowrap py-1" @click="clickToEdit" ref="studentListLabel">
+                        <th class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @click="clickToEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
-                        <td class="text-center text-nowrap p-0 py-1 border-start border-end">
+                        class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
+                        <td class="text-center text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
                         </td>
-                        <td class="text-nowrap border-start border-end border-end py-1 namearea" @click="clickToEdit('namelist', n)" ref="namelist"></td>
+                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @click="clickToEdit('namelist', n)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
