@@ -101,10 +101,13 @@
                         <a class="nav-link"><input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button></a>
                         <a class="nav-link"><button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button></a>
                         <a class="nav-link"><button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button></a>
-                        <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button></a>
-                        <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontSize <= 0.5">-</button></a>
-                        <a class="nav-link"><label><input type="checkbox" v-model="showList">{{ $gettext('Show lists') }}</label></a>
-                        <a class="nav-link"><label><input type="checkbox" v-model="showLeader">{{ $gettext('Show leaders') }}</label></a>
+                        <div class="navbar-nav border">
+                            <a class="nav-link"><select v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select></a>
+                            <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button></a>
+                            <a class="nav-link"><button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button></a>
+                        </div>
+                        <a class="nav-link"><label><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label></a>
+                        <a class="nav-link"><label><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label></a>
                     </ul>
                 </div>
             </div>
@@ -136,7 +139,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'font-size': fontSize + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
+                        class="seat-container" :class="{'border-bottom border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
                         <td class="text-center text-nowrap p-0 py-1 border-start border-end">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
@@ -149,7 +152,7 @@
         </div>
         <div class="bg-white seats" :class="{'col-lg-9 col-md-7 col-sm-7': showList && showLeader, 'col-lg-11 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
             <!-- center area -->
-            <div class="row flex-nowrap child" :style="{'font-size': fontSize + 'em'}" v-for="y in totalY">
+            <div class="row flex-nowrap child" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light possize" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
@@ -164,7 +167,7 @@
         </div>
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1 col-right" v-show="showLeader">
             <!-- right area -->
-            <table class="table table-bordered table-striped" :style="{'font-size': fontSize + 'em'}">
+            <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
                 <tr>
                     <th class="text-justify-last" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
@@ -183,31 +186,37 @@
 
 <script>
 window.randomNumbers = [];
-const { createApp, ref, reactive } = Vue;
+const { createApp, ref, reactive, computed } = Vue;
 
 const app = createApp({
     beforeCreate() {
         const jsondata = localStorage.getItem('data');
         if (jsondata) {
-            window.data = JSON.parse(jsondata);
-            window.dkeys = Object.keys(data);
-            dkeys.forEach((i) => {
-                if ('tabletitle' == i)
-                    document.title = data[i];
-                else if ('today' == i)
-                    this.today = data[i];
-                else if ('totalNamelist' == i)
-                    this.totalNamelist = parseInt(data[i]);
-                else if ('totalX' == i)
-                    this.totalX = parseInt(data[i]);
-                else if ('totalY' == i)
-                    this.totalY = parseInt(data[i]);
-                else if ('totalLeader' == i)
-                    this.totalLeader = parseInt(data[i]);
-                else if ('fontSize' == i)
-                    this.fontSize = parseFloat(data[i]);
+            try {
+                const data = JSON.parse(jsondata);
 
-            });
+                const typeMap = {
+                    totalNamelist: Number,
+                    totalX: Number,
+                    totalY: Number,
+                    totalLeader: Number,
+                    fontSizeR: parseFloat,
+                    fontSizeC: parseFloat,
+                    fontSizeL: parseFloat
+                };
+
+                window.dkeys = Object.entries(data);
+
+                for (const [key, value] of window.dkeys) {
+                    if (key === 'tabletitle') {
+                    document.title = value;
+                    } else if (key === 'today') {
+                    this.today = value;
+                    } else if (key in typeMap) {
+                    this[key] = typeMap[key](value);
+                    }
+                }
+            } catch (e) {}
 
             this.totalnums.value = this.totalX * this.totalY;
         }
@@ -414,13 +423,17 @@ const app = createApp({
                     case 'leaders':
                         if (!e.target.value.length && !storeRefs[o][n - 1]?.innerText.trim().length) {
                             e.preventDefault();
-                            const totalObj = storeRefs['total'+ o.charAt(0).toUpperCase() + o.slice(1)];
-                            if (totalObj && n == totalObj.value)
-                                totalObj.value--;
-                            else if (n == storeRefs.totalLeader.value)
-                                storeRefs.totalLeader.value--;
-                            else if (n == storeRefs.totalNamelist.value)
-                                storeRefs.totalNamelist.value--;
+
+                            const getTotalRef = (key) => storeRefs[`total${key.charAt(0).toUpperCase()}${key.slice(1)}`];
+
+                            const totalRef =
+                                getTotalRef(o) ??
+                                (n === storeRefs.totalLeader.value ? storeRefs.totalLeader : null) ??
+                                (n === storeRefs.totalNamelist.value ? storeRefs.totalNamelist : null);
+
+                            if (totalRef && n === totalRef.value) {
+                                totalRef.value--;
+                            }
 
                             setTimeout(() => {
                                 storeRefs[o][n - 2]?.click();
@@ -485,7 +498,7 @@ const app = createApp({
         };
 
         const download = () => {
-            let data = localStorage.getItem('data');
+            const data = localStorage.getItem('data');
 
             if (data) {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
@@ -638,13 +651,27 @@ const app = createApp({
             if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
         };
 
+        const fontSizeMap = {
+            r: "fontSizeR",
+            c: "fontSizeC",
+            l: "fontSizeL"
+        };
         const adujstFont = (direction) => {
-            const val = storeRefs.fontSize.value + (direction === '+' ? 0.1 : -0.1);
-            if (val >= 0.5) {
-                storeRefs.fontSize.value = Math.round(val * 10) / 10;
-                store();
+
+            const key = fontSizeMap[refs.fontPos.value];
+            if (key) {
+                const val = storeRefs[key].value + (direction === "+" ? 0.1 : -0.1);
+                if (val >= 0.5) {
+                    storeRefs[key].value = Math.round(val * 10) / 10;
+                    store();
+                }
             }
         };
+
+        const fontButtonCtl = computed(() => {
+            const key = fontSizeMap[refs.fontPos.value];
+            return storeRefs[key].value <= 0.5;
+        })
 
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
@@ -662,7 +689,9 @@ const app = createApp({
             updateLabel: ref($gettext('Update')),
             teacherLabel: ref($gettext('Teacher')),
             studentListLabel: ref($gettext('Lists')),
-            fontSize: ref(1.8),
+            fontSizeL: ref(1.8),
+            fontSizeC: ref(1.8),
+            fontSizeR: ref(1.8),
         };
 
         const refs = {
@@ -684,7 +713,8 @@ const app = createApp({
             currentTarget: ref(null),
             currentIndex: ref(0),
             showList: ref(true),
-            showLeader: ref(true)
+            showLeader: ref(true),
+            fontPos: ref('c'),
         };
 
         return {
@@ -705,7 +735,8 @@ const app = createApp({
             dragStart,
             drop,
             toggleColor,
-            adujstFont
+            adujstFont,
+            fontButtonCtl
         };
     },
     mounted() {
@@ -717,23 +748,22 @@ const app = createApp({
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
 
-        if (window.data) {
-            dkeys.forEach((i) => {
+        window.dkeys.forEach((i) => {
 
-                if (Array.isArray(data[i]) && data[i][0] != null) {
-                    data[i].forEach((_, j) => {
-                        if (this[i] && undefined != this[i][j]?.innerText)
-                            this[i][j].innerText = data[i][j];
-                    });
-                } else if (undefined != this[i]?.innerText)
-                    this[i].innerText = data[i];
-                else if (undefined != this[i]?.value)
-                    this[i].value = data[i];
-            });
+            if (Array.isArray(i[1]) && i[1][0] != null) {
+                i[1].forEach((_, j) => {
+                    if (this[i[0]] && undefined != this[i[0]][j]?.innerText)
+                        this[i[0]][j].innerText = i[1][j];
+                });
+            } else if (undefined != this[i[0]]?.innerText)
+                this[i[0]].innerText = i[1];
+            else if (undefined != this[i[0]]?.value)
+                this[i[0]].value = i[1];
 
-            this.updatedisplay();
-            this.storeData = 1;
-        }
+        });
+
+        this.updatedisplay();
+        this.storeData = 1;
     }
 
 });
@@ -768,9 +798,12 @@ const vue3gettext = createGettext({
             "Update": "更新日期",
             "Upload": "上傳",
             "Vice president": "副班長",
+            "Left": "左",
+            "Center": "中",
+            "Right": "右",
             "Font size": "字體大小",
-            "Show lists": "顯示名單",
-            "Show leaders": "顯示股長"
+            "Lists": "名單",
+            "Leaders": "股長"
         }
     }
 });
