@@ -291,6 +291,8 @@ const app = createApp({
 
             if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
+            if (o?.target.innerText != storeRefs.today.value.innerText) storeRefs.today.value.innerText = new Date().toLocaleDateString();
+
             datakeys.forEach((i) => {
 
                 if (Array.isArray(storeRefs[i]))
@@ -301,8 +303,6 @@ const app = createApp({
                     tojson[i] = storeRefs[i].value;
 
             });
-
-            tojson.today = new Date().toLocaleDateString();
 
             localStorage.setItem('data', JSON.stringify(tojson));
             updatedisplay(o, num, pos);
