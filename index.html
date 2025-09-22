@@ -109,7 +109,7 @@
                         </div>
                         <a class="nav-link"><label><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label></a>
                         <a class="nav-link"><label><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label></a>
-                        <a class="nav-link"><label><input type="checkbox" @click="showZhuYin">{{ $gettext('ZhuYin') }}</label></a>
+                        <a class="nav-link"><select @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select></a>
                     </ul>
                 </div>
             </div>
@@ -675,10 +675,25 @@ const app = createApp({
             return storeRefs[key].value <= 0.5;
         });
 
-        const showZhuYin = () => {
+        const showFonts = () => {
             const el = document.getElementById('dynamic-zh-font');
-            if (event.target.checked) {
-                el.innerHTML = `@font-face { font-family: 'BpmfZihiKai'; src: url('BpmfZihiKaiStd-Regular.woff2') format('woff2'); font-weight: normal; font-style: normal; } .namearea { font-family: 'BpmfZihiKai'; }`;
+            const fonts = {
+                zhuyin: {
+                    family: 'BpmfZihiKai',
+                    file: 'BpmfZihiKaiStd-Regular.woff2'
+                },
+                pinyin: {
+                    family: 'Pinyin-Tsuipita',
+                    file: 'ToneOZ-Pinyin-Tsuipita-TC.woff2'
+                },
+                bothfonts: {
+                    family: 'YinPZ-Tsuipita',
+                    file: 'ToneOZ-YinPZ-Tsuipita-TC.woff2'
+                }
+            };
+            const f = fonts[event.target.value];
+            if (f) {
+                el.innerHTML = `@font-face {font-family: '${f.family}';src: url('${f.file}') format('woff2');font-weight: normal;font-style: normal;}.namearea {font-family: '${f.family}';}`;
             } else {
                 el.innerHTML = '';
             }
@@ -748,7 +763,7 @@ const app = createApp({
             toggleColor,
             adujstFont,
             fontButtonCtl,
-            showZhuYin
+            showFonts
         };
     },
     mounted() {
@@ -816,7 +831,10 @@ const vue3gettext = createGettext({
             "Font size": "字體大小",
             "Lists": "名單",
             "Leaders": "股長",
-            "ZhuYin": "注音"
+            "Fonts": "字體",
+            "ZhuYin": "注音",
+            "PinYin": "拼音",
+            "Both": "兩者"
         }
     }
 });
