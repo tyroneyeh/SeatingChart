@@ -209,11 +209,11 @@ const app = createApp({
 
                 for (const [key, value] of window.dkeys) {
                     if (key === 'tabletitle') {
-                    document.title = value;
+                        document.title = value;
                     } else if (key === 'today') {
-                    this.today = value;
+                        this.today = value;
                     } else if (key in typeMap) {
-                    this[key] = typeMap[key](value);
+                        this[key] = typeMap[key](value);
                     }
                 }
             } catch (e) {}
@@ -289,8 +289,6 @@ const app = createApp({
             const datakeys = Object.keys(storeRefs);
             const tojson = {};
 
-            tojson.today = new Date().toLocaleDateString();
-
             if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             datakeys.forEach((i) => {
@@ -303,6 +301,8 @@ const app = createApp({
                     tojson[i] = storeRefs[i].value;
 
             });
+
+            tojson.today = new Date().toLocaleDateString();
 
             localStorage.setItem('data', JSON.stringify(tojson));
             updatedisplay(o, num, pos);
