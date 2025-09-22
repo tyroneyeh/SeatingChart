@@ -680,20 +680,23 @@ const app = createApp({
             const fonts = {
                 zhuyin: {
                     family: 'BpmfZihiKai',
-                    file: 'BpmfZihiKaiStd-Regular.woff2'
+                    file: 'https://cdn.jsdelivr.net/gh/ButTaiwan/bpmfvs/outputs/BpmfZihiKaiStd-Regular.ttf',
+                    type: 'truetype'
                 },
                 pinyin: {
                     family: 'Pinyin-Tsuipita',
-                    file: 'ToneOZ-Pinyin-Tsuipita-TC.woff2'
+                    file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-Pinyin-Tsuipita-TC.woff2',
+                    type: 'woff2'
                 },
                 bothfonts: {
                     family: 'YinPZ-Tsuipita',
-                    file: 'ToneOZ-YinPZ-Tsuipita-TC.woff2'
+                    file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-YinPZ-Tsuipita-TC.woff2',
+                    type: 'woff2'
                 }
             };
             const f = fonts[event.target.value];
             if (f) {
-                el.innerHTML = `@font-face {font-family: '${f.family}';src: url('https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/${f.file}') format('woff2');font-weight: normal;font-style: normal;}.namearea {font-family: '${f.family}';}`;
+                el.innerHTML = `@font-face {font-family: '${f.family}';src: url('${f.file}') format('${f.type}');font-weight: normal;font-style: normal;}.namearea {font-family: '${f.family}';}`;
             } else {
                 el.innerHTML = '';
             }
