@@ -293,7 +293,7 @@ const app = createApp({
 
             if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
-            if (o?.target.innerText != storeRefs.today.value.innerText) storeRefs.today.value.innerText = new Date().toLocaleDateString();
+            if (o?.target?.innerText != storeRefs.today.value.innerText) storeRefs.today.value.innerText = new Date().toLocaleDateString();
 
             datakeys.forEach((i) => {
 
@@ -760,7 +760,7 @@ const app = createApp({
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
 
-        window.dkeys.forEach((i) => {
+        window.dkeys?.forEach((i) => {
 
             if (Array.isArray(i[1]) && i[1][0] != null) {
                 i[1].forEach((_, j) => {
