@@ -79,6 +79,7 @@
     width: 50px;
 }
 </style>
+<style id="dynamic-zh-font" type="text/css"></style>
 </head>
 <body>
 <div id="app" class="w-auto" v-cloak>
@@ -108,6 +109,7 @@
                         </div>
                         <a class="nav-link"><label><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label></a>
                         <a class="nav-link"><label><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label></a>
+                        <a class="nav-link"><label><input type="checkbox" @click="showZhuYin">{{ $gettext('ZhuYin') }}</label></a>
                     </ul>
                 </div>
             </div>
@@ -144,7 +146,7 @@
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             {{ String(n).padStart(2, '0') }}
                         </td>
-                        <td class="text-nowrap border-start border-end border-end py-1" @click="clickToEdit('namelist', n)" ref="namelist"></td>
+                        <td class="text-nowrap border-start border-end border-end py-1 namearea" @click="clickToEdit('namelist', n)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -157,7 +159,7 @@
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
                         <div class="border-bottom text-center p-0 bg-light possize" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 text-center mx-auto"><span class="text-nowrap p-0 vertical-text" ref="posname"></span></div>
+                        <div class="p-0 text-center mx-auto"><span class="text-nowrap p-0 vertical-text namearea" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
@@ -171,13 +173,13 @@
                 <thead>
                 <tr>
                     <th class="text-justify-last" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
-                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap" @click="clickToEdit" ref="teacher"></th>
+                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap namearea" @click="clickToEdit" ref="teacher"></th>
                 </tr>
                 </thead>
                 <tr v-for="(n, index) in totalLeader" class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
                     <td class="text-end text-nowrap text-justify-last" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
                     <td class="seat-container text-center w-50px" @click="clickToEdit('leaders', n)" ref="leaders"></td>
-                    <td class="seat-container text-nowrap" ref="leadersname">&nbsp;</td>
+                    <td class="seat-container text-nowrap namearea" ref="leadersname">&nbsp;</td>
                 </tr>
             </table>
         </div>
@@ -266,7 +268,7 @@ const app = createApp({
                     if (!isNaN(num)) {
                         const no = storeRefs?.namelist[num - 1];
                         if (no) {
-                            refs.posname[j].innerText = no.innerText;
+                            refs.posname[j].innerHTML = no.innerText +'<ruby></ruby>';
                             !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
                             refs.nameBgCtl[num - 1].checked = true;
                         }
@@ -671,7 +673,16 @@ const app = createApp({
         const fontButtonCtl = computed(() => {
             const key = fontSizeMap[refs.fontPos.value];
             return storeRefs[key].value <= 0.5;
-        })
+        });
+
+        const showZhuYin = () => {
+            const el = document.getElementById('dynamic-zh-font');
+            if (event.target.checked) {
+                el.innerHTML = `@font-face { font-family: 'BpmfZihiKai'; src: url('BpmfZihiKaiStd-Regular.woff2') format('woff2'); font-weight: normal; font-style: normal; } .namearea { font-family: 'BpmfZihiKai'; }`;
+            } else {
+                el.innerHTML = '';
+            }
+        };
 
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
@@ -736,7 +747,8 @@ const app = createApp({
             drop,
             toggleColor,
             adujstFont,
-            fontButtonCtl
+            fontButtonCtl,
+            showZhuYin
         };
     },
     mounted() {
@@ -803,7 +815,8 @@ const vue3gettext = createGettext({
             "Right": "右",
             "Font size": "字體大小",
             "Lists": "名單",
-            "Leaders": "股長"
+            "Leaders": "股長",
+            "ZhuYin": "注音"
         }
     }
 });
