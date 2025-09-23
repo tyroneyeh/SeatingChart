@@ -2,7 +2,7 @@
 
 **SeatingChart** is a pure front-end online students seating chart built with **VueJS 3** + **Bootstrap 5**.
 
-![Seating Charts](seatingchart.png)
+![Seating Charts](https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/seatingchart.png)
 
 ### Features
 - Simple and real-time seat arrangement, directly accessible from the browser
