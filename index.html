@@ -84,10 +84,14 @@
 .no-border-left {
   border-left: none !important;
 }
+.resize-y {
+    resize: vertical;
+    overflow-y: auto;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css"></style>
 </head>
-<body>
+<body class="overflow-x-hidden">
 <div id="app" class="w-auto" v-cloak>
     <div class="d-print-none m-1">
         <!-- top area -->
@@ -125,14 +129,14 @@
             <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
         </div>
     </div>
-    <div class="row m-auto" :style="{'font-size': fontSize + 'em'}">
-        <div class="col-3 col-xl-2 col-lg-2 col col-md-3 col-sm-3"></div>
-        <div class="col-3 col-xl-8 col-lg-8 col-md-6 col-sm-6 text-center" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="col-3 col-xl-2 col-lg-2 col-md-3 col-sm-3 align-self-end text-nowrap"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @click="clickToEdit" ref="today">&nbsp;</span></div>
+    <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
+        <div class="col-sm-3"></div>
+        <div class="text-nowrap text-center col-sm-6" @click="clickToEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-end col-sm-3"><span @click="clickToEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @click="clickToEdit" ref="today">&nbsp;</span></div>
     </div>
 
-    <div class="row m-auto">
-        <div class="col-lg-1 col-md-2 col-sm-2 pt-1 col-left" v-show="showList">
+    <div class="container-fluid row mx-auto">
+        <div class="col-lg-2 col-md-2 col-sm-2 pt-1 resize-y" v-show="showList">
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
@@ -158,7 +162,7 @@
             </table>
 
         </div>
-        <div class="bg-white seats" :class="{'col-lg-9 col-md-7 col-sm-7': showList && showLeader, 'col-lg-11 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
+        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-11 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
             <!-- center area -->
             <div class="row flex-nowrap child" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
@@ -173,7 +177,7 @@
                 <div class="mx-auto text-center desk" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
-        <div class="col-lg-2 col-md-3 col-sm-3 pt-1 col-right" v-show="showLeader">
+        <div class="col-lg-2 col-md-3 col-sm-3 pt-1" v-show="showLeader">
             <!-- right area -->
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
