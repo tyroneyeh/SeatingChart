@@ -84,8 +84,14 @@
 .no-border-left {
   border-left: none !important;
 }
+.resize-x {
+    resize: horizontal;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
 .resize-y {
     resize: vertical;
+    overflow-x: hidden;
     overflow-y: auto;
 }
 </style>
@@ -173,7 +179,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row m-2" :style="{'font-size': fontSizeR + 'em'}">
+            <div class="row mx-auto m-2 resize-x" :style="{'font-size': fontSizeR + 'em'}">
                 <div class="mx-auto text-center desk" @click="clickToEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
