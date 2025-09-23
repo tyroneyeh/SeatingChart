@@ -188,15 +188,21 @@
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
                 <tr>
-                    <th class="text-justify-last" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
-                    <th colspan="2" class="w-50 text-center ps-0 pe-0 text-nowrap namearea" @click="clickToEdit" ref="teacher"></th>
+                    <th colspan="2" class="text-justify-last bg-light" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                </tr>
+                <tr>
+                    <th colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" @click="clickToEdit" ref="teacher"></th>
                 </tr>
                 </thead>
-                <tr v-for="(n, index) in totalLeader" class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
-                    <td class="text-end text-nowrap text-justify-last" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
-                    <td class="seat-container text-center w-50px" @click="clickToEdit('leaders', n)" ref="leaders"></td>
-                    <td class="seat-container text-nowrap namearea" ref="leadersname">&nbsp;</td>
-                </tr>
+                <tbody v-for="(n, index) in totalLeader" class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
+                    <tr>
+                        <td class="text-end text-nowrap text-justify-last" colspan="2" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
+                    </tr>
+                    <tr>
+                        <td class="seat-container text-center w-50px no-border-right" @click="clickToEdit('leaders', n)" ref="leaders"></td>
+                        <td class="seat-container text-nowrap namearea text-justify-last no-border-left" ref="leadersname">&nbsp;</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -276,7 +282,7 @@ const app = createApp({
                 }
             } else if ('leaders' == o && num) {
                 const no = storeRefs?.namelist[num - 1];
-                no && (refs.leadersname[pos - 1].innerText = no.innerText);
+                if (no) refs.leadersname[pos - 1].innerText = no.innerText;
             } else if (!o) {
                 storeRefs.posdata.forEach((i, j) => {
                     refs.posname[j].innerText = '';
@@ -295,7 +301,7 @@ const app = createApp({
                     num = parseInt(i.innerText.trim());
                     if (!isNaN(num)) {
                         const no = storeRefs.namelist[num - 1];
-                        no && (refs.leadersname[j].innerText = no.innerText);
+                        if (no) refs.leadersname[j].innerText = no.innerText;
                     }
                 });
 
@@ -803,7 +809,7 @@ const app = createApp({
             if (Array.isArray(i[1]) && i[1][0] != null) {
                 i[1].forEach((_, j) => {
                     if (this[i[0]] && undefined != this[i[0]][j]?.innerText)
-                        this[i[0]][j].innerText = i[1][j];
+                        this[i[0]][j].innerHTML = i[1][j] ? i[1][j] : '&nbsp;';
                 });
             } else if (undefined != this[i[0]]?.innerText)
                 this[i[0]].innerText = i[1];
