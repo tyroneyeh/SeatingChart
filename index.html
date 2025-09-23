@@ -148,7 +148,7 @@
                 <thead>
                     <tr class="border-secondary small">
                         <th class="ps-3 py-1 no-border-right">
-                            <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl">
+                            <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl" ref="nameBtnCtl">
                         </th>
                         <th class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @click="clickToEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
@@ -284,7 +284,7 @@ const app = createApp({
                     if (!isNaN(num)) {
                         const no = storeRefs?.namelist[num - 1];
                         if (no) {
-                            refs.posname[j].innerHTML = no.innerText +'<ruby></ruby>';
+                            refs.posname[j].innerHTML = no.innerText;
                             !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
                             refs.nameBgCtl[num - 1].checked = true;
                         }
@@ -298,6 +298,9 @@ const app = createApp({
                         no && (refs.leadersname[j].innerText = no.innerText);
                     }
                 });
+
+                refs.nameBtnCtl.value.checked = storeRefs.posdata.filter(el => el.innerText.trim() != '').length >= storeRefs.namelist.filter(el => el.innerText.trim() != '').length;
+
             }
 
         };
@@ -760,6 +763,7 @@ const app = createApp({
             showList: ref(true),
             showLeader: ref(true),
             fontPos: ref('c'),
+            nameBtnCtl: ref(false)
         };
 
         return {
