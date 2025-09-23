@@ -1,4 +1,4 @@
-## Students SeatingChart
+## Students Classroom Seating Chart
 
 **SeatingChart** is a pure front-end online students seating chart built with **VueJS 3** + **Bootstrap 5**.
 
