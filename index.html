@@ -191,12 +191,12 @@
                     <th colspan="2" class="text-justify-last bg-light" @click="clickToEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
-                    <th colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" @click="clickToEdit" ref="teacher"></th>
+                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" @click="clickToEdit" ref="teacher"></td>
                 </tr>
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr>
-                        <td class="text-end text-nowrap text-justify-last" colspan="2" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</td>
+                        <th class="text-end text-nowrap text-justify-last" colspan="2" @click="clickToEdit('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</th>
                     </tr>
                     <tr class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
                         <td class="seat-container text-center no-border-right" @click="clickToEdit('leaders', n)" ref="leaders"></td>
