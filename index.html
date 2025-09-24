@@ -159,8 +159,8 @@
                     <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
                         class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
                         <td class="text-center text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
-                            {{ String(n).padStart(2, '0') }}
+                            <label><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
+                            {{ String(n).padStart(2, '0') }}</label>
                         </td>
                         <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @click="clickToEdit('namelist', n)" ref="namelist"></td>
                     </tr>
