@@ -137,8 +137,8 @@
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
-        <div class="text-nowrap text-center col-sm-6" @input="editInput" contenteditable="true" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3"><span @input="editInput" contenteditable="true" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @input="editInput" contenteditable="true" ref="today">&nbsp;</span></div>
+        <div class="text-nowrap text-center col-sm-6" @input="store" contenteditable="true" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-end col-sm-3"><span @input="store" contenteditable="true" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @input="editInput" contenteditable="true" ref="today">&nbsp;</span></div>
     </div>
 
     <div class="container-fluid row mx-auto">
@@ -150,7 +150,7 @@
                         <th class="ps-3 py-1 no-border-right">
                             <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl" ref="nameBtnCtl">
                         </th>
-                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @input="editInput" contenteditable="true" ref="studentListLabel">
+                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @input="store" contenteditable="true" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
@@ -180,7 +180,7 @@
                 </div>
             </div>
             <div class="row mx-auto m-2 resize-x" :style="{'font-size': fontSizeR + 'em'}">
-                <div class="mx-auto text-center desk" @input="editInput" contenteditable="true" ref="deskname">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto text-center desk" @input="store" contenteditable="true" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1" v-show="showLeader">
@@ -188,15 +188,15 @@
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
                 <tr>
-                    <th colspan="2" class="text-justify-last bg-light" @input="editInput" contenteditable="true" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th colspan="2" class="text-justify-last bg-light" @input="store" contenteditable="true" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
-                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" @input="editInput" contenteditable="true" ref="teacher"></td>
+                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" @input="store" contenteditable="true" ref="teacher"></td>
                 </tr>
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr>
-                        <th class="text-end text-nowrap text-justify-last" colspan="2" @input="editInput" contenteditable="true" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</th>
+                        <th class="text-end text-nowrap text-justify-last" colspan="2" @input="store" contenteditable="true" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</th>
                     </tr>
                     <tr class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
                         <td class="seat-container text-center no-border-right" @click="clickToEdit('leaders', n)" ref="leaders"></td>
