@@ -109,9 +109,9 @@
                 <a class="navbar-brand" href="">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <ul class="navbar-nav m-auto">
-                        <a class="nav-link">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
-                        <a class="nav-link">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
-                        <a class="nav-link">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
+                        <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
                         <button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button>
                         <button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button>
                         <input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button>
@@ -119,12 +119,12 @@
                         <button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button>
                         <div class="navbar-nav border">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
-                            <select v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
+                            <select class="text-center" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
                         </div>
-                        <label class="nav-link"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
-                        <label class="nav-link"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
-                        <select class="form-control-sm" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
+                        <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
                     </ul>
                 </div>
