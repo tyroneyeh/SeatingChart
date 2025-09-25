@@ -156,8 +156,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
+                    <tr class="namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
+                        class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
                             <label class="w-100"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
                             <span class="float-end">{{ n }}</span></label>
@@ -172,7 +172,7 @@
             <!-- center area -->
             <div class="row flex-nowrap child" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" @blur="store('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click="startEdit($event.target)" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="p-0 text-center mx-auto"><span class="text-nowrap p-0 vertical-text namearea" ref="posname"></span></div>
@@ -198,7 +198,7 @@
                     <tr>
                         <th class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @blur="store" @click="startEdit($event.target)" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</th>
                     </tr>
-                    <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
+                    <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
                         <td class="seat-container text-end no-border-right" @blur="store('leaders', $event.target.innerText, n)" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
                         <td class="seat-container text-nowrap namearea no-border-left" ref="leadersname"></td>
                     </tr>
@@ -278,50 +278,54 @@ const app = createApp({
             setCookie('hideTips', 1);
         };
 
-        const updatedisplay = (o, num, pos) => {
+        function getNameByNum(n) {
+            const entry = storeRefs?.namelist[n - 1];
+            return entry ? entry.innerText : "";
+        }
 
+        function setNameText(targetArr, index, num) {
+            const name = getNameByNum(num);
+            if (name) {
+                targetArr[index].innerText = name;
+            }
+        }
+
+        const updatedisplay = (o, num, pos) => {
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
-            refs.clearBtnCtl.value = storeRefs.posdata.filter(i => i.innerText != "").length == 0;
+            refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
+            const ctl = refs.nameBgCtl[parseInt(num) - 1];
 
-            if ('posdata' == o && num && pos) {
-                const no = storeRefs?.namelist[num - 1];
-                if (no) {
-                    refs.posname[pos].innerText = no.innerText;
-                    refs.nameBgCtl[num - 1].checked = true;
-                    !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
-                }
-            } else if ('leaders' == o && num) {
-                const no = storeRefs?.namelist[num - 1];
-                if (no) refs.leadersname[pos - 1].innerText = no.innerText;
+            if (o == 'posdata' && num && pos) {
+                setNameText(refs.posname, pos, num);
+                if (ctl) ctl.checked = true;
+                addToRandomNumbers(num);
+            } else if (o == 'leaders' && num) {
+                setNameText(refs.leadersname, pos - 1, num);
             } else if (!o) {
-                storeRefs.posdata.forEach((i, j) => {
+                storeRefs.posdata.forEach((item, j) => {
                     refs.posname[j].innerText = '';
-                    const sNum = i.innerText.trim();
-                    num = parseInt(sNum);
-                    if (!isNaN(num)) {
-                        const no = storeRefs?.namelist[num - 1];
-                        if (no) {
-                            refs.posname[j].innerHTML = no.innerText;
-                            !window.randomNumbers.includes(sNum) && window.randomNumbers.push(sNum);
-                            refs.nameBgCtl[num - 1].checked = true;
-                        }
+                    const sNum = parseInt(item.innerText.trim());
+                    if (!isNaN(sNum)) {
+                        setNameText(refs.posname, j, sNum);
+                        addToRandomNumbers(sNum);
+                        if (ctl) ctl.checked = true;
                     }
                 });
 
-                storeRefs.leaders.forEach((i, j) => {
-                    num = parseInt(i.innerText.trim());
-                    if (!isNaN(num)) {
-                        const no = storeRefs.namelist[num - 1];
-                        if (no) refs.leadersname[j].innerText = no.innerText;
+                storeRefs.leaders.forEach((item, j) => {
+                    const sNum = parseInt(item.innerText.trim());
+                    if (!isNaN(sNum)) {
+                        setNameText(refs.leadersname, j, sNum);
                     }
                 });
 
-                refs.nameBtnCtl.value.checked = storeRefs.posdata.filter(el => el.innerText.trim() != '').length >= storeRefs.namelist.filter(el => el.innerText.trim() != '').length;
-
+                const filledSeats = storeRefs.posdata.filter(el => el.innerText.trim() != '').length;
+                const filledNames = storeRefs.namelist.filter(el => el.innerText.trim() != '').length;
+                refs.nameBtnCtl.value.checked = filledSeats >= filledNames;
             }
-
         };
+
 
         const store = (o, num, pos) => {
 
@@ -438,6 +442,7 @@ const app = createApp({
             }
 
             else if (o == 'posdata') {
+                refs.posname[n].innerText = storeRefs.posdata[n].innerText.trim().length ? storeRefs.namelist[parseInt(storeRefs.posdata[n]?.innerText) - 1]?.innerText : '';
                 if (key == 'ArrowLeft' || key == 'Backspace') {
                     if (storeRefs.posdata[n].innerText.trim().length && key == 'Backspace') return;
                     event.preventDefault();
@@ -451,9 +456,12 @@ const app = createApp({
             }
 
             else if (o == 'leaders') {
-                if (key == 'ArrowUp') {
+                refs.leadersname[n - 1].innerText = storeRefs.leaders[n - 1].innerText.trim().length ? storeRefs.namelist[parseInt(storeRefs.leaders[n - 1]?.innerText) - 1]?.innerText : '';
+                if (key == 'ArrowUp' || key == 'Backspace') {
+                    if (storeRefs.leaders[n - 1].innerText.trim().length && key == 'Backspace') return;
                     event.preventDefault();
                     setEditable(storeRefs.leaders[n - 2]);
+                    focusAtEnd(storeRefs.leaders[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
                     setEditable(storeRefs.leaders[n]);
@@ -566,64 +574,107 @@ const app = createApp({
             if (n) refs.highlightedPos.value = show ? n : null;
         };
 
-        const dragStart = (index, type, event) => {
+        const dragStart = (index, type) => {
             event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
             event.target.classList.add('dragging', `${type}-row`);
         };
 
-        const drop = (targetIndex, event) => {
+        function removeFromRandomNumbers(num) {
+            window.randomNumbers = window.randomNumbers.filter(n => n != num);
+        }
+
+        function addToRandomNumbers(num) {
+            if (num && !window.randomNumbers.includes(String(num))) {
+                window.randomNumbers.push(String(num));
+            }
+        }
+
+        function swapElements(arr, idx1, idx2) {
+            const val1 = parseInt(arr[idx1]?.innerText || '');
+            const val2 = parseInt(arr[idx2]?.innerText || '');
+
+            if (arr[idx1]) arr[idx1].innerText = val2 || '';
+            if (arr[idx2]) arr[idx2].innerText = val1 || '';
+
+        }
+
+        function setElementValue(arr, idx, value) {
+            if (arr[idx]) arr[idx].innerText = value || '';
+        }
+
+        const drop = (targetIndex) => {
             event.preventDefault();
             event.stopPropagation();
+
             const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
-            const targetNum = event.currentTarget.classList.contains('leader-row') ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
+            const isNamelistRow = event.currentTarget.classList.contains('namelist-row');
+            const isLeaderRow = event.currentTarget.classList.contains('leader-row');
+            const isSeatRow = event.currentTarget.classList.contains('seat-row');
+
+            const targetNum = isLeaderRow ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
+
             const sourceIndex = parseInt(data.index);
 
-            if (data.type == 'student' && event.currentTarget.classList.contains('seat-row')) {
-                if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
-                if (window.randomNumbers.includes(sourceIndex)) {
-                    alert($gettext('Seat assigned'));
-                    return;
+            const actions = [{
+                condition: () => data.type == 'student' && isSeatRow,
+                action: () => {
+                    if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                    if (window.randomNumbers.includes(String(sourceIndex))) {
+                        alert($gettext('Seat assigned'));
+                        return;
+                    }
+                    if (targetNum) removeFromRandomNumbers(targetNum);
+                    setElementValue(storeRefs.posdata, targetIndex, sourceIndex);
+                    addToRandomNumbers(sourceIndex);
                 }
-                if (targetNum) {
-                    window.randomNumbers = window.randomNumbers.filter(num => num != targetNum);
+                },
+                {
+                    condition: () => data.type == 'seat' && isSeatRow,
+                    action: () => {
+                        if (sourceIndex == targetIndex) return;
+                        swapElements(storeRefs.posdata, sourceIndex, targetIndex);
+                    }
+                },
+                {
+                    condition: () => data.type == 'seat' && isLeaderRow,
+                    action: () => {
+                        if (sourceIndex == targetIndex) return;
+                        const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
+                        setElementValue(storeRefs.leaders, targetIndex, sourceNum);
+                    }
+                },
+                {
+                    condition: () => data.type == 'seat' && isNamelistRow,
+                    action: () => {
+                        const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
+                        window.randomNumbers = window.randomNumbers.filter((i) => { return i != sourceNum; });
+                        if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
+                        setElementValue(storeRefs.posdata, sourceIndex, '');
+                    }
+                },
+                {
+                    condition: () => data.type == 'leader' && isLeaderRow,
+                    action: () => {
+                        if (sourceIndex == targetIndex) return;
+                        swapElements(storeRefs.leaders, sourceIndex, targetIndex);
+                        if (!storeRefs.leaders[sourceIndex]?.innerText.trim().length) {
+                            setElementValue(refs.leadersname, sourceIndex, '');
+                        }
+                    }
+                },
+                {
+                    condition: () => data.type == 'student' && isLeaderRow,
+                    action: () => {
+                        if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                        setElementValue(storeRefs.leaders, targetIndex, sourceIndex);
+                    }
                 }
-                if (storeRefs.posdata[targetIndex]) {
-                    storeRefs.posdata[targetIndex].innerText = sourceIndex;
-                    !window.randomNumbers.includes(sourceIndex) && window.randomNumbers.push(String(sourceIndex));
-                }
-            } else if (data.type == 'seat' && event.currentTarget.classList.contains('seat-row')) {
-                if (sourceIndex == targetIndex) return;
-                const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                if (storeRefs.posdata[sourceIndex]) {
-                    storeRefs.posdata[sourceIndex].innerText = targetNum ? targetNum : '';
-                }
-                if (storeRefs.posdata[targetIndex]) {
-                    storeRefs.posdata[targetIndex].innerText = sourceNum ? sourceNum : '';
-                }
-                if (sourceNum && !window.randomNumbers.includes(sourceNum)) window.randomNumbers.push(String(sourceNum));
-                if (targetNum && !window.randomNumbers.includes(targetNum)) window.randomNumbers.push(String(targetNum));
-                if (!sourceNum || !targetNum) {
-                    window.randomNumbers = window.randomNumbers.filter(num => storeRefs.posdata.some(el => parseInt(el.innerText || '') == num));
-                }
-            } else if (data.type == 'seat' && event.currentTarget.classList.contains('leader-row')) {
-                if (sourceIndex == targetIndex) return;
-                const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                if (storeRefs.leaders[targetIndex]) {
-                    storeRefs.leaders[targetIndex].innerText = sourceNum ? sourceNum : '';
-                }
-            } else if (data.type == 'leader' && event.currentTarget.classList.contains('leader-row')) {
-                if (sourceIndex == targetIndex) return;
-                const sourceNum = parseInt(storeRefs.leaders[sourceIndex]?.innerText || '');
-                if (storeRefs.leaders[sourceIndex]) {
-                    storeRefs.leaders[sourceIndex].innerText = targetNum ? targetNum : '';
-                }
-                if (storeRefs.leaders[targetIndex]) {
-                    storeRefs.leaders[targetIndex].innerText = sourceNum ? sourceNum : '';
-                }
-            } else if (data.type == 'student' && event.currentTarget.classList.contains('leader-row')) {
-                if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
-                if (storeRefs.leaders[targetIndex]) {
-                    storeRefs.leaders[targetIndex].innerText = sourceIndex;
+            ];
+
+            for (const { condition, action } of actions) {
+                if (condition()) {
+                    action();
+                    break;
                 }
             }
 
