@@ -159,8 +159,8 @@
                     <tr class="namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
                         class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="w-100"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
-                            <span class="float-end">{{ n }}</span></label>
+                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
+                            <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
                         </td>
                         <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target)" ref="namelist"></td>
                     </tr>
@@ -294,10 +294,10 @@ const app = createApp({
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
-            const ctl = refs.nameBgCtl[parseInt(num) - 1];
 
             if (o == 'posdata' && num && pos) {
                 setNameText(refs.posname, pos, num);
+                const ctl = refs.nameBgCtl[parseInt(num) - 1];
                 if (ctl) ctl.checked = true;
                 addToRandomNumbers(num);
             } else if (o == 'leaders' && num) {
@@ -309,6 +309,7 @@ const app = createApp({
                     if (!isNaN(sNum)) {
                         setNameText(refs.posname, j, sNum);
                         addToRandomNumbers(sNum);
+                        const ctl = refs.nameBgCtl[parseInt(sNum) - 1];
                         if (ctl) ctl.checked = true;
                     }
                 });
