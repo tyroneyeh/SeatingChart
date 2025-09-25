@@ -137,8 +137,8 @@
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
-        <div class="text-nowrap text-center col-sm-6" @blur="store" contenteditable="true" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3"><span @blur="store" contenteditable="true" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @blur="store" contenteditable="true" ref="today">&nbsp;</span></div>
+        <div class="text-nowrap text-center col-sm-6" @blur="store" @click="startEdit($event.target)" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-end col-sm-3"><span @blur="store" @click="startEdit($event.target)" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @blur="store" @click="startEdit($event.target)" ref="today"></span></div>
     </div>
 
     <div class="container-fluid row mx-auto">
@@ -150,7 +150,7 @@
                         <th class="ps-3 py-1 no-border-right">
                             <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl" ref="nameBtnCtl">
                         </th>
-                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @blur="store" contenteditable="true" ref="studentListLabel">
+                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @blur="store" @click="startEdit($event.target)" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
@@ -158,11 +158,11 @@
                 <tbody>
                     <tr v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
                         class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student', $event)">
-                        <td class="text-center text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
-                            {{ String(n).padStart(2, '0') }}</label>
+                        <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
+                            <label class="w-100"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
+                            <span class="float-end">{{ n }}</span></label>
                         </td>
-                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @click="clickToEdit('namelist', n)" ref="namelist"></td>
+                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -172,15 +172,15 @@
             <!-- center area -->
             <div class="row flex-nowrap child" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
-                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText === highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
-                        <div class="border-bottom text-center p-0 bg-light possize" @click.stop="clickToEdit('posdata', x, y)" ref="posdata"></div>
+                    <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat', $event)" @dragover.prevent @drop="drop(((y-1)*totalX + x-1), $event)">
+                        <div class="border-bottom text-center p-0 bg-light possize" @blur="store('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click="startEdit($event.target)" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="p-0 text-center mx-auto"><span class="text-nowrap p-0 vertical-text namearea" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
             <div class="row mx-auto m-2 resize-x" :style="{'font-size': fontSizeR + 'em'}">
-                <div class="mx-auto text-center desk" @blur="store" contenteditable="true" ref="deskname">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto text-center desk" @blur="store" @click="startEdit($event.target)" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1" v-show="showLeader">
@@ -188,19 +188,19 @@
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
                 <tr>
-                    <th colspan="2" class="text-justify-last bg-light" @blur="store" contenteditable="true" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th colspan="2" class="text-justify-last bg-light" @blur="store" @click="startEdit($event.target)" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
-                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" @blur="store" contenteditable="true" ref="teacher"></td>
+                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" :style="{'height': fontSizeR * 2 + 'em'}" @blur="store" @click="startEdit($event.target)" ref="teacher"></td>
                 </tr>
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr>
-                        <th class="text-end text-nowrap text-justify-last" colspan="2" @blur="store" contenteditable="true" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</th>
+                        <th class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @blur="store" @click="startEdit($event.target)" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames">{{ leadernames[n - 1]?.innerText }}</th>
                     </tr>
-                    <tr class="leader-row" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
-                        <td class="seat-container text-center no-border-right" @click="clickToEdit('leaders', n)" ref="leaders"></td>
-                        <td class="seat-container text-nowrap namearea no-border-left" ref="leadersname">&nbsp;</td>
+                    <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader', $event)" @dragover.prevent @drop="drop(index, $event)">
+                        <td class="seat-container text-end no-border-right" @blur="store('leaders', $event.target.innerText, n)" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
+                        <td class="seat-container text-nowrap namearea no-border-left" ref="leadersname"></td>
                     </tr>
                 </tbody>
             </table>
@@ -218,8 +218,10 @@
 </div>
 
 <script>
+'use strict';
+
 window.randomNumbers = [];
-const { createApp, ref, reactive, computed } = Vue;
+const { createApp, ref, reactive, computed, nextTick } = Vue;
 
 const app = createApp({
     beforeCreate() {
@@ -241,9 +243,9 @@ const app = createApp({
                 window.dkeys = Object.entries(data);
 
                 for (const [key, value] of window.dkeys) {
-                    if (key === 'tabletitle') {
+                    if (key == 'tabletitle') {
                         document.title = value;
-                    } else if (key === 'today') {
+                    } else if (key == 'today') {
                         this.today = value;
                     } else if (key in typeMap) {
                         this[key] = typeMap[key](value);
@@ -251,7 +253,6 @@ const app = createApp({
                 }
             } catch (e) {}
 
-            this.totalnums.value = this.totalX * this.totalY;
         }
         this.hideTips = this.getCookie('hideTips') == 1;
     },
@@ -287,6 +288,7 @@ const app = createApp({
                 const no = storeRefs?.namelist[num - 1];
                 if (no) {
                     refs.posname[pos].innerText = no.innerText;
+                    refs.nameBgCtl[num - 1].checked = true;
                     !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
                 }
             } else if ('leaders' == o && num) {
@@ -295,12 +297,13 @@ const app = createApp({
             } else if (!o) {
                 storeRefs.posdata.forEach((i, j) => {
                     refs.posname[j].innerText = '';
-                    num = parseInt(i.innerText.trim());
+                    const sNum = i.innerText.trim();
+                    num = parseInt(sNum);
                     if (!isNaN(num)) {
                         const no = storeRefs?.namelist[num - 1];
                         if (no) {
                             refs.posname[j].innerHTML = no.innerText;
-                            !window.randomNumbers.includes(num) && window.randomNumbers.push(num);
+                            !window.randomNumbers.includes(sNum) && window.randomNumbers.push(sNum);
                             refs.nameBgCtl[num - 1].checked = true;
                         }
                     }
@@ -362,13 +365,110 @@ const app = createApp({
             location.reload();
         };
 
+        const startEdit = (el) => {
+            refs.editingEl.value?.removeAttribute('contenteditable');
+            el.setAttribute('contenteditable', 'true');
+            refs.editingEl.value = el;
+            nextTick(() => {
+                refs.editingEl.value.focus();
+            });
+        };
+
+        function setEditable(el) {
+            if (!el) return;
+            refs.editingEl.value = el;
+            el.setAttribute('contenteditable', 'true');
+            nextTick(() => el.focus());
+        }
+
+        function focusAtEnd(el) {
+            if (!el) return;
+            el.focus();
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            range.collapse(false);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        const editKeydown = (o, n) => {
+            const key = event.key;
+
+            if (o == 'namelist') {
+                if (n == storeRefs.totalNamelist.value && (key == 'Enter' || key == 'ArrowDown')) {
+                    event.preventDefault();
+                    storeRefs.totalNamelist.value++;
+                    setEditable(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                } else if (n == storeRefs.totalNamelist.value && key == 'Backspace') {
+                    if (storeRefs.namelist[storeRefs.totalNamelist.value - 1].innerText.trim().length) return;
+                    event.preventDefault();
+                    storeRefs.totalNamelist.value--;
+                    setEditable(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                    focusAtEnd(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                } else if (key == 'ArrowUp') {
+                    event.preventDefault();
+                    setEditable(storeRefs.namelist[n - 2]);
+                } else if (key == 'ArrowDown' || key == 'Enter') {
+                    event.preventDefault();
+                    setEditable(storeRefs.namelist[n]);
+                }
+            }
+
+            else if (o == 'leadernames') {
+                if (n == storeRefs.totalLeader.value && (key == 'Enter' || key == 'ArrowDown')) {
+                    event.preventDefault();
+                    storeRefs.totalLeader.value++;
+                    setEditable(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                } else if (n == storeRefs.totalLeader.value && key == 'Backspace') {
+                    if (storeRefs.leadernames[storeRefs.totalLeader.value - 1].innerText.trim().length) return;
+                    event.preventDefault();
+                    storeRefs.totalLeader.value--;
+                    setEditable(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                    focusAtEnd(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                } else if (key == 'ArrowUp') {
+                    event.preventDefault();
+                    setEditable(storeRefs.leadernames[n - 2]);
+                    focusAtEnd(storeRefs.leadernames[n - 2]);
+                } else if (key == 'ArrowDown' || key == 'Enter') {
+                    event.preventDefault();
+                    setEditable(storeRefs.leadernames[n]);
+                    focusAtEnd(storeRefs.leadernames[n]);
+                }
+            }
+
+            else if (o == 'posdata') {
+                if (key == 'ArrowLeft' || key == 'Backspace') {
+                    if (storeRefs.posdata[n].innerText.trim().length && key == 'Backspace') return;
+                    event.preventDefault();
+                    setEditable(storeRefs.posdata[n - 1]);
+                    focusAtEnd(storeRefs.posdata[n - 1]);
+                } else if (key == 'ArrowRight' || key == 'Enter') {
+                    event.preventDefault();
+                    setEditable(storeRefs.posdata[n + 1]);
+                    focusAtEnd(storeRefs.posdata[n + 1]);
+                }
+            }
+
+            else if (o == 'leaders') {
+                if (key == 'ArrowUp') {
+                    event.preventDefault();
+                    setEditable(storeRefs.leaders[n - 2]);
+                } else if (key == 'ArrowDown' || key == 'Enter') {
+                    event.preventDefault();
+                    setEditable(storeRefs.leaders[n]);
+                }
+            }
+        }
+
+
         function splitTextWithSpecialCaseSimple(text) {
 
             const segments = text.split(/[ 　\n\t,，、]+/).filter(segment => segment.length > 0);
             const result = [];
             let i = 0;
             while (i < segments.length) {
-                if (i + 1 < segments.length && segments[i].length === 1 && segments[i + 1].length === 1) {
+                if (i + 1 < segments.length && segments[i].length == 1 && segments[i + 1].length == 1) {
                     result.push(`${segments[i]} ${segments[i + 1]}`);
                     i += 2;
                 } else {
@@ -380,161 +480,22 @@ const app = createApp({
             return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
         }
 
-        const clickToEdit = (o, n, y) => {
-            const editInput = event?.target;
+        const editPaste = (o, n) => {
 
-            if (!editInput)
-                return;
+             const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
+             if (!['namelist', 'leadernames'].includes(o) || !pasteData?.length) return;
 
-            refs.currentTarget.value = o;
-            refs.currentIndex.value = n;
+            event.preventDefault();
 
-            const inputElement = document.createElement('input');
-            inputElement.classList.add('form-control-sm');
-            inputElement.setAttribute('type', 'text');
-            if (['posdata', 'leaders'].includes(o)) {
-                inputElement.setAttribute('type', 'number');
-                inputElement.setAttribute('min', 1);
-                inputElement.setAttribute('max', storeRefs.totalNamelist.value);
-            } else if ('namelist' == o) {
-                refs.highlightedPos.value = String(n).padStart(2, '0');
-            }
+            const list = storeRefs[o];
+            const startIndex = n - 1;
 
-            inputElement.style.width = "100%";
-            inputElement.style.minWidth = '50px';
-            inputElement.style.height = "24px";
-            inputElement.value = editInput.innerText;
-
-            window.randomNumbers = window.randomNumbers.filter(e => e != parseInt(inputElement.value));
-            const num = parseInt(inputElement.value);
-            if ('posdata' == o && num)
-                refs.nameBgCtl[num - 1].checked = false;
-
-            editInput.innerText = '';
-            editInput.appendChild(inputElement);
-
-            inputElement.addEventListener('blur', () => {
-                const num = parseInt(inputElement.value);
-                let pos = n;
-                if (['posdata', 'leaders'].includes(o) && !isNaN(num)) {
-                    if (num > storeRefs.totalNamelist.value) {
-                        editInput.innerText = '';
-                        return;
-                    }
-                    if ('posdata' == o) {
-                        pos = ((y - 1) * storeRefs.totalX.value + n) - 1;
-                        if (window.randomNumbers.includes(num)) {
-                            alert($gettext('Seat assigned'));
-                            editInput.innerText = '';
-                            setTimeout(() => {
-                                const targetEl = storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 1];
-                                if (targetEl) targetEl.click();
-                            }, 50);
-                            return;
-                        }
-                        num && (refs.nameBgCtl[num - 1].checked = true);
-                    }
-                    editInput.innerText = String(inputElement.value).padStart(2, '0');
-                } else {
-                    editInput.innerHTML = inputElement.value.replace(/ /g, '&nbsp;');
-                }
-
-                store(o, num, pos);
-                refs.storeData.value = 1;
+            pasteData.forEach((text, j) => {
+                const item = list[startIndex + j];
+                if (!item) return;
+                item.innerText = text.replace(/(['"])(.*?)\1/g, '$2').trim();
             });
 
-            inputElement.addEventListener('keydown', (e) => {
-                if (undefined == n) return;
-                if ((e.shiftKey && 'Tab' == e.key) || (e.shiftKey && 'Enter' == e.key) || ('ArrowUp' == e.key && !y)) {
-                    e.preventDefault();
-                    if (y)
-                        storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
-                    else
-                        storeRefs[o][n - 2]?.click();
-                } else if (['Enter', 'Tab'].includes(e.key) || ('ArrowDown' == e.key && !y)) {
-                    e.preventDefault();
-                    if (y)
-                        storeRefs[o][(y - 1) * storeRefs.totalX.value + n]?.click();
-                    else if (['leadernames', 'leaders'].includes(o) && storeRefs.totalLeader.value <= storeRefs.leadernames.length && n == storeRefs.leadernames.length)
-                        storeRefs.totalLeader.value++;
-                    else if ('namelist' == o && storeRefs.totalNamelist.value <= storeRefs[o].length && n == storeRefs.totalNamelist.value)
-                        storeRefs.totalNamelist.value++;
-
-                    if (['namelist', 'leadernames', 'leaders'].includes(o) && undefined != storeRefs[o])
-                        setTimeout(() => {
-                            if (storeRefs[o][n]) storeRefs[o][n].click();
-                        }, 50);
-                } else if ('posdata' == o && (e.shiftKey && 'Tab' == e.key && y || 'ArrowLeft' == e.key)) {
-                    e.preventDefault();
-                    storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
-                } else if ('posdata' == o && (['Enter', 'Tab'].includes(e.key) && y || 'ArrowRight' == e.key)) {
-                    e.preventDefault();
-                    storeRefs[o][(y - 1) * storeRefs.totalX.value + n]?.click();
-                } else if ('Backspace' == e.key) {
-                    switch(o) {
-                    case 'namelist':
-                    case 'leadernames':
-                    case 'leaders':
-                        if (!e.target.value.length && !storeRefs[o][n - 1]?.innerText.trim().length) {
-                            e.preventDefault();
-
-                            const getTotalRef = (key) => storeRefs[`total${key.charAt(0).toUpperCase()}${key.slice(1)}`];
-
-                            const totalRef =
-                                getTotalRef(o) ??
-                                (n === storeRefs.totalLeader.value ? storeRefs.totalLeader : null) ??
-                                (n === storeRefs.totalNamelist.value ? storeRefs.totalNamelist : null);
-
-                            if (totalRef && n === totalRef.value) {
-                                totalRef.value--;
-                            }
-
-                            setTimeout(() => {
-                                storeRefs[o][n - 2]?.click();
-                            }, 50);
-                        }
-                        break;
-                    case 'posdata':
-                        if (!e.target.value.length) {
-                            e.preventDefault();
-                            storeRefs[o][((y - 1) * storeRefs.totalX.value + n) - 2]?.click();
-                        }
-                    }
-                }
-
-            });
-
-            inputElement.addEventListener('paste', (event) => {
-                const pasteData = splitTextWithSpecialCaseSimple(
-                    event.clipboardData.getData('text').trim()
-                );
-
-                const target = refs.currentTarget.value;
-                if (!['namelist', 'leadernames'].includes(target) || !pasteData?.length) return;
-
-                event.preventDefault();
-
-                const list = storeRefs[target];
-                const startIndex = refs.currentIndex.value - 1;
-
-                list[startIndex].innerText = pasteData[0].replace(/(['"])(.*?)\1/g, '$2').trim();
-
-                pasteData.forEach((text, j) => {
-                    const item = list[startIndex + j];
-                    if (!item) return;
-                    item.innerText = text.replace(/(['"])(.*?)\1/g, '$2').trim();
-                });
-
-                store();
-
-            });
-
-            inputElement.focus();
-
-        };
-
-        const editInput = () => {
-            store();
         };
 
         const download = () => {
@@ -576,7 +537,7 @@ const app = createApp({
                     rNum = Math.floor(Math.random() * studentNums.length);
                     // Check for valid index and valid namelist entry
                     if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
-                        element.innerText = String(studentNums[rNum]).padStart(2, '0');
+                        element.innerText = studentNums[rNum];
                     } else {
                         continue;
                     }
@@ -602,7 +563,7 @@ const app = createApp({
         };
 
         const showPos = (n, show) => {
-            if (n) refs.highlightedPos.value = show ? String(n).padStart(2, '0') : null;
+            if (n) refs.highlightedPos.value = show ? n : null;
         };
 
         const dragStart = (index, type, event) => {
@@ -612,63 +573,57 @@ const app = createApp({
 
         const drop = (targetIndex, event) => {
             event.preventDefault();
+            event.stopPropagation();
             const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
             const targetNum = event.currentTarget.classList.contains('leader-row') ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
             const sourceIndex = parseInt(data.index);
 
-            if (data.type === 'student' && event.currentTarget.classList.contains('seat-row')) {
+            if (data.type == 'student' && event.currentTarget.classList.contains('seat-row')) {
                 if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
                 if (window.randomNumbers.includes(sourceIndex)) {
                     alert($gettext('Seat assigned'));
                     return;
                 }
                 if (targetNum) {
-                    window.randomNumbers = window.randomNumbers.filter(num => num !== targetNum);
-                    refs.nameBgCtl[targetNum - 1].checked = false;
+                    window.randomNumbers = window.randomNumbers.filter(num => num != targetNum);
                 }
                 if (storeRefs.posdata[targetIndex]) {
-                    storeRefs.posdata[targetIndex].innerText = String(sourceIndex).padStart(2, '0');
-                    !window.randomNumbers.includes(sourceIndex) && window.randomNumbers.push(sourceIndex);
-                    refs.nameBgCtl[sourceIndex - 1].checked = true;
+                    storeRefs.posdata[targetIndex].innerText = sourceIndex;
+                    !window.randomNumbers.includes(sourceIndex) && window.randomNumbers.push(String(sourceIndex));
                 }
-            } else if (data.type === 'seat' && event.currentTarget.classList.contains('seat-row')) {
-                if (sourceIndex === targetIndex) return;
+            } else if (data.type == 'seat' && event.currentTarget.classList.contains('seat-row')) {
+                if (sourceIndex == targetIndex) return;
                 const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
                 if (storeRefs.posdata[sourceIndex]) {
-                    storeRefs.posdata[sourceIndex].innerText = targetNum ? String(targetNum).padStart(2, '0') : '';
+                    storeRefs.posdata[sourceIndex].innerText = targetNum ? targetNum : '';
                 }
                 if (storeRefs.posdata[targetIndex]) {
-                    storeRefs.posdata[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
+                    storeRefs.posdata[targetIndex].innerText = sourceNum ? sourceNum : '';
                 }
-                if (sourceNum && !window.randomNumbers.includes(sourceNum)) window.randomNumbers.push(sourceNum);
-                if (targetNum && !window.randomNumbers.includes(targetNum)) window.randomNumbers.push(targetNum);
+                if (sourceNum && !window.randomNumbers.includes(sourceNum)) window.randomNumbers.push(String(sourceNum));
+                if (targetNum && !window.randomNumbers.includes(targetNum)) window.randomNumbers.push(String(targetNum));
                 if (!sourceNum || !targetNum) {
-                    window.randomNumbers = window.randomNumbers.filter(num => storeRefs.posdata.some(el => parseInt(el.innerText || '') === num));
+                    window.randomNumbers = window.randomNumbers.filter(num => storeRefs.posdata.some(el => parseInt(el.innerText || '') == num));
                 }
-                if (sourceNum) refs.nameBgCtl[sourceNum - 1].checked = true;
-                if (targetNum) refs.nameBgCtl[targetNum - 1].checked = true;
             } else if (data.type == 'seat' && event.currentTarget.classList.contains('leader-row')) {
-                if (sourceIndex === targetIndex) return;
+                if (sourceIndex == targetIndex) return;
                 const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
                 if (storeRefs.leaders[targetIndex]) {
-                    storeRefs.leaders[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
+                    storeRefs.leaders[targetIndex].innerText = sourceNum ? sourceNum : '';
                 }
-            } else if (data.type === 'leader' && event.currentTarget.classList.contains('leader-row')) {
-                if (sourceIndex === targetIndex) return;
+            } else if (data.type == 'leader' && event.currentTarget.classList.contains('leader-row')) {
+                if (sourceIndex == targetIndex) return;
                 const sourceNum = parseInt(storeRefs.leaders[sourceIndex]?.innerText || '');
                 if (storeRefs.leaders[sourceIndex]) {
-                    storeRefs.leaders[sourceIndex].innerText = targetNum ? String(targetNum).padStart(2, '0') : '';
-                    if (storeRefs.leaders[sourceIndex].innerText == '') {
-                        refs.leadersname[sourceIndex].innerHTML = '&nbsp;';
-                    }
+                    storeRefs.leaders[sourceIndex].innerText = targetNum ? targetNum : '';
                 }
                 if (storeRefs.leaders[targetIndex]) {
-                    storeRefs.leaders[targetIndex].innerText = sourceNum ? String(sourceNum).padStart(2, '0') : '';
+                    storeRefs.leaders[targetIndex].innerText = sourceNum ? sourceNum : '';
                 }
             } else if (data.type == 'student' && event.currentTarget.classList.contains('leader-row')) {
                 if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
                 if (storeRefs.leaders[targetIndex]) {
-                    storeRefs.leaders[targetIndex].innerText = String(sourceIndex).padStart(2, '0');
+                    storeRefs.leaders[targetIndex].innerText = sourceIndex;
                 }
             }
 
@@ -680,12 +635,12 @@ const app = createApp({
             const el = event.currentTarget;
             let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
 
-            if (currentIndex === -1) {
+            if (currentIndex == -1) {
                 el.classList.add(refs.colors[(refs.colorIndex.value > 0) ? refs.colorIndex.value : 0]);
                 return;
             }
             el.classList.remove(refs.colors[currentIndex]);
-            if (currentIndex === refs.colors.length - 1) {
+            if (currentIndex == refs.colors.length - 1) {
                 return;
             }
             if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
@@ -700,7 +655,7 @@ const app = createApp({
 
             const key = fontSizeMap[refs.fontPos.value];
             if (key) {
-                const val = storeRefs[key].value + (direction === "+" ? 0.1 : -0.1);
+                const val = storeRefs[key].value + (direction == "+" ? 0.1 : -0.1);
                 if (val >= 0.5) {
                     storeRefs[key].value = Math.round(val * 10) / 10;
                     store();
@@ -782,14 +737,16 @@ const app = createApp({
             showList: ref(true),
             showLeader: ref(true),
             fontPos: ref('c'),
-            nameBtnCtl: ref(false)
+            nameBtnCtl: ref(false),
+            editingEl: ref(null)
         };
 
         return {
             ...storeRefs,
             ...refs,
-            clickToEdit,
-            editInput,
+            startEdit,
+            editKeydown,
+            editPaste,
             store,
             clearStore,
             download,
@@ -823,7 +780,7 @@ const app = createApp({
             if (Array.isArray(i[1]) && i[1][0] != null) {
                 i[1].forEach((_, j) => {
                     if (this[i[0]] && undefined != this[i[0]][j]?.innerText)
-                        this[i[0]][j].innerHTML = i[1][j] ? i[1][j] : '&nbsp;';
+                        this[i[0]][j].innerHTML = i[1][j];
                 });
             } else if (undefined != this[i[0]]?.innerText)
                 this[i[0]].innerText = i[1];
@@ -884,7 +841,6 @@ const vue3gettext = VueGettext.createGettext({
     }
 });
 
-app.config.globalProperties.$randomNumbers = window.randomNumbers;
 window.$gettext = vue3gettext.$gettext;
 app.use(vue3gettext).mount('#app');
 
