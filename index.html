@@ -159,10 +159,10 @@
                     <tr class="namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
                         class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" ref="nameBgCtl" :checked="namesBgCtl">
+                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" :checked="namesBgCtl">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
                         </td>
-                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target)" ref="namelist"></td>
+                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -468,8 +468,19 @@ const app = createApp({
                     event.preventDefault();
                     startEdit(storeRefs.leaders[n]);
                 }
+            } else if (o == 'nameBgCtl') {
+                if (key == 'ArrowUp') {
+                    event.preventDefault();
+                    refs.nameBgCtl[n - 2]?.focus();
+                } else if (key == 'ArrowDown') {
+                    event.preventDefault();
+                    refs.nameBgCtl[n]?.focus();
+                } else if (key == 'Enter') {
+                    event.preventDefault();
+                    refs.nameBgCtl[n - 1].checked = !refs.nameBgCtl[n - 1]?.checked;
+                }
             }
-        }
+        };
 
 
         function splitTextWithSpecialCaseSimple(text) {
@@ -573,7 +584,7 @@ const app = createApp({
         };
 
         const showPos = (n, show) => {
-            if (n) refs.highlightedPos.value = show ? n : null;
+            refs.highlightedPos.value = show ? n : null;
         };
 
         const dragStart = (index, type) => {
