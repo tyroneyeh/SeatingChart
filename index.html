@@ -137,8 +137,8 @@
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
-        <div class="text-nowrap text-center col-sm-6" @blur="store" @click="startEdit($event.target)" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3"><span @blur="store" @click="startEdit($event.target)" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @blur="store" @click="startEdit($event.target)" ref="today"></span></div>
+        <div class="text-nowrap text-center col-sm-6" @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-end col-sm-3"><span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="today"></span></div>
     </div>
 
     <div class="container-fluid row mx-auto">
@@ -150,7 +150,7 @@
                         <th class="ps-3 py-1 no-border-right">
                             <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl" ref="nameBtnCtl">
                         </th>
-                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @blur="store" @click="startEdit($event.target)" ref="studentListLabel">
+                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
@@ -370,21 +370,18 @@ const app = createApp({
             location.reload();
         };
 
-        const startEdit = (el) => {
-            refs.editingEl.value?.removeAttribute('contenteditable');
-            el.setAttribute('contenteditable', 'true');
-            refs.editingEl.value = el;
-            nextTick(() => {
-                refs.editingEl.value.focus();
-            });
+        const endEdit = () => {
+            event.target?.removeAttribute('contenteditable');
+            refs.editingEl.value = null;
         };
 
-        function setEditable(el) {
+        const startEdit = (el) => {
+            refs.editingEl.value?.removeAttribute('contenteditable');
             if (!el) return;
-            refs.editingEl.value = el;
             el.setAttribute('contenteditable', 'true');
+            refs.editingEl.value = el;
             nextTick(() => el.focus());
-        }
+        };
 
         function focusAtEnd(el) {
             if (!el) return;
@@ -404,68 +401,72 @@ const app = createApp({
                 if (n == storeRefs.totalNamelist.value && (key == 'Enter' || key == 'ArrowDown')) {
                     event.preventDefault();
                     storeRefs.totalNamelist.value++;
-                    setEditable(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                    startEdit(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
                 } else if (n == storeRefs.totalNamelist.value && key == 'Backspace') {
                     if (storeRefs.namelist[storeRefs.totalNamelist.value - 1].innerText.trim().length) return;
                     event.preventDefault();
                     storeRefs.totalNamelist.value--;
-                    setEditable(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                    startEdit(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
                     focusAtEnd(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
                 } else if (key == 'ArrowUp') {
                     event.preventDefault();
-                    setEditable(storeRefs.namelist[n - 2]);
+                    startEdit(storeRefs.namelist[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
-                    setEditable(storeRefs.namelist[n]);
+                    startEdit(storeRefs.namelist[n]);
                 }
-            }
-
-            else if (o == 'leadernames') {
+            } else if (o == 'leadernames') {
                 if (n == storeRefs.totalLeader.value && (key == 'Enter' || key == 'ArrowDown')) {
                     event.preventDefault();
                     storeRefs.totalLeader.value++;
-                    setEditable(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                    startEdit(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
                 } else if (n == storeRefs.totalLeader.value && key == 'Backspace') {
                     if (storeRefs.leadernames[storeRefs.totalLeader.value - 1].innerText.trim().length) return;
                     event.preventDefault();
                     storeRefs.totalLeader.value--;
-                    setEditable(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                    startEdit(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
                     focusAtEnd(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
                 } else if (key == 'ArrowUp') {
                     event.preventDefault();
-                    setEditable(storeRefs.leadernames[n - 2]);
+                    startEdit(storeRefs.leadernames[n - 2]);
                     focusAtEnd(storeRefs.leadernames[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
-                    setEditable(storeRefs.leadernames[n]);
+                    startEdit(storeRefs.leadernames[n]);
                     focusAtEnd(storeRefs.leadernames[n]);
                 }
-            }
-
-            else if (o == 'posdata') {
-                refs.posname[n].innerText = storeRefs.posdata[n].innerText.trim().length ? storeRefs.namelist[parseInt(storeRefs.posdata[n]?.innerText) - 1]?.innerText : '';
-                if (key == 'ArrowLeft' || key == 'Backspace') {
-                    if (storeRefs.posdata[n].innerText.trim().length && key == 'Backspace') return;
+            } else if (o == 'posdata') {
+                if (key == 'ArrowUp') {
                     event.preventDefault();
-                    setEditable(storeRefs.posdata[n - 1]);
+                    startEdit(storeRefs.posdata[n - storeRefs.totalX.value]);
+                    focusAtEnd(storeRefs.posdata[n - storeRefs.totalX.value]);
+                } else if (key == 'ArrowDown') {
+                    event.preventDefault();
+                    startEdit(storeRefs.posdata[n + storeRefs.totalX.value]);
+                    focusAtEnd(storeRefs.posdata[n + storeRefs.totalX.value]);
+                } else if (key == 'ArrowLeft' || key == 'Backspace') {
+                    const hasText = storeRefs.posdata[n].innerText.trim().length;
+                    if (hasText && key == 'Backspace') return;
+                    if (!hasText) refs.posname[n].innerText = '';
+                    event.preventDefault();
+                    startEdit(storeRefs.posdata[n - 1]);
                     focusAtEnd(storeRefs.posdata[n - 1]);
                 } else if (key == 'ArrowRight' || key == 'Enter') {
                     event.preventDefault();
-                    setEditable(storeRefs.posdata[n + 1]);
+                    startEdit(storeRefs.posdata[n + 1]);
                     focusAtEnd(storeRefs.posdata[n + 1]);
                 }
-            }
-
-            else if (o == 'leaders') {
-                refs.leadersname[n - 1].innerText = storeRefs.leaders[n - 1].innerText.trim().length ? storeRefs.namelist[parseInt(storeRefs.leaders[n - 1]?.innerText) - 1]?.innerText : '';
+            } else if (o == 'leaders') {
                 if (key == 'ArrowUp' || key == 'Backspace') {
-                    if (storeRefs.leaders[n - 1].innerText.trim().length && key == 'Backspace') return;
+                    const hasText = storeRefs.leaders[n - 1].innerText.trim().length;
+                    if (hasText && key == 'Backspace') return;
+                    if (!hasText) refs.leadersname[n - 1].innerText = '';
                     event.preventDefault();
-                    setEditable(storeRefs.leaders[n - 2]);
+                    startEdit(storeRefs.leaders[n - 2]);
                     focusAtEnd(storeRefs.leaders[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
-                    setEditable(storeRefs.leaders[n]);
+                    startEdit(storeRefs.leaders[n]);
                 }
             }
         }
@@ -797,6 +798,7 @@ const app = createApp({
             ...storeRefs,
             ...refs,
             startEdit,
+            endEdit,
             editKeydown,
             editPaste,
             store,
