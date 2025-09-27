@@ -28,17 +28,17 @@
 .seat-container {
     cursor: move;
 }
-.seat-container.color-0 { background-color: #fff; }
-.seat-container.color-1 { background-color: #e0f7fa; }
-.seat-container.color-2 { background-color: #e8f5e9; }
-.seat-container.color-3 { background-color: #fffde7; }
-.seat-container.color-4 { background-color: #f3e5f5; }
-.seat-container.color-5 { background-color: #fce4ec; }
-.seat-container.color-6 { background-color: #e3f2fd; }
-.seat-container.color-7 { background-color: #ede7f6; }
-.seat-container.color-8 { background-color: #f9fbe7; }
-.seat-container.color-9 { background-color: #fff3e0; }
-.seat-container.color-10 { background-color: #efebe9; }
+.color-0 { background-color: #fff !important; }
+.color-1 { background-color: #e0f7fa !important; }
+.color-2 { background-color: #e8f5e9 !important; }
+.color-3 { background-color: #fffde7 !important; }
+.color-4 { background-color: #f3e5f5 !important; }
+.color-5 { background-color: #fce4ec !important; }
+.color-6 { background-color: #e3f2fd !important; }
+.color-7 { background-color: #ede7f6 !important; }
+.color-8 { background-color: #f9fbe7 !important; }
+.color-9 { background-color: #fff3e0 !important; }
+.color-10 { background-color: #efebe9 !important; }
 .seat-container[draggable="true"]:hover {
     background-color: #f8f9fa;
 }
@@ -95,7 +95,11 @@
     overflow-y: auto;
 }
 </style>
-<style id="dynamic-zh-font" type="text/css"></style>
+<style id="dynamic-zh-font" type="text/css">
+.emptycss {
+    color: #fff;
+}
+</style>
 </head>
 <body class="overflow-x-hidden">
 <div id="app" class="w-auto" v-cloak>
@@ -161,7 +165,7 @@
                             <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" :checked="namesBgCtl">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
                         </td>
-                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target)" ref="namelist"></td>
+                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -187,7 +191,7 @@
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
                 <tr>
-                    <th colspan="2" class="text-justify-last bg-light" @blur="store" @click="startEdit($event.target)" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th scope="row" colspan="2" class="text-justify-last bg-light" @blur="store" @click="startEdit($event.target)" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
                     <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" :style="{'height': fontSizeR * 2 + 'em'}" @blur="store" @click="startEdit($event.target)" ref="teacher"></td>
@@ -195,11 +199,11 @@
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr>
-                        <th class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @blur="store" @click="startEdit($event.target)" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
+                        <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @blur="store" @click="startEdit($event.target)" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
                     <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
                         <td class="seat-container text-end no-border-right" @blur="store('leaders', $event.target.innerText, n)" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
-                        <td class="seat-container text-nowrap namearea no-border-left" ref="leadersname"></td>
+                        <td class="seat-container text-nowrap namearea no-border-left" @click="toggleColor" ref="leadersname"></td>
                     </tr>
                 </tbody>
             </table>
@@ -589,7 +593,7 @@ const app = createApp({
         };
 
         const showPos = (n, show) => {
-            refs.highlightedPos.value = show ? n : null;
+            n && (refs.highlightedPos.value = show ? n : null);
         };
 
         const dragStart = (index, type) => {
