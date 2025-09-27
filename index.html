@@ -156,8 +156,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)"
-                        class="seat-container" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
+                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
                             <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" :checked="namesBgCtl">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
@@ -255,7 +254,9 @@ const app = createApp({
                         this[key] = typeMap[key](value);
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error(e);
+            }
 
         }
         this.hideTips = this.getCookie('hideTips') == 1;
@@ -901,8 +902,6 @@ const vue3gettext = VueGettext.createGettext({
             "Center": "中",
             "Right": "右",
             "Font size": "字體大小",
-            "Lists": "名單",
-            "Leaders": "股長",
             "Fonts": "字體",
             "ZhuYin": "注音",
             "PinYin": "拼音",
