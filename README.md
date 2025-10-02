@@ -14,6 +14,7 @@
 - Paste-in roster feature
 - Random seating assignment
 - Drag and drop to place or swap seats
+- Bingo function
 
 ## SeatingChart 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上學生座位表
 
@@ -27,6 +28,7 @@
 - 貼上名單功能
 - 隨機座位
 - 拖曳名單到座位與交換座位
+- 抽獎功能
 
 ---
 

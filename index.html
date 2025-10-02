@@ -129,6 +129,7 @@
                         <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                         <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
+                        <button class="form-control-sm" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
                     </ul>
                 </div>
@@ -152,7 +153,7 @@
                 <thead>
                     <tr class="border-secondary small">
                         <th class="ps-3 py-1 no-border-right">
-                            <input class="form-check-input d-print-none" type="checkbox" v-model="namesBgCtl" ref="nameBtnCtl">
+                            <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange">
                         </th>
                         <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
@@ -162,7 +163,7 @@
                 <tbody>
                     <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" :checked="namesBgCtl">
+                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
                         </td>
                         <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" ref="namelist"></td>
@@ -330,9 +331,9 @@ const app = createApp({
                     }
                 });
 
-                const filledSeats = storeRefs.posdata.filter(el => el.innerText.trim() != '').length;
-                const filledNames = storeRefs.namelist.filter(el => el.innerText.trim() != '').length;
-                refs.nameBtnCtl.value.checked = filledSeats >= filledNames;
+                // const filledSeats = storeRefs.posdata.filter(el => el.innerText.trim() != '').length;
+                // const filledNames = storeRefs.namelist.filter(el => el.innerText.trim() != '').length;
+                // refs.nameBtnCtl.value.checked = filledSeats >= filledNames;
             }
         };
 
@@ -628,7 +629,13 @@ const app = createApp({
             event.preventDefault();
             event.stopPropagation();
 
-            const data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
+            if (!event.dataTransfer) return;
+            let data;
+            try {
+                data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
+            } catch (e) {
+                return;
+            }
             const isNamelistRow = event.currentTarget.classList.contains('namelist-row');
             const isLeaderRow = event.currentTarget.classList.contains('leader-row');
             const isSeatRow = event.currentTarget.classList.contains('seat-row');
@@ -768,6 +775,45 @@ const app = createApp({
             }
         };
 
+        const nameBtnCtlChange = () => {
+            refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => event.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
+        };
+
+        const binGo = () => {
+            refs.bingoButtonCtl.value = true;
+            if (!refs.nameBgCtlChecked.value.length) {
+                refs.nameBtnCtl.value.checked = true;
+                refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => c.value.trim() != '').map(c => parseInt(c.value));
+            }
+
+            const rounds = refs.nameBgCtlChecked.value.length;
+            const finalNumber = Math.floor(Math.random() * rounds);
+            let current = 0;
+
+            function roll(i) {
+                current = (current % rounds) + 1;
+                showPos(refs.nameBgCtlChecked.value[current - 1], 1);
+
+                if (i < rounds) {
+                    let delay;
+                    if (i < rounds * 0.3) {
+                        delay = 200 - i * 5;
+                    } else if (i < rounds * 0.7) {
+                        delay = 50;
+                    } else {
+                        delay = 50 + (i - rounds * 0.7) * rounds;
+                    }
+                    setTimeout(() => roll(i + 1), delay);
+                } else {
+                    showPos(refs.nameBgCtlChecked.value[finalNumber], 1);
+                    refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != refs.nameBgCtlChecked.value[finalNumber]);
+                    refs.bingoButtonCtl.value = false;
+                }
+            }
+
+            roll(0);
+        };
+
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -801,7 +847,7 @@ const app = createApp({
             leadersname: reactive([]),
             clearBtnCtl: ref(0),
             isDataChanged: ref(0),
-            namesBgCtl: ref(0),
+            nameBgCtlChecked: ref([]),
             nameBgCtl: reactive([]),
             hideTips: ref(false),
             highlightedPos: ref(null),
@@ -813,7 +859,8 @@ const app = createApp({
             showLeader: ref(true),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
-            editingEl: ref(null)
+            editingEl: ref(null),
+            bingoButtonCtl: ref(false)
         };
 
         return {
@@ -839,7 +886,9 @@ const app = createApp({
             toggleColor,
             adujstFont,
             fontButtonCtl,
-            showFonts
+            showFonts,
+            nameBtnCtlChange,
+            binGo
         };
     },
     mounted() {
@@ -911,7 +960,8 @@ const vue3gettext = VueGettext.createGettext({
             "PinYin": "拼音",
             "Both": "兩者",
             "Print": "列印",
-            "Note": "公佈欄"
+            "Note": "公佈欄",
+            "Bingo": "抽獎"
         }
     }
 });
