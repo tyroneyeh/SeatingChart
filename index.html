@@ -129,8 +129,8 @@
                         <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                         <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
-                        <button class="form-control-sm" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
+                        <button class="form-control-sm" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
                     </ul>
                 </div>
             </div>
