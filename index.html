@@ -209,8 +209,8 @@
                 </tbody>
             </table>
             <div class="card">
-                <div class="card-header" :style="{'font-size': fontSizeR + 'em'}" @blur="store" @click="startEdit($event.target)" ref="noteLabel">{{ $gettext('Note') }}</div>
-                <div class="card-body" :style="{'font-size': fontSizeR + 'em', 'min-height': fontSizeR * 2 + 'em'}" @blur="store" @click="startEdit($event.target)" ref="note"></div>
+                <div class="card-header namearea" :style="{'font-size': fontSizeR + 'em'}" @blur="store" @click="startEdit($event.target)" ref="noteLabel">{{ $gettext('Note') }}</div>
+                <div class="card-body namearea" :style="{'font-size': fontSizeR + 'em', 'min-height': fontSizeR * 2 + 'em'}" @blur="store" @click="startEdit($event.target)" ref="note"></div>
             </div>
         </div>
     </div>
