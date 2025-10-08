@@ -560,7 +560,7 @@ const app = createApp({
 
             studentNums = Array.from({length: i}, (_, index) => 1 + index);
             if (window.randomNumbers.length)
-                studentNums = studentNums.filter(num => !window.randomNumbers.includes(num));
+                studentNums = studentNums.filter(num => !window.randomNumbers.includes(String(num)));
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (const element of posdatas) {
