@@ -781,18 +781,25 @@ const app = createApp({
 
         const binGo = () => {
             refs.bingoButtonCtl.value = true;
-            if (!refs.nameBgCtlChecked.value.length) {
+            let arr = storeRefs.posdata.map(i => Number(i.innerText)).filter(j => j);
+
+            if (refs.nameBgCtlChecked.value.length < 2) {
                 refs.nameBtnCtl.value.checked = true;
-                refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => c.value.trim() != '').map(c => parseInt(c.value));
+                refs.nameBgCtlChecked.value = arr;
+            } else {
+                arr = refs.nameBgCtlChecked.value;
             }
 
-            const rounds = refs.nameBgCtlChecked.value.length;
+            const rounds = arr.length;
             const finalNumber = Math.floor(Math.random() * rounds);
+            const chosen = arr[finalNumber];
+            const index = arr.indexOf(chosen);
+            arr = arr.slice(index + 1).concat(arr.slice(0, index + 1));
             let current = 0;
 
             function roll(i) {
                 current = (current % rounds) + 1;
-                showPos(refs.nameBgCtlChecked.value[current - 1], 1);
+                showPos(arr[current - 1], 1);
 
                 if (i < rounds) {
                     let delay;
@@ -805,8 +812,8 @@ const app = createApp({
                     }
                     setTimeout(() => roll(i + 1), delay);
                 } else {
-                    showPos(refs.nameBgCtlChecked.value[finalNumber], 1);
-                    refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != refs.nameBgCtlChecked.value[finalNumber]);
+                    showPos(arr[chosen], 1);
+                    refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[chosen]);
                     refs.bingoButtonCtl.value = false;
                 }
             }
