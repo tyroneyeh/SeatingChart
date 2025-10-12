@@ -783,7 +783,7 @@ const app = createApp({
             refs.bingoButtonCtl.value = true;
             let arr = storeRefs.posdata.map(i => Number(i.innerText)).filter(j => j);
 
-            if (refs.nameBgCtlChecked.value.length < 2) {
+            if (refs.nameBgCtlChecked.value.length < 1) {
                 refs.nameBtnCtl.value.checked = true;
                 refs.nameBgCtlChecked.value = arr;
             } else {
@@ -812,8 +812,8 @@ const app = createApp({
                     }
                     setTimeout(() => roll(i + 1), delay);
                 } else {
-                    showPos(arr[chosen], 1);
-                    refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[chosen]);
+                    showPos(arr[index], 1);
+                    refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[index]);
                     refs.bingoButtonCtl.value = false;
                 }
             }
