@@ -94,6 +94,16 @@
     overflow-x: hidden;
     overflow-y: auto;
 }
+.floating-img {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: auto;
+  z-index: 999;
+  transition: opacity 0.3s;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css">
 .emptycss {
@@ -161,7 +171,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPos(n, 1)" @mouseout="showPos(n, 0)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
+                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
                             <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
@@ -214,6 +224,8 @@
             </div>
         </div>
     </div>
+
+    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><img :src="photo" /></div>
 
     <footer class="d-print-none text-end">
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
@@ -368,6 +380,7 @@ const app = createApp({
                 return;
 
             localStorage.removeItem('data');
+            IDBHelper.remove('photo');
             location.reload();
         };
 
@@ -511,12 +524,100 @@ const app = createApp({
             return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
         }
 
+        const IDBHelper = {
+            db: null,
+
+            async init(dbName, version, storeName) {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, version);
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(storeName)) {
+                        db.createObjectStore(storeName);
+                        }
+                    };
+
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        resolve(this.db);
+                    };
+                });
+            },
+
+            async put(storeName, value, key) {
+                if (!this.db) await this.init('photo', 1, storeName);
+
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction([storeName], 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = key ? store.put(value, key) : store.put(value);
+                    req.onsuccess = () => resolve(req.result);
+                });
+            },
+
+            async get(storeName, key) {
+                if (!this.db) await this.init('photo', 1, storeName);
+
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction([storeName], 'readonly');
+                    const store = tx.objectStore(storeName);
+                    let req;
+                    if (key) {
+                        req = store.get(key);
+                        req.onsuccess = () => resolve(req.result)
+                    } else {
+                        req = [];
+                        store.openCursor().onsuccess = (event) => {
+                            const cursor = event.target.result;
+                            if (cursor) {
+                                req.push({[cursor.key]: cursor.value});
+                                cursor.continue();
+                            } else {
+                                resolve(req);
+                            }
+                        };
+                    }
+                });
+            },
+            async remove(dbName) {
+                return indexedDB.deleteDatabase(dbName);
+            }
+
+        };
+
         const editPaste = (o, n) => {
 
              const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
-             if (!['namelist', 'leadernames'].includes(o) || !pasteData?.length) return;
+             const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.indexOf('image') != -1);
+             if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
 
             event.preventDefault();
+
+            if (photoItem && !pasteData.length) {
+                photoItem.forEach((item, j) => {
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const targetHeight = img.height * 200 / img.width;
+                            canvas.width = 200;
+                            canvas.height = targetHeight;
+                            const ctx = canvas.getContext('2d');
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = 'high';
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            IDBHelper.put('photo', canvas.toDataURL('image/png'), n + j);
+                        }
+
+                    };
+                    reader.readAsDataURL(file);
+                });
+                return;
+            }
 
             const list = storeRefs[o];
             const startIndex = n - 1;
@@ -529,8 +630,12 @@ const app = createApp({
 
         };
 
-        const download = () => {
-            const data = localStorage.getItem('data');
+        const download = async () => {
+            let data = localStorage.getItem('data');
+            data = JSON.parse(data);
+            if (!data) return;
+            data.photo = await IDBHelper.get('photo');
+            data = JSON.stringify(data);
 
             if (data) {
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
@@ -588,7 +693,16 @@ const app = createApp({
             const reader = new FileReader();
             reader.readAsText(fileInput.files[0], "UTF-8");
             reader.onload = (evt) => {
-                localStorage.setItem('data', evt.target.result);
+                if (!evt.target.result) return;
+                let data = JSON.parse(evt.target.result);
+                for (const photos of data.photo) {
+                    for (const [key, value] of Object.entries(photos)) {
+                        IDBHelper.put('photo', value, parseInt(key));
+                    }
+                }
+                delete data.photo;
+                data = JSON.stringify(data);
+                localStorage.setItem('data', data);
                 location.reload();
             }
         };
@@ -809,12 +923,19 @@ const app = createApp({
                     setTimeout(() => roll(i + 1), delay);
                 } else {
                     showPos(arr[finalNumber], 1);
+                    showPhoto(arr[finalNumber]);
                     refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[finalNumber]);
                     refs.bingoButtonCtl.value = false;
                 }
             }
 
             roll(0);
+        };
+
+        const showPhoto = (n) => {
+            IDBHelper.get('photo', n).then(img => {
+                refs.photo.value = img;
+            })
         };
 
         const storeRefs = {
@@ -863,7 +984,8 @@ const app = createApp({
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
             editingEl: ref(null),
-            bingoButtonCtl: ref(false)
+            bingoButtonCtl: ref(false),
+            photo: ref(null)
         };
 
         return {
@@ -891,7 +1013,9 @@ const app = createApp({
             fontButtonCtl,
             showFonts,
             nameBtnCtlChange,
-            binGo
+            binGo,
+            IDBHelper,
+            showPhoto
         };
     },
     mounted() {
