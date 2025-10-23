@@ -17,6 +17,7 @@
 - Zoom in and out text
 - Adjust font size: Zhuyin, Pinyin or both
 - Bingo function
+- Avatars
 
 ## SeatingChart 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上學生座位表
 
@@ -33,6 +34,7 @@
 - 放大縮小文字
 - 調整字形：注音、拼音或兩者都有
 - 抽籤功能
+- 頭像
 
 ---
 
