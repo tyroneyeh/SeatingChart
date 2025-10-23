@@ -945,7 +945,7 @@ const app = createApp({
         const showPhoto = (n) => {
             IDBHelper.get('photo', n).then(img => {
                 refs.photo.value = img?.length ? img : null;
-                refs.photoName.value = storeRefs.namelist[n - 1].innerText;
+                refs.photoName.value = `${n} ${storeRefs.namelist[n - 1].innerText}`;
             });
         };
 
