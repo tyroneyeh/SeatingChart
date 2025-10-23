@@ -225,7 +225,7 @@
         </div>
     </div>
 
-    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><img :src="photo" /></div>
+    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><img :src="photo" /><p class="text-center namearea">{{ photoName }}</p></div>
 
     <footer class="d-print-none text-end">
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
@@ -945,7 +945,8 @@ const app = createApp({
         const showPhoto = (n) => {
             IDBHelper.get('photo', n).then(img => {
                 refs.photo.value = img?.length ? img : null;
-            })
+                refs.photoName.value = storeRefs.namelist[n - 1].innerText;
+            });
         };
 
         const storeRefs = {
@@ -995,7 +996,8 @@ const app = createApp({
             nameBtnCtl: ref(false),
             editingEl: ref(null),
             bingoButtonCtl: ref(false),
-            photo: ref(null)
+            photo: ref(null),
+            photoName: ref('')
         };
 
         return {
