@@ -589,7 +589,7 @@ const app = createApp({
         function convertPhotoToIndexedDB(photoItem, n) {
             let j = 0;
             for (const item of photoItem) {
-                if (refs.nameBgCtl.length < n + j || n + j == 0) return;
+                if (refs.nameBgCtl.length < n + j || n + j == 0 || isNaN(n)) return;
                 const file = item.getAsFile ? item.getAsFile() : item;
                 const reader = new FileReader();
                 reader.onload = event => {
