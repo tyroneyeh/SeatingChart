@@ -171,7 +171,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop">
+                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
                             <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
@@ -586,6 +586,32 @@ const app = createApp({
 
         };
 
+        function convertPhotoToIndexedDB(photoItem, n) {
+            let j = 0;
+            for (const item of photoItem) {
+                if (refs.nameBgCtl.length < n + j || n + j == 0) return;
+                const file = item.getAsFile ? item.getAsFile() : item;
+                const reader = new FileReader();
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const targetHeight = img.height * 200 / img.width;
+                        canvas.width = 200;
+                        canvas.height = targetHeight;
+                        const ctx = canvas.getContext('2d');
+                        ctx.imageSmoothingEnabled = true;
+                        ctx.imageSmoothingQuality = 'high';
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        IDBHelper.put('photo', canvas.toDataURL('image/png'), n + j);
+                        j++;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         const editPaste = (o, n) => {
 
              const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
@@ -594,29 +620,8 @@ const app = createApp({
 
             event.preventDefault();
 
-            if (photoItem && !pasteData.length) {
-                photoItem.forEach((item, j) => {
-                    const file = item.getAsFile();
-                    const reader = new FileReader();
-                    reader.onload = event => {
-                        const img = new Image();
-                        img.src = event.target.result;
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            const targetHeight = img.height * 200 / img.width;
-                            canvas.width = 200;
-                            canvas.height = targetHeight;
-                            const ctx = canvas.getContext('2d');
-                            ctx.imageSmoothingEnabled = true;
-                            ctx.imageSmoothingQuality = 'high';
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                            IDBHelper.put('photo', canvas.toDataURL('image/png'), n + j);
-                        }
-
-                    };
-                    reader.readAsDataURL(file);
-                });
-                return;
+            if (!pasteData.length && 'namelist' == o) {
+                convertPhotoToIndexedDB(photoItem, n);
             }
 
             const list = storeRefs[o];
@@ -744,6 +749,7 @@ const app = createApp({
             event.stopPropagation();
 
             if (!event.dataTransfer) return;
+
             let data;
             try {
                 data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
@@ -753,6 +759,10 @@ const app = createApp({
             const isNamelistRow = event.currentTarget.classList.contains('namelist-row');
             const isLeaderRow = event.currentTarget.classList.contains('leader-row');
             const isSeatRow = event.currentTarget.classList.contains('seat-row');
+
+            if (event.dataTransfer.files.length && !isLeaderRow) {
+                return convertPhotoToIndexedDB(event.dataTransfer.files, isSeatRow ? parseInt(storeRefs.posdata[targetIndex].innerText) : targetIndex);
+            }
 
             const targetNum = isLeaderRow ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
 
@@ -934,7 +944,7 @@ const app = createApp({
 
         const showPhoto = (n) => {
             IDBHelper.get('photo', n).then(img => {
-                refs.photo.value = img;
+                refs.photo.value = img?.length ? img : null;
             })
         };
 
