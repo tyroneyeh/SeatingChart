@@ -920,6 +920,7 @@ const app = createApp({
             function roll(i) {
                 current = (current % arr.length) + 1;
                 showPos(arr[current - 1], 1);
+                showPhoto(arr[current - 1]);
 
                 if (i < arr.length) {
                     let delay;
