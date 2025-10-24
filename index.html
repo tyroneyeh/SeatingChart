@@ -700,12 +700,14 @@ const app = createApp({
             reader.onload = (evt) => {
                 if (!evt.target.result) return;
                 let data = JSON.parse(evt.target.result);
-                for (const photos of data.photo) {
-                    for (const [key, value] of Object.entries(photos)) {
-                        IDBHelper.put('photo', value, parseInt(key));
+                if (data.photo) {
+                    for (const photos of data.photo) {
+                        for (const [key, value] of Object.entries(photos)) {
+                            IDBHelper.put('photo', value, parseInt(key));
+                        }
                     }
+                    delete data.photo;
                 }
-                delete data.photo;
                 data = JSON.stringify(data);
                 localStorage.setItem('data', data);
                 location.reload();
