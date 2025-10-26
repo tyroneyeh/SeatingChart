@@ -669,7 +669,9 @@ const app = createApp({
 
             if (i <= window.randomNumbers.length) return;
 
-            studentNums = Array.from({length: i}, (_, index) => 1 + index);
+            studentNums = refs.nameBgCtlChecked.value.length
+                ? refs.nameBgCtlChecked.value.slice()
+                : Array.from({length: i}, (_, index) => index + 1);
             if (window.randomNumbers.length)
                 studentNums = studentNums.filter(num => !window.randomNumbers.includes(String(num)));
 
