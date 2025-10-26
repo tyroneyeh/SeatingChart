@@ -137,6 +137,7 @@
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
                         </div>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showNumber">{{ $gettext('Number') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                         <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
@@ -187,7 +188,7 @@
             <div class="row flex-nowrap child" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
-                        <div class="border-bottom text-center p-0 bg-light possize" @blur="store('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click="startEdit($event.target)" ref="posdata"></div>
+                        <div class="border-bottom text-center p-0 bg-light possize" @blur="store('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click="startEdit($event.target)" ref="posdata" v-show="showNumber"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="p-0 text-center mx-auto"><span class="text-nowrap p-0 vertical-text namearea" ref="posname"></span></div>
                     </div>
@@ -994,6 +995,7 @@ const app = createApp({
             currentTarget: ref(null),
             currentIndex: ref(0),
             showList: ref(true),
+            showNumber: ref(true),
             showLeader: ref(true),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
@@ -1103,7 +1105,8 @@ const vue3gettext = VueGettext.createGettext({
             "Both": "兩者",
             "Print": "列印",
             "Note": "公佈欄",
-            "Bingo": "抽籤"
+            "Bingo": "抽籤",
+            "Number": "座號"
         }
     }
 });
