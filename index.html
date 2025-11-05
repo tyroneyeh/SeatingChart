@@ -65,9 +65,6 @@
     display: flex;
     flex-direction: column;
 }
-.child {
-    flex: 1;
-}
 .possize {
     min-width:1.5em;
     min-height:1.5em;
@@ -186,12 +183,12 @@
         </div>
         <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
             <!-- center area -->
-            <div class="row flex-nowrap child" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
+            <div class="row flex-nowrap" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" @blur="store('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click="startEdit($event.target)" ref="posdata" v-show="showNumber"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 text-center mx-auto"><span class="p-0 namearea" :class="{'vertical-text': showVertical}" ref="posname"></span></div>
+                        <div class="p-0 text-center mx-auto" :class="{'mb-2': showVertical, 'mb-3': !showVertical}"><span class="p-0 namearea" :class="{'vertical-text': showVertical}" ref="posname"></span></div>
                     </div>
                 </div>
             </div>
