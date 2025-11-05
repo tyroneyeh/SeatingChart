@@ -504,25 +504,6 @@ const app = createApp({
             }
         };
 
-
-        function splitTextWithSpecialCaseSimple(text) {
-
-            const segments = text.split(/[ 　\n\t,，、]+/).filter(segment => segment.length > 0);
-            const result = [];
-            let i = 0;
-            while (i < segments.length) {
-                if (i + 1 < segments.length && segments[i].length == 1 && segments[i + 1].length == 1) {
-                    result.push(`${segments[i]} ${segments[i + 1]}`);
-                    i += 2;
-                } else {
-                    result.push(segments[i]);
-                    i++;
-                }
-            }
-
-            return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
-        }
-
         const IDBHelper = {
             db: null,
 
@@ -609,6 +590,26 @@ const app = createApp({
                 };
                 reader.readAsDataURL(file);
             }
+        }
+
+        function splitTextWithSpecialCaseSimple(text) {
+            if (!text) return [];
+
+            const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
+            const segments = text.split(isChinese(text[0]) ? /[ 　\n\t,，、]+/ : /\n/).filter(segment => segment.length > 0);
+            const result = [];
+            let i = 0;
+            while (i < segments.length) {
+                if (i + 1 < segments.length && segments[i].length == 1 && segments[i + 1].length == 1) {
+                    result.push(`${segments[i]} ${segments[i + 1]}`);
+                    i += 2;
+                } else {
+                    result.push(segments[i]);
+                    i++;
+                }
+            }
+
+            return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
         }
 
         const editPaste = (o, n) => {
