@@ -315,6 +315,7 @@ const app = createApp({
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
+            refs.posNameHovered.value = null;
 
             if (o == 'posdata' && num && pos) {
                 setNameText(refs.posname, pos, num);
