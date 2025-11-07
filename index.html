@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant-TW">
 <head>
-<title>「免登入」教室座位表隨機產生器 | Seating Chart</title>
+<title>TY的座位表隨機產生器 - TY's Seating Chart Generator</title>
   <meta name="description" content="SeatingChart 幫助老師快速管理教室座位表，支援即時編輯、拖拉座位、隨機安排、自訂行列與股長，並可使用 JSON/Local Storage 備份。Perfect for classroom management and roster planning.">
   <meta name="keywords" content="SeatingChart, online seating chart, VueJS 3, Bootstrap 5, teacher tools, classroom management, student seating, drag and drop, random seating, JSON storage, local storage, roster upload, 教室座位表, 學生座位安排, 班級管理, 名單上傳, 隨機座位, 拖拉座位, 本地儲存, JSON 備份">
   <meta name="author" content="TY的生活記錄 TY's Life in Taiwan">
@@ -28,17 +28,17 @@
 .seat-container {
     cursor: move;
 }
-.color-0 { background-color: #fff !important; }
-.color-1 { background-color: #e0f7fa !important; }
-.color-2 { background-color: #e8f5e9 !important; }
-.color-3 { background-color: #fffde7 !important; }
-.color-4 { background-color: #f3e5f5 !important; }
-.color-5 { background-color: #fce4ec !important; }
-.color-6 { background-color: #e3f2fd !important; }
-.color-7 { background-color: #ede7f6 !important; }
-.color-8 { background-color: #f9fbe7 !important; }
-.color-9 { background-color: #fff3e0 !important; }
-.color-10 { background-color: #efebe9 !important; }
+.color-0 { background-color: #fff !important }
+.color-1 { background-color: #e0f7fa !important }
+.color-2 { background-color: #e8f5e9 !important }
+.color-3 { background-color: #fffde7 !important }
+.color-4 { background-color: #f3e5f5 !important }
+.color-5 { background-color: #fce4ec !important }
+.color-6 { background-color: #e3f2fd !important }
+.color-7 { background-color: #ede7f6 !important }
+.color-8 { background-color: #f9fbe7 !important }
+.color-9 { background-color: #fff3e0 !important }
+.color-10 { background-color: #efebe9 !important }
 .seat-container[draggable="true"]:hover {
     background-color: #f8f9fa;
 }
@@ -279,7 +279,7 @@ const app = createApp({
     },
     setup() {
 
-        const getCookie = (name) => {
+        const getCookie = name => {
             let value = '; ' + document.cookie;
             let parts = value.split(`; ${name}=`);
             if (parts.length == 2) return parts.pop().split(';').shift();
@@ -299,19 +299,19 @@ const app = createApp({
             setCookie('hideTips', 1);
         };
 
-        function getNameByNum(n) {
-            const entry = storeRefs?.namelist[n - 1];
-            return entry ? entry.innerText : "";
+        function getNameByNumber(num) {
+            const nameListEntry = storeRefs.namelist?.[num - 1];
+            return nameListEntry ? nameListEntry.innerHTML : "";
         }
 
         function setNameText(targetArr, index, num) {
-            const name = getNameByNum(num);
+            const name = getNameByNumber(num);
             if (name) {
                 targetArr[index].innerText = name;
             }
         }
 
-        const updatedisplay = (o, num, pos) => {
+        const updateDisplay = (o, num, pos) => {
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
@@ -342,9 +342,6 @@ const app = createApp({
                     }
                 });
 
-                // const filledSeats = storeRefs.posdata.filter(el => el.innerText.trim() != '').length;
-                // const filledNames = storeRefs.namelist.filter(el => el.innerText.trim() != '').length;
-                // refs.nameBtnCtl.value.checked = filledSeats >= filledNames;
             }
         };
 
@@ -358,19 +355,22 @@ const app = createApp({
 
             if (o?.target?.innerText != storeRefs.today.value.innerText) storeRefs.today.value.innerText = new Date().toLocaleDateString();
 
-            datakeys.forEach((i) => {
+            const dataToSave = {};
 
-                if (Array.isArray(storeRefs[i]))
-                    tojson[i] = storeRefs[i].map((i) => { return i.innerText; });
-                else if (storeRefs[i].value && storeRefs[i].value?.innerText && storeRefs[i].value?.innerText.trim().length)
-                    tojson[i] = storeRefs[i].value.innerText;
-                else if (storeRefs[i].value && storeRefs[i].value > 0)
-                    tojson[i] = storeRefs[i].value;
+            datakeys.forEach(key => {
+                const ref = storeRefs[key];
 
+                if (Array.isArray(ref)) {
+                    dataToSave[key] = ref.map(item => item.innerText);
+                } else if (ref.value && ref.value?.innerText) {
+                    dataToSave[key] = ref.value.innerText;
+                } else if (ref.value) {
+                    dataToSave[key] = ref.value;
+                }
             });
 
-            localStorage.setItem('data', JSON.stringify(tojson));
-            updatedisplay(o, num, pos);
+            localStorage.setItem('data', JSON.stringify(dataToSave));
+            updateDisplay(o, num, pos);
 
         };
 
@@ -387,7 +387,7 @@ const app = createApp({
             if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?")))
                 return;
 
-            storeRefs.posdata.forEach((i) => { if (i) i.innerText = ''; });
+            storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
             store();
             location.reload();
         };
@@ -397,7 +397,7 @@ const app = createApp({
             refs.editingEl.value = null;
         };
 
-        const startEdit = (el) => {
+        const startEdit = el => {
             refs.editingEl.value?.removeAttribute('contenteditable');
             if (!el) return;
             el.setAttribute('contenteditable', 'true');
@@ -511,14 +511,14 @@ const app = createApp({
                 return new Promise((resolve, reject) => {
                     const request = indexedDB.open(dbName, version);
 
-                    request.onupgradeneeded = (event) => {
+                    request.onupgradeneeded = event => {
                         const db = event.target.result;
                         if (!db.objectStoreNames.contains(storeName)) {
-                        db.createObjectStore(storeName);
+                            db.createObjectStore(storeName);
                         }
                     };
 
-                    request.onsuccess = (event) => {
+                    request.onsuccess = event => {
                         this.db = event.target.result;
                         resolve(this.db);
                     };
@@ -548,7 +548,7 @@ const app = createApp({
                         req.onsuccess = () => resolve(req.result)
                     } else {
                         req = [];
-                        store.openCursor().onsuccess = (event) => {
+                        store.openCursor().onsuccess = event => {
                             const cursor = event.target.result;
                             if (cursor) {
                                 req.push({[cursor.key]: cursor.value});
@@ -646,7 +646,7 @@ const app = createApp({
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", `${storeRefs.tabletitle.value.textContent || $gettext('Seating charts')}_${storeRefs.today.value.innerText}.json`);
+                dlAnchorElem.setAttribute("download", (storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts')) +`_${storeRefs.today.value.innerText}.json`);
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
                 document.body.removeChild(dlAnchorElem);
@@ -699,9 +699,9 @@ const app = createApp({
             if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
             const reader = new FileReader();
             reader.readAsText(fileInput.files[0], "UTF-8");
-            reader.onload = (evt) => {
-                if (!evt.target.result) return;
-                let data = JSON.parse(evt.target.result);
+            reader.onload = event => {
+                if (!event.target.result) return;
+                let data = JSON.parse(event.target.result);
                 if (data.photo) {
                     for (const photos of data.photo) {
                         for (const [key, value] of Object.entries(photos)) {
@@ -748,7 +748,7 @@ const app = createApp({
             if (arr[idx]) arr[idx].innerText = value || '';
         }
 
-        const drop = (targetIndex) => {
+        const drop = targetIndex => {
             event.preventDefault();
             event.stopPropagation();
 
@@ -804,7 +804,7 @@ const app = createApp({
                     condition: () => data.type == 'seat' && isNamelistRow,
                     action: () => {
                         const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                        window.randomNumbers = window.randomNumbers.filter((i) => { return i != sourceNum; });
+                        window.randomNumbers = window.randomNumbers.filter(num => num != sourceNum);
                         if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
                         setElementValue(storeRefs.posdata, sourceIndex, '');
                     }
@@ -839,7 +839,7 @@ const app = createApp({
             store();
         };
 
-        const toggleColor = (event) => {
+        const toggleColor = event => {
             const el = event.currentTarget;
             let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
 
@@ -859,7 +859,7 @@ const app = createApp({
             c: "fontSizeC",
             l: "fontSizeL"
         };
-        const adujstFont = (direction) => {
+        const adujstFont = direction => {
 
             const key = fontSizeMap[refs.fontPos.value];
             if (key) {
@@ -947,7 +947,7 @@ const app = createApp({
             roll(0);
         };
 
-        const showPhoto = (n) => {
+        const showPhoto = n => {
             IDBHelper.get('photo', n).then(img => {
                 refs.photo.value = img?.length ? img : null;
                 refs.photoName.value = `${n} ${storeRefs.namelist[n - 1].innerText}`;
@@ -1022,7 +1022,7 @@ const app = createApp({
             randomPos,
             clearPos,
             uploadfileChange,
-            updatedisplay,
+            updateDisplay,
             tipsToHide,
             getCookie,
             showPos,
@@ -1047,21 +1047,21 @@ const app = createApp({
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
 
-        window.dkeys?.forEach((i) => {
+        window.dkeys?.forEach(i => {
 
             if (Array.isArray(i[1]) && i[1][0] != null) {
                 i[1].forEach((_, j) => {
-                    if (this[i[0]] && undefined != this[i[0]][j]?.innerText)
+                    if (this[i[0]] && undefined != this[i[0]][j]?.innerHTML)
                         this[i[0]][j].innerHTML = i[1][j];
                 });
-            } else if (undefined != this[i[0]]?.innerText)
-                this[i[0]].innerText = i[1];
+            } else if (undefined != this[i[0]]?.innerHTML)
+                this[i[0]].innerHTML = i[1];
             else if (undefined != this[i[0]]?.value)
                 this[i[0]].value = i[1];
 
         });
 
-        this.updatedisplay();
+        this.updateDisplay();
         this.storeData = 1;
     }
 
