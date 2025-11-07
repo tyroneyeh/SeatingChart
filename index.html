@@ -152,7 +152,7 @@
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
         <div class="text-nowrap text-center col-sm-6" @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3"><span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="updateLabel">{{ $gettext('Update') }}</span><span v-if="today.innerText != ''">: </span><span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="today"></span></div>
+        <div class="text-nowrap text-end col-sm-3"><span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="updateLabel">{{ $gettext('Update') }}</span> <span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="today"></span></div>
     </div>
 
     <div class="container-fluid row mx-auto">
@@ -213,7 +213,7 @@
                     </tr>
                     <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
                         <td class="seat-container text-end no-border-right" @blur="store('leaders', $event.target.innerText, n)" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
-                        <td class="seat-container text-nowrap namearea no-border-left" @click="toggleColor" ref="leadersname"></td>
+                        <td class="seat-container text-nowrap namearea no-border-left" @click="startEdit($event.target)" ref="leadersname"></td>
                     </tr>
                 </tbody>
             </table>
