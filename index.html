@@ -315,7 +315,6 @@ const app = createApp({
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
-            refs.posNameHovered.value = null;
 
             if (o == 'posdata' && num && pos) {
                 setNameText(refs.posname, pos, num);
@@ -400,6 +399,7 @@ const app = createApp({
 
         const startEdit = el => {
             refs.editingEl.value?.removeAttribute('contenteditable');
+            refs.posNameHovered.value = null;
             if (!el) return;
             el.setAttribute('contenteditable', 'true');
             refs.editingEl.value = el;
