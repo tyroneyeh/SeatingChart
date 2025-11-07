@@ -362,7 +362,7 @@ const app = createApp({
 
                 if (Array.isArray(ref)) {
                     dataToSave[key] = ref.map(item => item.innerText);
-                } else if (ref.value && ref.value?.innerText) {
+                } else if (ref.value && undefined != ref.value?.innerText) {
                     dataToSave[key] = ref.value.innerText;
                 } else if (ref.value) {
                     dataToSave[key] = ref.value;
