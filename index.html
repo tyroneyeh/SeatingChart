@@ -135,7 +135,7 @@
                         </div>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showSeats">{{ $gettext('Seats') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Number') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Numbers') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showVertical" :disabled="!showSeats"    >{{ $gettext('Vertical') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                         <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
@@ -716,8 +716,20 @@ const app = createApp({
             }
         };
 
+        function speakText(text) {
+            if (!text || speechSynthesis.speaking || !('speechSynthesis' in window)) {
+                return;
+            }
+            speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+        }
+
         const showPos = (n, show) => {
             n && (refs.highlightedPos.value = show ? n : null);
+            const name = storeRefs.namelist[n - 1]?.innerText.trim();
+            if ('checkbox' == event.target.type && name) {
+                const numberText = vue3gettext.current.includes('zh') ? `${n}${$gettext('Number')}` : `${$gettext('Number')} ${n}`;
+                speakText(`${numberText}, ${name}`);
+            }
         };
 
         const dragStart = (index, type) => {
@@ -1115,7 +1127,8 @@ const vue3gettext = VueGettext.createGettext({
             "Print": "列印",
             "Note": "公佈欄",
             "Bingo": "抽籤",
-            "Number": "座號",
+            "Numbers": "座號",
+            "Number": "號",
             "Vertical": "垂直"
         }
     }
