@@ -136,7 +136,7 @@
                         <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showSeats">{{ $gettext('Seats') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Number') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showVertical" :disabled="!showSeats">{{ $gettext('Vertical') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showVertical" :disabled="!showSeats"    >{{ $gettext('Vertical') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                         <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
@@ -225,7 +225,7 @@
         </div>
     </div>
 
-    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><img :src="photo" /><p class="text-center namearea">{{ photoName }}</p></div>
+    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><img :src="photo" /><p class="text-center namearea">{{ photoName }}</p></div>
 
     <footer class="d-print-none text-end">
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
@@ -950,6 +950,10 @@ const app = createApp({
         const showPhoto = n => {
             IDBHelper.get('photo', n).then(img => {
                 refs.photo.value = img?.length ? img : null;
+                const numPos = storeRefs.posdata.findIndex(i => i.innerText == n);
+                const row = (numPos % storeRefs.totalX.value) + 1;
+                const column = storeRefs.totalY.value - Math.floor(numPos / storeRefs.totalY.value);
+                refs.seatsPos.value = `${row}-${column}`;
                 refs.photoName.value = `${n} ${storeRefs.namelist[n - 1].innerText}`;
             });
         };
@@ -1005,6 +1009,7 @@ const app = createApp({
             editingEl: ref(null),
             bingoButtonCtl: ref(false),
             photo: ref(null),
+            seatsPos: ref(''),
             photoName: ref(''),
             posNameHovered: ref(null)
         };
