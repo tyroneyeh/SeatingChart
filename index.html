@@ -134,8 +134,9 @@
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
                         </div>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showNumber">{{ $gettext('Number') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showVertical">{{ $gettext('Vertical') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showSeats">{{ $gettext('Seats') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Number') }}</label>
+                        <label class="nav-link text-center"><input type="checkbox" v-model="showVertical" :disabled="!showSeats">{{ $gettext('Vertical') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                         <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
@@ -181,7 +182,7 @@
             </table>
 
         </div>
-        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}">
+        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}" v-show="showSeats">
             <!-- center area -->
             <div class="row flex-nowrap" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
@@ -995,6 +996,7 @@ const app = createApp({
             currentTarget: ref(null),
             currentIndex: ref(0),
             showList: ref(true),
+            showSeats: ref(true),
             showNumber: ref(true),
             showLeader: ref(true),
             showVertical: ref(true),
