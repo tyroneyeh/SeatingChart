@@ -173,7 +173,7 @@
                 <tbody>
                     <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
+                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
                         </td>
                         <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" ref="namelist"></td>
@@ -723,13 +723,16 @@ const app = createApp({
             speechSynthesis.speak(new SpeechSynthesisUtterance(text));
         }
 
-        const showPos = (n, show) => {
-            n && (refs.highlightedPos.value = show ? n : null);
+        const doSpeak = n => {
             const name = storeRefs.namelist[n - 1]?.innerText.trim();
-            if ('checkbox' == event.target.type && name) {
+            if (name) {
                 const numberText = vue3gettext.current.includes('zh') ? `${n}${$gettext('Number')}` : `${$gettext('Number')} ${n}`;
                 speakText(`${numberText}, ${name}`);
             }
+        }
+
+        const showPos = (n, show) => {
+            n && (refs.highlightedPos.value = show ? n : null);
         };
 
         const dragStart = (index, type) => {
@@ -1053,7 +1056,8 @@ const app = createApp({
             nameBtnCtlChange,
             binGo,
             IDBHelper,
-            showPhoto
+            showPhoto,
+            doSpeak
         };
     },
     mounted() {
@@ -1081,6 +1085,11 @@ const app = createApp({
 
         this.updateDisplay();
         this.storeData = 1;
+
+        if ('speechSynthesis' in window) {
+            speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+        }
+
     }
 
 });
