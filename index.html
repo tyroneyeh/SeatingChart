@@ -403,6 +403,11 @@ const app = createApp({
             el.setAttribute('contenteditable', 'true');
             refs.editingEl.value = el;
             nextTick(() => el.focus());
+
+            const text = el.innerText.trim();
+            if (text.length) {
+                speakText(text);
+            }
         };
 
         function focusAtEnd(el) {
