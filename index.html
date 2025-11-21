@@ -731,7 +731,7 @@ const app = createApp({
         const doSpeak = n => {
             const name = storeRefs.namelist[n - 1]?.innerText.trim();
             if (name) {
-                const numberText = vue3gettext.current.includes('zh') ? `${n}${$gettext('Number')}` : `${$gettext('Number')} ${n}`;
+                const numberText = vue3gettext.current.includes('en') ? `${$gettext('Number')} ${n}` : `${n}${$gettext('Number')}`;
                 speakText(`${numberText}, ${name}`);
             }
         }
