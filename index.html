@@ -406,7 +406,7 @@ const app = createApp({
 
             const text = el.innerText.trim();
             if (text.length) {
-                speakText(text);
+                speakText(text.replace(/[\s\n]/g, ','));
             }
         };
 
@@ -1082,7 +1082,7 @@ const app = createApp({
                         this[i[0]][j].innerHTML = i[1][j];
                 });
             } else if (undefined != this[i[0]]?.innerHTML)
-                this[i[0]].innerHTML = i[1];
+                this[i[0]].innerHTML = i[1].replace(/\n/g, '<br>');
             else if (undefined != this[i[0]]?.value)
                 this[i[0]].value = i[1];
 
