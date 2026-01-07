@@ -101,6 +101,12 @@
   z-index: 999;
   transition: opacity 0.3s;
 }
+.close {
+  position: absolute;
+  top: -10px;
+  right: -5px;
+  cursor: pointer;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css">
 .emptycss {
@@ -152,8 +158,8 @@
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
-        <div class="text-nowrap text-center col-sm-6" @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3"><span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="updateLabel">{{ $gettext('Update') }}</span> <span @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="today"></span></div>
+        <div class="text-nowrap text-center col-sm-6" @click="startEdit($event.target)" @blur="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-end col-sm-3"><span @click="startEdit($event.target)" @blur="endEdit" ref="updateLabel">{{ $gettext('Update') }}</span> <span @click="startEdit($event.target)" @blur="endEdit('today')" ref="today"></span></div>
     </div>
 
     <div class="container-fluid row mx-auto">
@@ -165,7 +171,7 @@
                         <th class="ps-3 py-1 no-border-right">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange">
                         </th>
-                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @blur="store" @click="startEdit($event.target)" @keydown.enter="endEdit" ref="studentListLabel">
+                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
@@ -176,7 +182,7 @@
                             <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
                             <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
                         </td>
-                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @blur="store" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" ref="namelist"></td>
+                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist"></td>
                     </tr>
                 </tbody>
             </table>
@@ -187,14 +193,14 @@
             <div class="row flex-nowrap" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100 d-flex flex-column" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
-                        <div class="border-bottom text-center p-0 bg-light possize" @blur="store('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" ref="posdata" v-show="showNumber"></div>
+                        <div class="border-bottom text-center p-0 bg-light possize" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata" v-show="showNumber"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="p-3 text-center mx-auto namearea" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1)}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
             <div class="row mx-auto m-2 resize-x" :style="{'font-size': fontSizeR + 'em'}">
-                <div class="mx-auto text-center desk" @blur="store" @click="startEdit($event.target)" ref="deskname">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto text-center desk" @click="startEdit($event.target)" @blur="endEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1" v-show="showLeader">
@@ -202,30 +208,30 @@
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
                 <thead>
                 <tr>
-                    <th scope="row" colspan="2" class="text-justify-last bg-light" @blur="store" @click="startEdit($event.target)" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th scope="row" colspan="2" class="text-justify-last bg-light" @click="startEdit($event.target)" @blur="endEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
-                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" :style="{'height': fontSizeR * 2 + 'em'}" @blur="store" @click="startEdit($event.target)" ref="teacher"></td>
+                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" :style="{'height': fontSizeR * 2 + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="teacher"></td>
                 </tr>
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr>
-                        <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @blur="store" @click="startEdit($event.target)" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
+                        <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
                     <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1]?.innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
-                        <td class="seat-container text-end no-border-right" @blur="store('leaders', $event.target.innerText, n)" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
+                        <td class="seat-container text-end no-border-right" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
                         <td class="seat-container text-nowrap namearea no-border-left" @click="startEdit($event.target)" ref="leadersname"></td>
                     </tr>
                 </tbody>
             </table>
             <div class="card">
-                <div class="card-header namearea" :style="{'font-size': fontSizeR + 'em'}" @blur="store" @click="startEdit($event.target)" ref="noteLabel">{{ $gettext('Note') }}</div>
-                <div class="card-body namearea" :style="{'font-size': fontSizeR + 'em', 'min-height': fontSizeR * 2 + 'em'}" @blur="store" @click="startEdit($event.target)" ref="note"></div>
+                <div class="card-header namearea" :style="{'font-size': fontSizeR + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="noteLabel">{{ $gettext('Note') }}</div>
+                <div class="card-body namearea" :style="{'font-size': fontSizeR + 'em', 'min-height': fontSizeR * 2 + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="note"></div>
             </div>
         </div>
     </div>
 
-    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><img :src="photo" /><p class="text-center namearea">{{ photoName }}</p></div>
+    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><span class="close">✕</span><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><img :src="photo" alt="" /><p class="text-center namearea">{{ photoName }}</p></div>
 
     <footer class="d-print-none text-end">
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
@@ -238,7 +244,6 @@
 <script>
 'use strict';
 
-window.randomNumbers = [];
 const { createApp, ref, reactive, computed, nextTick } = Vue;
 
 const app = createApp({
@@ -258,9 +263,9 @@ const app = createApp({
                     fontSizeL: parseFloat
                 };
 
-                window.dkeys = Object.entries(data);
+                globalThis.dkeys = Object.entries(data);
 
-                for (const [key, value] of window.dkeys) {
+                for (const [key, value] of globalThis.dkeys) {
                     if (key == 'tabletitle') {
                         document.title = value;
                     } else if (key == 'today') {
@@ -278,6 +283,9 @@ const app = createApp({
     },
     setup() {
 
+        let randomNumbers = [];
+        let oldValue;
+
         const getCookie = name => {
             let value = '; ' + document.cookie;
             let parts = value.split(`; ${name}=`);
@@ -285,7 +293,7 @@ const app = createApp({
         };
 
         const setCookie = (name, value, age) => {
-            age = undefined != age ? age : 60 * 60 * 24 * 14;
+            age = undefined == age ? 60 * 60 * 24 * 14 : age;
             document.cookie = `${name}=${value}; path=${location.pathname}; max-age=${age};`;
         };
 
@@ -305,9 +313,7 @@ const app = createApp({
 
         function setNameText(targetArr, index, num) {
             const name = getNameByNumber(num);
-            if (name) {
-                targetArr[index].innerText = name;
-            }
+            targetArr[index].innerText = name;
         }
 
         const updateDisplay = (o, num, pos) => {
@@ -345,14 +351,13 @@ const app = createApp({
         };
 
 
-        const store = (o, num, pos) => {
+        const store = (o) => {
 
             const datakeys = Object.keys(storeRefs);
-            const tojson = {};
 
             if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
-            if (o?.target?.innerText != storeRefs.today.value.innerText) storeRefs.today.value.innerText = new Date().toLocaleDateString();
+            if (o !== 'today') storeRefs.today.value.innerText = new Date().toLocaleDateString();
 
             const dataToSave = {};
 
@@ -369,7 +374,6 @@ const app = createApp({
             });
 
             localStorage.setItem('data', JSON.stringify(dataToSave));
-            updateDisplay(o, num, pos);
 
         };
 
@@ -391,9 +395,15 @@ const app = createApp({
             location.reload();
         };
 
-        const endEdit = () => {
+        const endEdit = (o, num, pos) => {
+            updateDisplay(o, num, pos);
+
             event.target?.removeAttribute('contenteditable');
             refs.editingEl.value = null;
+            if (event.target?.innerText !== oldValue) {
+                store(o);
+            }
+            oldValue = null;
         };
 
         const startEdit = el => {
@@ -404,19 +414,21 @@ const app = createApp({
             refs.editingEl.value = el;
             nextTick(() => el.focus());
 
+            oldValue = el.innerText;
+
             const text = el.innerText.trim();
             if (text.length) {
-                speakText(text.replace(/[\s\n]/g, ','));
+                speakText(text.replace(/[ \n]/g, ','));
             }
         };
 
-        function focusAtEnd(el) {
+        const focusAtEnd = (el) => {
             if (!el) return;
             el.focus();
             const range = document.createRange();
             range.selectNodeContents(el);
             range.collapse(false);
-            const sel = window.getSelection();
+            const sel = globalThis.getSelection();
             sel.removeAllRanges();
             sel.addRange(range);
         }
@@ -597,7 +609,7 @@ const app = createApp({
             }
         }
 
-        function splitTextWithSpecialCaseSimple(text) {
+        const splitTextWithSpecialCaseSimple = text => {
             if (!text) return [];
 
             const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
@@ -620,7 +632,7 @@ const app = createApp({
         const editPaste = (o, n) => {
 
              const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
-             const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.indexOf('image') != -1);
+             const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
              if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
 
             event.preventDefault();
@@ -654,7 +666,7 @@ const app = createApp({
                 dlAnchorElem.setAttribute("download", (storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts')) +`_${storeRefs.today.value.innerText}.json`);
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
-                document.body.removeChild(dlAnchorElem);
+                document.body.remove(dlAnchorElem);
             }
         };
 
@@ -671,13 +683,13 @@ const app = createApp({
                 if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
             }
 
-            if (i <= window.randomNumbers.length) return;
+            if (i <= randomNumbers.length) return;
 
             studentNums = refs.nameBgCtlChecked.value.length
                 ? refs.nameBgCtlChecked.value.slice()
                 : Array.from({length: i}, (_, index) => index + 1);
-            if (window.randomNumbers.length)
-                studentNums = studentNums.filter(num => !window.randomNumbers.includes(String(num)));
+            if (randomNumbers.length)
+                studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (const element of posdatas) {
@@ -721,8 +733,8 @@ const app = createApp({
             }
         };
 
-        function speakText(text) {
-            if (!text || speechSynthesis.speaking || !('speechSynthesis' in window)) {
+        const speakText = text => {
+            if (!text || speechSynthesis.speaking || !('speechSynthesis' in globalThis)) {
                 return;
             }
             speechSynthesis.speak(new SpeechSynthesisUtterance(text));
@@ -745,17 +757,17 @@ const app = createApp({
             event.target.classList.add('dragging', `${type}-row`);
         };
 
-        function removeFromRandomNumbers(num) {
-            window.randomNumbers = window.randomNumbers.filter(n => n != num);
+        const removeFromRandomNumbers = num => {
+            randomNumbers = randomNumbers.filter(n => n != num);
         }
 
-        function addToRandomNumbers(num) {
-            if (num && !window.randomNumbers.includes(String(num))) {
-                window.randomNumbers.push(String(num));
+        const addToRandomNumbers = num => {
+            if (num && !randomNumbers.includes(String(num))) {
+                randomNumbers.push(String(num));
             }
         }
 
-        function swapElements(arr, idx1, idx2) {
+        const swapElements = (arr, idx1, idx2) => {
             const val1 = parseInt(arr[idx1]?.innerText || '');
             const val2 = parseInt(arr[idx2]?.innerText || '');
 
@@ -764,7 +776,7 @@ const app = createApp({
 
         }
 
-        function setElementValue(arr, idx, value) {
+        const setElementValue = (arr, idx, value) => {
             if (arr[idx]) arr[idx].innerText = value || '';
         }
 
@@ -778,6 +790,7 @@ const app = createApp({
             try {
                 data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
             } catch (e) {
+                console.error(e);
                 return;
             }
             const isNamelistRow = event.currentTarget.classList.contains('namelist-row');
@@ -796,7 +809,7 @@ const app = createApp({
                 condition: () => data.type == 'student' && isSeatRow,
                 action: () => {
                     if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
-                    if (window.randomNumbers.includes(String(sourceIndex))) {
+                    if (randomNumbers.includes(String(sourceIndex))) {
                         alert($gettext('Seat assigned'));
                         return;
                     }
@@ -824,7 +837,7 @@ const app = createApp({
                     condition: () => data.type == 'seat' && isNamelistRow,
                     action: () => {
                         const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                        window.randomNumbers = window.randomNumbers.filter(num => num != sourceNum);
+                        randomNumbers = randomNumbers.filter(num => num != sourceNum);
                         if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
                         setElementValue(storeRefs.posdata, sourceIndex, '');
                     }
@@ -857,6 +870,7 @@ const app = createApp({
 
             document.querySelectorAll('.seat-container').forEach(el => el.classList.remove('dragging'));
             store();
+            updateDisplay();
         };
 
         const toggleColor = event => {
@@ -864,7 +878,7 @@ const app = createApp({
             let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
 
             if (currentIndex == -1) {
-                el.classList.add(refs.colors[(refs.colorIndex.value > 0) ? refs.colorIndex.value : 0]);
+                el.classList.add(refs.colors[Math.max(refs.colorIndex.value, 0)]);
                 return;
             }
             el.classList.remove(refs.colors[currentIndex]);
@@ -929,7 +943,7 @@ const app = createApp({
 
         const binGo = () => {
             refs.bingoButtonCtl.value = true;
-            let arr = storeRefs.posdata.map(i => Number(i.innerText)).filter(j => j);
+            let arr = storeRefs.posdata.map(i => Number(i.innerText)).filter(Boolean);
 
             if (refs.nameBgCtlChecked.value.length < 1) {
                 refs.nameBtnCtl.value.checked = true;
@@ -1015,7 +1029,7 @@ const app = createApp({
             nameBgCtl: reactive([]),
             hideTips: ref(false),
             highlightedPos: ref(null),
-            colors: reactive([...Array(10)].map((_, i) => `color-${i}`)),
+            colors: reactive(Array.from({ length: 10 }, (_, i) => `color-${i}`)),
             colorIndex: ref(-1),
             currentTarget: ref(null),
             currentIndex: ref(0),
@@ -1074,7 +1088,7 @@ const app = createApp({
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
 
-        window.dkeys?.forEach(i => {
+        globalThis.dkeys?.forEach(i => {
 
             if (Array.isArray(i[1]) && i[1][0] != null) {
                 i[1].forEach((_, j) => {
@@ -1091,7 +1105,7 @@ const app = createApp({
         this.updateDisplay();
         this.storeData = 1;
 
-        if ('speechSynthesis' in window) {
+        if ('speechSynthesis' in globalThis) {
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
@@ -1148,7 +1162,7 @@ const vue3gettext = VueGettext.createGettext({
     }
 });
 
-window.$gettext = vue3gettext.$gettext;
+globalThis.$gettext = vue3gettext.$gettext;
 app.use(vue3gettext).mount('#app');
 
 </script>
