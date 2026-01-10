@@ -896,7 +896,7 @@ const app = createApp({
                 const val = storeRefs[key].value + (direction == "+" ? 0.1 : -0.1);
                 if (val >= 0.5) {
                     storeRefs[key].value = Math.round(val * 10) / 10;
-                    await nextTick();
+                    
                     store();
                 }
             }
