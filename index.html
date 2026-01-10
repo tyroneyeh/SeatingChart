@@ -191,7 +191,7 @@
                     <div class="p-0 seat-row seat-container border h-100 d-flex flex-column" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata" v-show="showNumber"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-3 text-center mx-auto namearea" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1)}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
+                        <div class="pb-3 text-center mx-auto namearea" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1)}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -896,7 +896,7 @@ const app = createApp({
                 const val = storeRefs[key].value + (direction == "+" ? 0.1 : -0.1);
                 if (val >= 0.5) {
                     storeRefs[key].value = Math.round(val * 10) / 10;
-                    
+                    updateDisplay();
                     store();
                 }
             }
