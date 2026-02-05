@@ -145,7 +145,7 @@
                         <label class="nav-link text-center"><input type="checkbox" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Numbers') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showVertical" :disabled="!showSeats"    >{{ $gettext('Vertical') }}</label>
                         <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
-                        <select class="text-center" @change="showFonts"><option>{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
+                        <select class="text-center" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
                         <button class="form-control-sm" onclick="window.print()">{{ $gettext('Print') }}</button>
                         <button class="form-control-sm" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
                     </ul>
@@ -245,6 +245,36 @@
 <script>
 'use strict';
 
+function setFonts(newVal) {
+    const el = document.getElementById('dynamic-zh-font');
+    const fonts = {
+        zhuyin: {
+            family: 'BpmfZihiKai',
+            file: 'https://gcore.jsdelivr.net/gh/ButTaiwan/bpmfvs/outputs/BpmfZihiKaiStd-Regular.ttf',
+            type: 'truetype'
+        },
+        pinyin: {
+            family: 'Pinyin-Tsuipita',
+            file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-Pinyin-Tsuipita-TC.woff2',
+            type: 'woff2'
+        },
+        bothfonts: {
+            family: 'YinPZ-Tsuipita',
+            file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-YinPZ-Tsuipita-TC.woff2',
+            type: 'woff2'
+        }
+    };
+    const f = fonts[newVal];
+    if (f) {
+        el.innerHTML = `@font-face {font-family: '${f.family}';src: url('${f.file}') format('${f.type}');font-weight: normal;font-style: normal;}.namearea {font-family: '${f.family}';}`;
+        localStorage.setItem('showFonts', newVal);
+    } else {
+        el.innerHTML = '';
+        localStorage.removeItem('showFonts');
+    }
+    return newVal;
+}
+
 const { createApp, ref, reactive, computed, nextTick } = Vue;
 
 const app = createApp({
@@ -314,7 +344,7 @@ const app = createApp({
 
         function setNameText(targetArr, index, num) {
             const name = getNameByNumber(num);
-            targetArr[index].innerText = name;
+            targetArr[index].innerHTML = name;
         }
 
         const updateDisplay = (o, num, pos) => {
@@ -419,7 +449,7 @@ const app = createApp({
 
             const text = el.innerText.trim();
             if (text.length) {
-                speakText(text.replace(/[ \n]/g, ','));
+                speakText(text.replace(/\s/g, ','));
             }
         };
 
@@ -614,15 +644,24 @@ const app = createApp({
             if (!text) return [];
 
             const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
-            const segments = text.split(isChinese(text[0]) ? /[ 　\n\t,，、]+/ : /\n/).filter(segment => segment.length > 0);
-            const result = [];
+            const textSegments = text.includes('\n')
+                ? text.split('\n').filter(segment => segment.length > 0)
+                : text.split((isChinese(text[0]) ? /[ 　\n\t,，、]+/ : /\n/)).filter(segment => segment.length > 0);
+            const cleanedSegments = [];
+
+            for (const segment of textSegments) {
+                if (segment.length > 0) {
+                    cleanedSegments.push(segment);
+                }
+            }
             let i = 0;
-            while (i < segments.length) {
-                if (i + 1 < segments.length && segments[i].length == 1 && segments[i + 1].length == 1) {
-                    result.push(`${segments[i]} ${segments[i + 1]}`);
+            const result = [];
+            while (i < cleanedSegments.length) {
+                if (i + 1 < cleanedSegments.length && cleanedSegments[i].length == 1 && cleanedSegments[i + 1].length == 1) {
+                    result.push(`${cleanedSegments[i]} ${cleanedSegments[i + 1]}`);
                     i += 2;
                 } else {
-                    result.push(segments[i]);
+                    result.push(cleanedSegments[i]);
                     i++;
                 }
             }
@@ -648,7 +687,7 @@ const app = createApp({
             pasteData.forEach((text, j) => {
                 const item = list[startIndex + j];
                 if (!item) return;
-                item.innerText = text.replace(/(['"])(.*?)\1/g, '$2').trim();
+                item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
             });
 
         };
@@ -911,33 +950,6 @@ const app = createApp({
             return storeRefs[key].value <= 0.5;
         });
 
-        const showFonts = () => {
-            const el = document.getElementById('dynamic-zh-font');
-            const fonts = {
-                zhuyin: {
-                    family: 'BpmfZihiKai',
-                    file: 'https://gcore.jsdelivr.net/gh/ButTaiwan/bpmfvs/outputs/BpmfZihiKaiStd-Regular.ttf',
-                    type: 'truetype'
-                },
-                pinyin: {
-                    family: 'Pinyin-Tsuipita',
-                    file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-Pinyin-Tsuipita-TC.woff2',
-                    type: 'woff2'
-                },
-                bothfonts: {
-                    family: 'YinPZ-Tsuipita',
-                    file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-YinPZ-Tsuipita-TC.woff2',
-                    type: 'woff2'
-                }
-            };
-            const f = fonts[event.target.value];
-            if (f) {
-                el.innerHTML = `@font-face {font-family: '${f.family}';src: url('${f.file}') format('${f.type}');font-weight: normal;font-style: normal;}.namearea {font-family: '${f.family}';}`;
-            } else {
-                el.innerHTML = '';
-            }
-        };
-
         const nameBtnCtlChange = () => {
             refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => event.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
         };
@@ -993,10 +1005,6 @@ const app = createApp({
             });
         };
 
-      
-        const adjustFonted = ref(true);
-
-
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -1038,11 +1046,12 @@ const app = createApp({
             colorIndex: ref(-1),
             currentTarget: ref(null),
             currentIndex: ref(0),
-            showList: ref(true),
-            showSeats: ref(true),
-            showNumber: ref(true),
-            showLeader: ref(true),
-            showVertical: ref(true),
+            showList: ref(localStorage.getItem('showList') == null),
+            showSeats: ref(localStorage.getItem('showSeats') == null),
+            showNumber: ref(localStorage.getItem('showNumber') == null),
+            showLeader: ref(localStorage.getItem('showLeader') == null),
+            showVertical: ref(localStorage.getItem('showVertical') == null),
+            showFonts: ref(setFonts(localStorage.getItem('showFonts')) || ''),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
             editingEl: ref(null),
@@ -1076,13 +1085,32 @@ const app = createApp({
             toggleColor,
             adujstFont,
             fontButtonCtl,
-            showFonts,
             nameBtnCtlChange,
             binGo,
             IDBHelper,
             showPhoto,
             doSpeak
         };
+    },
+    watch: {
+        showList(newVal) {
+            newVal ? localStorage.removeItem('showList') : localStorage.setItem('showList', 0);
+        },
+        showSeats(newVal) {
+            newVal ? localStorage.removeItem('showSeats') : localStorage.setItem('showSeats', 0);
+        },
+        showNumber(newVal) {
+            newVal ? localStorage.removeItem('showNumber') : localStorage.setItem('showNumber', 0);
+        },
+        showLeader(newVal) {
+            newVal ? localStorage.removeItem('showLeader') : localStorage.setItem('showLeader', 0);
+        },
+        showVertical(newVal) {
+            newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
+        },
+        showFonts(newVal) {
+            setFonts(newVal);
+        }
     },
     mounted() {
 
