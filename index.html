@@ -236,7 +236,7 @@
     </div>
 
     <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><span class="close">✕</span><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><img :src="photo" alt="" /><p class="text-center namearea">{{ photoName }}</p></div>
-    <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary"><span class="close">✕</span><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><p class="text-center namearea">{{ photoName }}</p></div>
+    <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary" :class="{'bg-info': !bingoButtonCtl}"><span class="close">✕</span><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><p class="text-center namearea">{{ photoName }}</p></div>
 
     <footer class="d-print-none text-end">
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
