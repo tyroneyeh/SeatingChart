@@ -50,6 +50,9 @@
     white-space: nowrap;
     padding: 1px;
 }
+.table {
+  table-layout: fixed;
+}
 .vertical-text {
     -webkit-writing-mode:vertical-lr;
     writing-mode:vertical-lr;
@@ -134,7 +137,7 @@
                         <button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button>
                         <input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button>
                         <button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button>
-                        <button class="form-control-sm" @click="randomPos" :disabled="posdata.filter(el => el.innerText.trim() != '').length >= namelist.filter(el => el.innerText.trim() != '').length">{{ $gettext('Random') }}</button>
+                        <button class="form-control-sm" @click="randomPos">{{ $gettext('Random') }}</button>
                         <div class="navbar-nav border">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
                             <select class="text-center" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
@@ -164,15 +167,15 @@
     </div>
 
     <div class="container-fluid row mx-auto">
-        <div class="col-lg-2 col-md-2 col-sm-2 pt-1 resize-y" v-show="showList">
+        <div class="col-lg-2 col-md-2 col-sm-2 pt-1 table-responsive overflow-x-hidden resize-y" v-show="showList">
             <!-- left area -->
             <table class="table table-bordered table-striped small">
                 <thead>
                     <tr class="border-secondary small">
-                        <th class="ps-3 py-1 no-border-right">
+                        <th class="ps-3 py-1 no-border-right" style="min-width:25%">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange">
                         </th>
-                        <th colspan="2" class="text-nowrap py-1 no-border-left" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
+                        <th class="text-nowrap py-1 no-border-left w-75" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
@@ -180,10 +183,10 @@
                 <tbody>
                     <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="w-100 d-inline-flex"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
-                            <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="float-end">{{ n }}</span></label>
+                            <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText.length ? n : ''">
+                            <span class="d-none d-print-block px-1">{{ nameBgCtl[n - 1]?.checked == true ? '✓' : '☐' }}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
                         </td>
-                        <td class="text-nowrap no-border-left py-1 namearea" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist"></td>
+                        <td class="no-border-left py-1 namearea text-truncate" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist" @mouseover="setTitle($event)"></td>
                     </tr>
                 </tbody>
             </table>
@@ -684,10 +687,14 @@ const app = createApp({
             const list = storeRefs[o];
             const startIndex = n - 1;
 
-            pasteData.forEach((text, j) => {
-                const item = list[startIndex + j];
-                if (!item) return;
-                item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
+            storeRefs.totalNamelist.value = Math.max(pasteData.length + startIndex, storeRefs.totalNamelist.value);
+            nextTick(() => {
+                pasteData.forEach((text, j) => {
+                    let item = list[startIndex + j];
+                    if (item) {
+                        item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
+                    }
+                });
             });
 
         };
@@ -1005,6 +1012,10 @@ const app = createApp({
             });
         };
 
+        const setTitle = event => {
+            event.currentTarget.title = event.currentTarget.textContent;
+        };
+
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -1089,7 +1100,8 @@ const app = createApp({
             binGo,
             IDBHelper,
             showPhoto,
-            doSpeak
+            doSpeak,
+            setTitle
         };
     },
     watch: {
