@@ -977,21 +977,28 @@ const app = createApp({
             const finalNumber = Math.floor(Math.random() * arr.length);
             let current = 0;
 
+            const getDelay = (i, arrLength) => {
+                const t = i / arrLength;
+                const minDelay = 50;
+                const maxDelay = 200;
+
+                if (t < 0.3) {
+                    return maxDelay - (maxDelay - minDelay) * (t / 0.3);
+                } else if (t < 0.7) {
+                    return minDelay;
+                } else if (t <= 0.9) {
+                    return maxDelay - (maxDelay - minDelay) * (((t - 0.7) / 0.3) ** 2);
+                }
+                return maxDelay - (maxDelay - minDelay) * (((t - 0.7) / 0.3) ** 20);
+            };
+
             function roll(i) {
                 current = (current % arr.length) + 1;
                 showPos(arr[current - 1], 1);
                 showPhoto(arr[current - 1]);
 
                 if (i < arr.length) {
-                    let delay;
-                    if (i < arr.length * 0.3) {
-                        delay = 200 - i * 5;
-                    } else if (i < arr.length * 0.7) {
-                        delay = 50;
-                    } else {
-                        delay = 50 + (i - arr.length * 0.7) * arr.length;
-                    }
-                    setTimeout(() => roll(i + 1), delay);
+                    setTimeout(() => roll(i + 1), getDelay(i, arr.length));
                 } else {
                     showPos(arr[finalNumber], 1);
                     showPhoto(arr[finalNumber]);
