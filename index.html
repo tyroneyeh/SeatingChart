@@ -133,11 +133,15 @@
                         <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
-                        <button class="form-control-sm" @click="clearStore" v-if="storeData">{{ $gettext('Clear') }}</button>
-                        <button class="form-control-sm" @click="download" v-if="storeData">{{ $gettext('Download') }}</button>
-                        <input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json"><button class="form-control-sm" @click="uploadData">{{ $gettext('Upload') }}</button>
-                        <button class="form-control-sm" @click="clearPos" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</button>
-                        <button class="form-control-sm" @click="randomPos">{{ $gettext('Random') }}</button>
+                        <select v-model="storeMethods">
+                            <option value="" selected disabled>{{ $gettext('Store') }}</option>
+                            <option value="Clear" v-if="storeData">{{ $gettext('Clear') }}</option>
+                            <option value="Download" v-if="storeData">{{ $gettext('Download') }}</option>
+                            <option value="Upload">{{ $gettext('Upload') }}</option>
+                            <option value="Random">{{ $gettext('Random') }}</option>
+                            <option value="Reset" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</option>
+                        </select>
+                        <input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json">
                         <div class="navbar-nav border">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
                             <select class="text-center" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
@@ -714,7 +718,7 @@ const app = createApp({
                 dlAnchorElem.setAttribute("download", (storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts')) +`_${storeRefs.today.value.innerText}.json`);
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
-                document.body.remove(dlAnchorElem);
+                dlAnchorElem.remove();
             }
         };
 
@@ -1080,7 +1084,8 @@ const app = createApp({
             seatsPos: ref(''),
             photoName: ref(''),
             posNameHovered: ref(null),
-            doBingo: ref(false)
+            doBingo: ref(false),
+            storeMethods: ref('')
         };
 
         return {
@@ -1132,6 +1137,26 @@ const app = createApp({
         },
         showFonts(newVal) {
             setFonts(newVal);
+        },
+        storeMethods(newVal) {
+            switch (newVal) {
+            case 'Clear':
+                this.clearStore();
+                break;
+            case 'Download':
+                this.download();
+                break;
+            case 'Upload':
+                this.uploadData();
+                break;
+            case 'Reset':
+                this.clearPos();
+                break;
+            case 'Random':
+                this.randomPos();
+                break;
+            }
+            this.storeMethods = '';
         }
     },
     mounted() {
@@ -1182,6 +1207,7 @@ const vue3gettext = VueGettext.createGettext({
             "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
             "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?",
             "President": "班長",
+            "Store": "儲存",
             "Clear": "清除",
             "Desk": "講桌",
             "Download": "下載",
