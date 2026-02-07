@@ -40,4 +40,4 @@
 
 ---
 
-- Demo: https://tyroneyeh.github.io/SeatingChart/
+- URL https://ty-seatingchart.pages.dev
