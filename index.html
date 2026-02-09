@@ -10,17 +10,17 @@
   <meta property="og:title" content="SeatingChart - 教室座位表 & Online Student Seating Chart for Teachers">
   <meta property="og:description" content="快速管理教室座位表，支援即時編輯、拖拉、隨機座位、行列自訂、股長設定，以及 JSON/Local Storage 備份。Perfect for classroom management.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://tyroneyeh.github.io/SeatingChart/seatingchart.png">
+  <meta property="og:image" content="https://ty-seatingchart.pages.dev/seatingchart.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="628">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="SeatingChart - 教室座位表 & Teacher-Friendly Online Student Seating Chart">
   <meta name="twitter:description" content="管理學生座位表，支援即時編輯、拖拉、隨機座位、行列自訂、股長設定，以及 JSON/Local Storage 備份。Perfect for teachers.">
-<meta name="twitter:image" content="https://tyroneyeh.github.io/SeatingChart/seatingchart.png">
+<meta name="twitter:image" content="https://ty-seatingchart.pages.dev/seatingchart.png">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart@main/index.js"></script>
+<script src="https://ty-seatingchart.pages.dev/index.js"></script>
 <style>
 [v-cloak] {
     display: none;
@@ -196,9 +196,9 @@
             </table>
 
         </div>
-        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}" v-show="showSeats">
+        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}" :style="{'font-size': fontSizeC + 'em'}" v-show="showSeats">
             <!-- center area -->
-            <div class="row" :style="{'font-size': fontSizeC + 'em'}" v-for="y in totalY">
+            <div class="row" v-for="y in totalY">
                 <div class="col p-1" v-for="x in totalX">
                     <div class="p-0 seat-row seat-container border h-100 d-flex flex-column" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata" v-show="showNumber"></div>
@@ -263,12 +263,12 @@ function setFonts(newVal) {
         },
         pinyin: {
             family: 'Pinyin-Tsuipita',
-            file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-Pinyin-Tsuipita-TC.woff2',
+            file: 'https://ty-seatingchart.pages.dev/ToneOZ-Pinyin-Tsuipita-TC.woff2',
             type: 'woff2'
         },
         bothfonts: {
             family: 'YinPZ-Tsuipita',
-            file: 'https://cdn.jsdelivr.net/gh/tyroneyeh/SeatingChart/ToneOZ-YinPZ-Tsuipita-TC.woff2',
+            file: 'https://ty-seatingchart.pages.dev/ToneOZ-YinPZ-Tsuipita-TC.woff2',
             type: 'woff2'
         }
     };
