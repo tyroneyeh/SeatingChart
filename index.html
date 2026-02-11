@@ -143,7 +143,6 @@
                             <option value="Random">{{ $gettext('Random') }}</option>
                             <option value="Reset" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</option>
                             <option value="Print" :disabled="printButtonCtl">{{ $gettext('Print') }}</option>
-                            <option value="Share" v-if="canShare">{{ $gettext('Share') }}</option>
                         </select>
                         <input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json">
                         <div class="navbar-nav border">
@@ -1054,33 +1053,6 @@ const app = createApp({
             event.currentTarget.title = event.currentTarget.textContent;
         };
 
-        function doShare() {
-
-            const data = localStorage.getItem('data');
-            if (!data) {
-                alert($gettext('No data to share'));
-                return;
-            }
-
-            const blob = new Blob([data], { type: 'application/json' });
-            const file = new File([blob], `${storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts')}_${storeRefs.today.value.innerText}.json`, { type: 'application/json' });
-
-            if (!navigator.canShare || !navigator.canShare({ files: [] })) {
-                alert($gettext('Sharing not supported'));
-                return;
-            }
-
-            try {
-                navigator.share({
-                    title: storeRefs.tabletitle.value.innerText,
-                    text: $gettext('Here is the seating chart data.'),
-                    files: [file]
-                });
-            } catch (error) {
-                console.error(error);
-            }
-        }
-
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -1138,8 +1110,7 @@ const app = createApp({
             posNameHovered: ref(null),
             doBingo: ref(false),
             storeMethods: ref(''),
-            nameDivHeight: ref(''),
-            canShare: ref(!!navigator.canShare)
+            nameDivHeight: ref('')
         };
 
         return {
@@ -1172,8 +1143,7 @@ const app = createApp({
             showPhoto,
             doSpeak,
             setTitle,
-            setNameHeight,
-            doShare
+            setNameHeight
         };
     },
     watch: {
@@ -1215,9 +1185,6 @@ const app = createApp({
                 break;
             case 'Print':
                 window.print();
-                break;
-            case 'Share':
-                this.doShare();
                 break;
             }
             this.storeMethods = '';
