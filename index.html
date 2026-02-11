@@ -357,8 +357,7 @@ const app = createApp({
         }
 
         function setNameHeight(toAuto) {
-            const nameDivHeight = [...document.querySelectorAll('.seat-row .namearea')].reduce((a, b) => a.offsetHeight > b.offsetHeight ? a : b);
-            refs.nameDivHeight.value = toAuto ? 'auto' : ((nameDivHeight.offsetHeight < 100 ? 100 : nameDivHeight.offsetHeight) + 2) + 'px';
+            refs.nameDivHeight.value = toAuto ? 'auto' : window.defaultFontSize;
         }
 
         const updateDisplay = (o, num, pos) => {
@@ -961,6 +960,7 @@ const app = createApp({
                     store();
                     if (refs.fontPos.value == 'c') {
                         refs.nameDivHeight.value = Math.floor(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.1 : -0.1))) + 2) + 'px';
+                        window.defaultFontSize = refs.nameDivHeight.value;
                     }
                 }
             }
@@ -1203,6 +1203,8 @@ const app = createApp({
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
+        window.defaultFontSize = [...document.querySelectorAll('.seat-row .namearea')].reduce((a, b) => a.offsetHeight > b.offsetHeight ? a : b).offsetHeight;
+        window.defaultFontSize = (window.defaultFontSize < 100 ? 100 : window.defaultFontSize) + 2 + 'px';
         this.setNameHeight(!this.showVertical);
 
     }
