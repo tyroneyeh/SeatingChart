@@ -1196,8 +1196,8 @@ const app = createApp({
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
-        const lastNameDivElement = Array.from(document.querySelectorAll('.seat-row .namearea')).filter(el => el.textContent.trim() !== "").at(-1);
-        this.nameDivHeight = (lastNameDivElement.offsetHeight + 2) + 'px';
+        const lastNameDivElement = [...document.querySelectorAll('.seat-row .namearea')].reduce((a, b) => a.offsetHeight > b.offsetHeight ? a : b);
+        if (lastNameDivElement) this.nameDivHeight = ((lastNameDivElement.offsetHeight < 100 ? 100 : lastNameDivElement.offsetHeight) + 2) + 'px';
 
     }
 
