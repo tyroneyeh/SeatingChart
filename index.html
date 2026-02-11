@@ -125,7 +125,7 @@
         <!-- top area -->
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavbar = !toggleNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavBarCtl" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <a class="navbar-brand" href="">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
@@ -215,6 +215,9 @@
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1" v-show="showLeader">
             <!-- right area -->
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}">
+                <colgroup>
+                    <col style="width: 30%">
+                </colgroup>
                 <thead>
                 <tr>
                     <th scope="row" colspan="2" class="text-justify-last bg-light" @click="startEdit($event.target)" @blur="endEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
@@ -340,6 +343,11 @@ const app = createApp({
         const removeCookie = (name, value) => {
             setCookie(name, value, 0);
         };
+
+        function toggleNavBarCtl() {
+            refs.toggleNavbar.value = !refs.toggleNavbar.value;
+            !refs.toggleNavbar.value ? localStorage.removeItem('toggleNavbar') : localStorage.setItem('toggleNavbar', 1);
+        }
 
         const tipsToHide = () => {
             refs.hideTips.value = true;
@@ -950,7 +958,7 @@ const app = createApp({
             c: "fontSizeC",
             l: "fontSizeL"
         };
-        const adujstFont = direction => {
+        const adujstFont = async (direction) => {
 
             const key = fontSizeMap[refs.fontPos.value];
             if (key) {
@@ -959,8 +967,12 @@ const app = createApp({
                     storeRefs[key].value = Math.round(val * 10) / 10;
                     store();
                     if (refs.fontPos.value == 'c') {
-                        refs.nameDivHeight.value = Math.floor(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.1 : -0.1))) + 2) + 'px';
-                        window.defaultFontSize = refs.nameDivHeight.value;
+                        refs.nameDivHeight.value = Math.round(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.05 : -0.02))) + 2) + 'px';
+                        window.fontAdjustCount = (window.fontAdjustCount || 0) + 1;
+                        if (window.fontAdjustCount > 2) {
+                            localStorage.setItem('toggleNavbar', refs.toggleNavbar.value ? 1 : 0);
+                            location.reload();
+                        }
                     }
                 }
             }
@@ -1062,7 +1074,7 @@ const app = createApp({
         };
 
         const refs = {
-            toggleNavbar: ref(false),
+            toggleNavbar: ref(localStorage.getItem('toggleNavbar') == 1),
             totalnums: ref(48),
             uploadfile: ref(null),
             storeData: ref(0),
@@ -1101,6 +1113,7 @@ const app = createApp({
         return {
             ...storeRefs,
             ...refs,
+            toggleNavBarCtl,
             startEdit,
             endEdit,
             editKeydown,
