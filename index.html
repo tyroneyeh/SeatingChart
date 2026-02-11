@@ -356,6 +356,11 @@ const app = createApp({
             targetArr[index].innerHTML = name;
         }
 
+        function setNameHeight(toAuto) {
+            const nameDivHeight = [...document.querySelectorAll('.seat-row .namearea')].reduce((a, b) => a.offsetHeight > b.offsetHeight ? a : b);
+            refs.nameDivHeight.value = toAuto ? 'auto' : ((nameDivHeight.offsetHeight < 100 ? 100 : nameDivHeight.offsetHeight) + 2) + 'px';
+        }
+
         const updateDisplay = (o, num, pos) => {
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
@@ -1121,7 +1126,8 @@ const app = createApp({
             IDBHelper,
             showPhoto,
             doSpeak,
-            setTitle
+            setTitle,
+            setNameHeight
         };
     },
     watch: {
@@ -1139,6 +1145,7 @@ const app = createApp({
         },
         showVertical(newVal) {
             newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
+            this.setNameHeight(!newVal);
         },
         showFonts(newVal) {
             setFonts(newVal);
@@ -1196,8 +1203,7 @@ const app = createApp({
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
-        const lastNameDivElement = [...document.querySelectorAll('.seat-row .namearea')].reduce((a, b) => a.offsetHeight > b.offsetHeight ? a : b);
-        if (lastNameDivElement) this.nameDivHeight = ((lastNameDivElement.offsetHeight < 100 ? 100 : lastNameDivElement.offsetHeight) + 2) + 'px';
+        this.setNameHeight(!this.showVertical);
 
     }
 
