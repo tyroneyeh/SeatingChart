@@ -204,7 +204,7 @@
                     <div class="p-0 seat-row seat-container border h-100 d-flex flex-column" :class="{ 'bg-info': posdata[((y-1)*totalX + x-1)]?.innerText == highlightedPos }" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata" v-show="showNumber"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 pb-3 text-center mx-auto namearea" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1)}" :style="{'width': 'auto', 'height': nameDivHeight}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
+                        <div class="p-0 pb-3 text-center mx-auto namearea" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && posname[((y-1)*totalX + x-1)]?.innerText == ''}" :style="{'min-width': '30px', 'height': nameDivHeight}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -955,7 +955,7 @@ const app = createApp({
                     storeRefs[key].value = Math.round(val * 10) / 10;
                     store();
                     if (refs.fontPos.value == 'c') {
-                        refs.nameDivHeight.value = Math.floor(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.1 : -0.1))) + 1) + 'px';
+                        refs.nameDivHeight.value = Math.floor(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.1 : -0.1))) + 2) + 'px';
                     }
                 }
             }
@@ -1196,8 +1196,8 @@ const app = createApp({
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
-        const lastNameDivElement = Array.from(document.querySelectorAll('.seat-row .namearea')).at(-1);
-        this.nameDivHeight = lastNameDivElement.offsetHeight + 1 + 'px';
+        const lastNameDivElement = Array.from(document.querySelectorAll('.seat-row .namearea')).filter(el => el.textContent.trim() !== "").at(-1);
+        this.nameDivHeight = (lastNameDivElement.offsetHeight + 2) + 'px';
 
     }
 
