@@ -146,7 +146,7 @@
                             <option value="Print" :disabled="printButtonCtl">{{ $gettext('Print') }}</option>
                             <option value="Share">{{ $gettext('Share') }}</option>
                         </select>
-                        <input type="file" ref="uploadfile" @change="uploadfileChange" class="visually-hidden" accept="application/json">
+                        <input id="uploadfile" type="file" @change="uploadfileChange($event)" class="visually-hidden" accept="application/json">
                         <label v-if="storeSelected === 'Upload'" for="uploadfile" class="btn btn-primary">{{ $gettext('Select a file') }}</label>
                         <div class="navbar-nav border">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
@@ -751,11 +751,11 @@ const app = createApp({
             }
         };
 
-        const uploadfileChange = () => {
-            const fileInput = refs.uploadfile.value;
-            if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+        const uploadfileChange = ($event) => {
+            const fileInput = $event.target.files;
+            if (!fileInput || !fileInput[0]) return;
             const reader = new FileReader();
-            reader.readAsText(fileInput.files[0], "UTF-8");
+            reader.readAsText(fileInput[0], "UTF-8");
             reader.onload = event => {
                 if (!event.target.result) return;
                 let data = JSON.parse(event.target.result);
@@ -1037,7 +1037,7 @@ const app = createApp({
                 download();
                 break;
             case 'Upload':
-                refs.uploadfile.value?.click();
+                document.getElementById('uploadfile')?.click();
                 break;
             case 'Reset':
                 if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
@@ -1122,7 +1122,6 @@ const app = createApp({
         const refs = {
             toggleNavbar: ref(localStorage.getItem('toggleNavbar') == 1),
             totalnums: ref(48),
-            uploadfile: ref(null),
             storeData: ref(0),
             posname: reactive([]),
             posindex: ref(0),
