@@ -818,7 +818,7 @@ const app = createApp({
             const reader = new FileReader();
             reader.readAsText(fileInput, "UTF-8");
             reader.onload = event => {
-                if (!event.target.result) return;
+                if (!event.target?.result) return;
                 let data = JSON.parse(event.target.result);
                 if (data.photo) {
                     for (const photos of data.photo) {
@@ -830,7 +830,7 @@ const app = createApp({
                 }
                 data = JSON.stringify(data);
                 localStorage.setItem('data', data);
-                location.reload();
+                setTimeout(() => location.reload(), 50);
             }
             e.target.value = '';
         };
