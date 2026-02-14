@@ -1093,8 +1093,8 @@ const app = createApp({
                 }
                 break;
             }
-            refs.storeSelected.value = '';
-        }
+            setTimeout(() => refs.storeSelected.value = '', 3000);
+        };
 
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
