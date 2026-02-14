@@ -812,9 +812,12 @@ const app = createApp({
             }
         };
 
-        const uploadfileChange = ($event) => {
-            const fileInput = $event.target.files;
-            if (!fileInput || !fileInput[0]) return;
+        const uploadfileChange = (e) => {
+            const fileInput = e.target.files;
+            if (!fileInput || !fileInput[0]) {
+                e.target.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.readAsText(fileInput[0], "UTF-8");
             reader.onload = event => {
@@ -831,6 +834,7 @@ const app = createApp({
                 data = JSON.stringify(data);
                 localStorage.setItem('data', data);
                 location.reload();
+                e.target.value = '';
             }
         };
 
