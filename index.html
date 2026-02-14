@@ -136,8 +136,8 @@
                         <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
-                        <select v-model="storeMethods">
-                            <option value="" selected disabled>{{ $gettext('Store') }}</option>
+                        <select v-model="storeSelected" @change="storeMethods">
+                            <option value="" disabled>{{ $gettext('Store') }}</option>
                             <option value="Clear" v-if="storeData">{{ $gettext('Clear') }}</option>
                             <option value="Download" v-if="storeData">{{ $gettext('Download') }}</option>
                             <option value="Upload">{{ $gettext('Upload') }}</option>
@@ -314,8 +314,9 @@ function ungzipBase64UrlBC(token) {
   return JSON.parse(pako.ungzip(u8, {to: "string"}));
 }
 
-const { createApp, ref, reactive, computed, nextTick } = Vue;
+const jsondata = localStorage.getItem('data');
 
+const { createApp, ref, reactive, computed, nextTick } = Vue;
 const app = createApp({
     beforeCreate() {
         const params = new URLSearchParams(location.search);
@@ -323,7 +324,6 @@ const app = createApp({
             localStorage.setItem('data', ungzipBase64UrlBC(params.get('data')));
         }
 
-        const jsondata = localStorage.getItem('data');
         if (jsondata) {
             try {
                 const data = JSON.parse(jsondata);
@@ -752,9 +752,8 @@ const app = createApp({
         };
 
         const download = async () => {
-            let data = localStorage.getItem('data');
-            data = JSON.parse(data);
-            if (!data) return;
+            if (!jsondata) return;
+            let data = JSON.parse(jsondata);
             data.photo = await IDBHelper.get('photo');
             data = JSON.stringify(data);
 
@@ -906,16 +905,16 @@ const app = createApp({
 
             const actions = [{
                 condition: () => data.type == 'student' && isSeatRow,
-                action: () => {
-                    if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
-                    if (randomNumbers.includes(String(sourceIndex))) {
-                        alert($gettext('Seat assigned'));
-                        return;
+                    action: () => {
+                        if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                        if (randomNumbers.includes(String(sourceIndex))) {
+                            alert($gettext('Seat assigned'));
+                            return;
+                        }
+                        if (targetNum) removeFromRandomNumbers(targetNum);
+                        setElementValue(storeRefs.posdata, targetIndex, sourceIndex);
+                        addToRandomNumbers(sourceIndex);
                     }
-                    if (targetNum) removeFromRandomNumbers(targetNum);
-                    setElementValue(storeRefs.posdata, targetIndex, sourceIndex);
-                    addToRandomNumbers(sourceIndex);
-                }
                 },
                 {
                     condition: () => data.type == 'seat' && isSeatRow,
@@ -1084,15 +1083,37 @@ const app = createApp({
             event.currentTarget.title = event.currentTarget.textContent;
         };
 
-        const shareURL = () => {
-            const data = localStorage.getItem('data');
-            if (data) {
-                delete data.photo;
-                const zipData = gzipBase64UrlBC(data);
-                navigator.clipboard.writeText(`${location.href}?data=${zipData}`);
-                alert($gettext('Copied to clipboard'));
+        const storeMethods = () => {
+            switch (refs.storeSelected.value) {
+            case 'Clear':
+                clearStore();
+                break;
+            case 'Download':
+                download();
+                break;
+            case 'Upload':
+                uploadData();
+                break;
+            case 'Reset':
+                clearPos();
+                break;
+            case 'Random':
+                randomPos();
+                break;
+            case 'Print':
+                window.print();
+                break;
+            case 'Share':
+                if (jsondata) {
+                    const {photo, ...data} = JSON.parse(jsondata);
+                    const zipData = gzipBase64UrlBC(data);
+                    navigator.clipboard.writeText(`${location.href}?data=${zipData}`);
+                    alert($gettext('Copied to clipboard'));
+                }
+                break;
             }
-        };
+            refs.storeSelected.value = '';
+        }
 
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
@@ -1150,7 +1171,7 @@ const app = createApp({
             photoName: ref(''),
             posNameHovered: ref(null),
             doBingo: ref(false),
-            storeMethods: ref(''),
+            storeSelected: ref(''),
             nameDivHeight: ref('')
         };
 
@@ -1163,11 +1184,6 @@ const app = createApp({
             editKeydown,
             editPaste,
             store,
-            clearStore,
-            download,
-            uploadData,
-            randomPos,
-            clearPos,
             uploadfileChange,
             updateDisplay,
             tipsToHide,
@@ -1185,7 +1201,7 @@ const app = createApp({
             doSpeak,
             setTitle,
             setNameHeight,
-            shareURL
+            storeMethods
         };
     },
     watch: {
@@ -1207,33 +1223,6 @@ const app = createApp({
         },
         showFonts(newVal) {
             setFonts(newVal);
-        },
-        storeMethods(newVal) {
-            this.storeMethods = '';
-
-            switch (newVal) {
-            case 'Clear':
-                this.clearStore();
-                break;
-            case 'Download':
-                this.download();
-                break;
-            case 'Upload':
-                this.uploadData();
-                break;
-            case 'Reset':
-                this.clearPos();
-                break;
-            case 'Random':
-                this.randomPos();
-                break;
-            case 'Print':
-                window.print();
-                break;
-            case 'Share':
-                this.shareURL();
-                break;
-            }
         }
     },
     async mounted() {
