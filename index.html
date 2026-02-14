@@ -811,7 +811,7 @@ const app = createApp({
             if (window.jsondata) {
                 const {photo, ...data} = JSON.parse(window.jsondata);
                 const zipData = gzipBase64UrlBC(data);
-                navigator.clipboard.writeText(`${location.href}?data=${zipData}`);
+                navigator.clipboard.writeText(`${location.origin}?data=${zipData}`);
                 alert($gettext('Copied to clipboard'));
             }
         };
