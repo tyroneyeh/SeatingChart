@@ -461,24 +461,6 @@ const app = createApp({
 
         };
 
-        const clearStore = () => {
-            if (!confirm($gettext("Are you sure you want to clear all entered data?")))
-                return;
-
-            localStorage.removeItem('data');
-            IDBHelper.remove('photo');
-            location.reload();
-        };
-
-        const clearPos = () => {
-            if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?")))
-                return;
-
-            storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
-            store();
-            location.reload();
-        };
-
         const endEdit = (o, num, pos) => {
             updateDisplay(o, num, pos);
 
@@ -768,47 +750,6 @@ const app = createApp({
             }
         };
 
-        const uploadData = () => {
-            if (refs.uploadfile.value) {
-                refs.uploadfile.value.click();
-            }
-        };
-
-        const randomPos = () => {
-            let rNum, i, studentNums;
-            // Ensure namelist is not empty and has valid elements
-            for (i = storeRefs.totalNamelist.value; i > 0; i--) {
-                if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
-            }
-
-            if (i <= randomNumbers.length) return;
-
-            studentNums = refs.nameBgCtlChecked.value.length
-                ? refs.nameBgCtlChecked.value.slice()
-                : Array.from({length: i}, (_, index) => index + 1);
-            if (randomNumbers.length)
-                studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
-
-            const posdatas = storeRefs.posdata.slice().reverse();
-            for (const element of posdatas) {
-                if (!element.innerText.trim().length) {
-                    rNum = Math.floor(Math.random() * studentNums.length);
-                    // Check for valid index and valid namelist entry
-                    if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
-                        element.innerText = studentNums[rNum];
-                    } else {
-                        continue;
-                    }
-
-                    studentNums.splice(rNum, 1);
-                    if (!studentNums.length) break;
-                }
-            }
-
-            store();
-            location.reload();
-        };
-
         const uploadfileChange = () => {
             const fileInput = refs.uploadfile.value;
             if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
@@ -1086,19 +1027,58 @@ const app = createApp({
         const storeMethods = () => {
             switch (refs.storeSelected.value) {
             case 'Clear':
-                clearStore();
+                if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
+                localStorage.removeItem('data');
+                IDBHelper.remove('photo');
+                location.reload();
                 break;
             case 'Download':
                 download();
                 break;
             case 'Upload':
-                uploadData();
+                refs.uploadfile.value?.click();
                 break;
             case 'Reset':
-                clearPos();
+                if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
+                storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
+                store();
+                location.reload();
                 break;
             case 'Random':
-                randomPos();
+                {
+                    let rNum, i, studentNums;
+                    // Ensure namelist is not empty and has valid elements
+                    for (i = storeRefs.totalNamelist.value; i > 0; i--) {
+                        if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
+                    }
+
+                    if (i <= randomNumbers.length) return;
+
+                    studentNums = refs.nameBgCtlChecked.value.length
+                        ? refs.nameBgCtlChecked.value.slice()
+                        : Array.from({length: i}, (_, index) => index + 1);
+                    if (randomNumbers.length)
+                        studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
+
+                    const posdatas = storeRefs.posdata.slice().reverse();
+                    for (const element of posdatas) {
+                        if (!element.innerText.trim().length) {
+                            rNum = Math.floor(Math.random() * studentNums.length);
+                            // Check for valid index and valid namelist entry
+                            if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
+                                element.innerText = studentNums[rNum];
+                            } else {
+                                continue;
+                            }
+
+                            studentNums.splice(rNum, 1);
+                            if (!studentNums.length) break;
+                        }
+                    }
+
+                    store();
+                    location.reload();
+                }
                 break;
             case 'Print':
                 window.print();
