@@ -146,7 +146,8 @@
                             <option value="Print" :disabled="printButtonCtl">{{ $gettext('Print') }}</option>
                             <option value="Share">{{ $gettext('Share') }}</option>
                         </select>
-                        <input type="file" ref="uploadfile" @change="uploadfileChange" class="d-none" accept="application/json">
+                        <input type="file" ref="uploadfile" @change="uploadfileChange" class="visually-hidden" accept="application/json">
+                        <label v-if="storeSelected === 'Upload'" for="uploadfile" class="btn btn-primary">{{ $gettext('Select a file') }}</label>
                         <div class="navbar-nav border">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
                             <select class="text-center" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
