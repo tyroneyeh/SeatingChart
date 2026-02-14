@@ -127,27 +127,29 @@
         <!-- top area -->
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavBarCtl" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavBarCtl">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a class="navbar-brand" href="">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
+                <a class="navbar-brand" href="/">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <ul class="navbar-nav m-auto">
                         <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
-                        <select v-model="storeSelected" @change="storeMethods">
-                            <option value="" disabled>{{ $gettext('Store') }}</option>
-                            <option value="Clear" v-if="storeData">{{ $gettext('Clear') }}</option>
-                            <option value="Download" v-if="storeData">{{ $gettext('Download') }}</option>
-                            <option value="Upload">{{ $gettext('Upload') }}</option>
-                            <option value="Random">{{ $gettext('Random') }}</option>
-                            <option value="Reset" :disabled="clearBtnCtl">{{ $gettext('Reset') }}</option>
-                            <option value="Print" :disabled="printButtonCtl">{{ $gettext('Print') }}</option>
-                            <option value="Share">{{ $gettext('Share') }}</option>
-                        </select>
+                        <li class="nav-item dropdown position-relative text-center">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Store') }}</button>
+                            <ul class="dropdown-menu show" v-if="toggleSubmenu" style="display: block">
+                                <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
+                                <li><button class="dropdown-item" type="button" onclick="uploadfile.click()">{{ $gettext('Upload') }}</button></li>
+                                <li><button class="dropdown-item" type="button" @click="randomPos">{{ $gettext('Random') }}</button></li>
+                                <li><button class="dropdown-item" type="button" :disabled="clearBtnCtl" @click="resetPos">{{ $gettext('Reset') }}</button></li>
+                                <li><button class="dropdown-item" type="button" onclick="window.print()">{{ $gettext('Print') }}</button></li>
+                                <li><button class="dropdown-item" type="button" @click="shareData">{{ $gettext('Share') }}</button></li>
+                            </ul>
+                        </li>
                         <input id="uploadfile" type="file" @change="uploadfileChange($event)" class="visually-hidden" accept="application/json">
-                        <label v-if="storeSelected === 'Upload'" for="uploadfile" class="btn btn-primary">{{ $gettext('Select a file') }}</label>
                         <div class="navbar-nav border">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
                             <select class="text-center" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
@@ -312,22 +314,22 @@ function gzipBase64UrlBC(obj) {
 
 function ungzipBase64UrlBC(token) {
   const u8 = fromBase64Url(token);
-  return JSON.parse(pako.ungzip(u8, {to: "string"}));
+  return pako.ungzip(u8, {to: "string"});
 }
-
-const jsondata = localStorage.getItem('data');
 
 const { createApp, ref, reactive, computed, nextTick } = Vue;
 const app = createApp({
     beforeCreate() {
         const params = new URLSearchParams(location.search);
         if (params.has('data')) {
-            localStorage.setItem('data', ungzipBase64UrlBC(params.get('data')));
+            window.jsondata = ungzipBase64UrlBC(params.get('data'));
+        } else {
+            window.jsondata = localStorage.getItem('data');
         }
 
-        if (jsondata) {
+        if (window.jsondata) {
             try {
-                const data = JSON.parse(jsondata);
+                const data = JSON.parse(window.jsondata);
 
                 const typeMap = {
                     totalNamelist: Number,
@@ -379,7 +381,7 @@ const app = createApp({
 
         function toggleNavBarCtl() {
             refs.toggleNavbar.value = !refs.toggleNavbar.value;
-            !refs.toggleNavbar.value ? localStorage.removeItem('toggleNavbar') : localStorage.setItem('toggleNavbar', 1);
+            refs.toggleNavbar.value ? localStorage.setItem('toggleNavbar', 1) : localStorage.removeItem('toggleNavbar');
         }
 
         const tipsToHide = () => {
@@ -458,7 +460,8 @@ const app = createApp({
                 }
             });
 
-            localStorage.setItem('data', JSON.stringify(dataToSave));
+            window.jsondata = JSON.stringify(dataToSave);
+            localStorage.setItem('data', window.jsondata);
 
         };
 
@@ -734,9 +737,16 @@ const app = createApp({
 
         };
 
+        const clearStore = () => {
+            if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
+            localStorage.removeItem('data');
+            IDBHelper.remove('photo');
+            location.reload();
+        }
+
         const download = async () => {
-            if (!jsondata) return;
-            let data = JSON.parse(jsondata);
+            if (!window.jsondata) return;
+            let data = JSON.parse(window.jsondata);
             data.photo = await IDBHelper.get('photo');
             data = JSON.stringify(data);
 
@@ -748,6 +758,57 @@ const app = createApp({
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
                 dlAnchorElem.remove();
+            }
+        };
+
+        const randomPos = () => {
+            let rNum, i, studentNums;
+            // Ensure namelist is not empty and has valid elements
+            for (i = storeRefs.totalNamelist.value; i > 0; i--) {
+                if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
+            }
+
+            if (i <= randomNumbers.length) return;
+
+            studentNums = refs.nameBgCtlChecked.value.length
+                ? refs.nameBgCtlChecked.value.slice()
+                : Array.from({length: i}, (_, index) => index + 1);
+            if (randomNumbers.length)
+                studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
+
+            const posdatas = storeRefs.posdata.slice().reverse();
+            for (const element of posdatas) {
+                if (!element.innerText.trim().length) {
+                    rNum = Math.floor(Math.random() * studentNums.length);
+                    // Check for valid index and valid namelist entry
+                    if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
+                        element.innerText = studentNums[rNum];
+                    } else {
+                        continue;
+                    }
+
+                    studentNums.splice(rNum, 1);
+                    if (!studentNums.length) break;
+                }
+            }
+
+            store();
+            location.reload();
+        };
+
+        const resetPos = () => {
+            if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
+            storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
+            store();
+            location.reload();
+        };
+
+        const shareData = () => {
+            if (window.jsondata) {
+                const {photo, ...data} = JSON.parse(window.jsondata);
+                const zipData = gzipBase64UrlBC(data);
+                navigator.clipboard.writeText(`${location.href}?data=${zipData}`);
+                alert($gettext('Copied to clipboard'));
             }
         };
 
@@ -1025,77 +1086,6 @@ const app = createApp({
             event.currentTarget.title = event.currentTarget.textContent;
         };
 
-        const storeMethods = () => {
-            switch (refs.storeSelected.value) {
-            case 'Clear':
-                if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
-                localStorage.removeItem('data');
-                IDBHelper.remove('photo');
-                location.reload();
-                break;
-            case 'Download':
-                download();
-                break;
-            case 'Upload':
-                document.getElementById('uploadfile')?.click();
-                break;
-            case 'Reset':
-                if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
-                storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
-                store();
-                location.reload();
-                break;
-            case 'Random':
-                {
-                    let rNum, i, studentNums;
-                    // Ensure namelist is not empty and has valid elements
-                    for (i = storeRefs.totalNamelist.value; i > 0; i--) {
-                        if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
-                    }
-
-                    if (i <= randomNumbers.length) return;
-
-                    studentNums = refs.nameBgCtlChecked.value.length
-                        ? refs.nameBgCtlChecked.value.slice()
-                        : Array.from({length: i}, (_, index) => index + 1);
-                    if (randomNumbers.length)
-                        studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
-
-                    const posdatas = storeRefs.posdata.slice().reverse();
-                    for (const element of posdatas) {
-                        if (!element.innerText.trim().length) {
-                            rNum = Math.floor(Math.random() * studentNums.length);
-                            // Check for valid index and valid namelist entry
-                            if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
-                                element.innerText = studentNums[rNum];
-                            } else {
-                                continue;
-                            }
-
-                            studentNums.splice(rNum, 1);
-                            if (!studentNums.length) break;
-                        }
-                    }
-
-                    store();
-                    location.reload();
-                }
-                break;
-            case 'Print':
-                window.print();
-                break;
-            case 'Share':
-                if (jsondata) {
-                    const {photo, ...data} = JSON.parse(jsondata);
-                    const zipData = gzipBase64UrlBC(data);
-                    navigator.clipboard.writeText(`${location.href}?data=${zipData}`);
-                    alert($gettext('Copied to clipboard'));
-                }
-                break;
-            }
-            setTimeout(() => refs.storeSelected.value = '', 3000);
-        };
-
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -1121,6 +1111,7 @@ const app = createApp({
 
         const refs = {
             toggleNavbar: ref(localStorage.getItem('toggleNavbar') == 1),
+            toggleSubmenu: ref(false),
             totalnums: ref(48),
             storeData: ref(0),
             posname: reactive([]),
@@ -1164,6 +1155,11 @@ const app = createApp({
             editKeydown,
             editPaste,
             store,
+            clearStore,
+            download,
+            randomPos,
+            resetPos,
+            shareData,
             uploadfileChange,
             updateDisplay,
             tipsToHide,
@@ -1180,8 +1176,7 @@ const app = createApp({
             showPhoto,
             doSpeak,
             setTitle,
-            setNameHeight,
-            storeMethods
+            setNameHeight
         };
     },
     watch: {
