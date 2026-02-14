@@ -813,13 +813,10 @@ const app = createApp({
         };
 
         const uploadfileChange = (e) => {
-            const fileInput = e.target.files;
-            if (!fileInput || !fileInput[0]) {
-                e.target.value = '';
-                return;
-            }
+            const fileInput = e.target.files?.[0];
+            if (!fileInput) return;
             const reader = new FileReader();
-            reader.readAsText(fileInput[0], "UTF-8");
+            reader.readAsText(fileInput, "UTF-8");
             reader.onload = event => {
                 if (!event.target.result) return;
                 let data = JSON.parse(event.target.result);
@@ -834,8 +831,8 @@ const app = createApp({
                 data = JSON.stringify(data);
                 localStorage.setItem('data', data);
                 location.reload();
-                e.target.value = '';
             }
+            e.target.value = '';
         };
 
         const speakText = text => {
