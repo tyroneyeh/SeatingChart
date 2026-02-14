@@ -130,7 +130,7 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavBarCtl">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a class="navbar-brand" href="/">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
+                <a class="navbar-brand" href="#" @click="goHome">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <ul class="navbar-nav m-auto">
                         <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
@@ -262,6 +262,10 @@
 
 <script>
 'use strict';
+
+function goHome() {
+    location.href = location.origin;
+}
 
 function setFonts(newVal) {
     const el = document.getElementById('dynamic-zh-font');
@@ -741,7 +745,7 @@ const app = createApp({
             if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
             localStorage.removeItem('data');
             IDBHelper.remove('photo');
-            location.reload();
+            location.href = '/';
         }
 
         const download = async () => {
@@ -793,14 +797,14 @@ const app = createApp({
             }
 
             store();
-            location.reload();
+            goHome();
         };
 
         const resetPos = () => {
             if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
             storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
             store();
-            location.reload();
+            goHome();
         };
 
         const shareData = () => {
@@ -830,7 +834,7 @@ const app = createApp({
                 }
                 data = JSON.stringify(data);
                 localStorage.setItem('data', data);
-                setTimeout(() => location.reload(), 50);
+                location.href = '/';
             }
             e.target.value = '';
         };
@@ -1008,7 +1012,7 @@ const app = createApp({
                         window.fontAdjustCount = (window.fontAdjustCount || 0) + 1;
                         if (window.fontAdjustCount > 2) {
                             localStorage.setItem('toggleNavbar', refs.toggleNavbar.value ? 1 : 0);
-                            location.reload();
+                            goHome();
                         }
                     }
                 }
@@ -1150,6 +1154,7 @@ const app = createApp({
         return {
             ...storeRefs,
             ...refs,
+            goHome,
             toggleNavBarCtl,
             startEdit,
             endEdit,
