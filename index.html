@@ -52,6 +52,7 @@
     outline: 1px solid #dee2e6;
 }
 .seat-row .namearea {
+    min-width: 30px;
     min-height: 100px;
 }
 .table-cell {
@@ -202,10 +203,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
+                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="getRefItemText('namelist', n - 1)">
-                            <span class="d-none d-print-block px-1">{{getRefItem('nameBgCtl', n - 1)?.checked ? '✓' : '☐'}}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
+                            <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText">
+                            <span class="d-none d-print-block px-1">{{nameBgCtl[n - 1]?.checked ? '✓' : '☐'}}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
                         </td>
                         <td class="no-border-left py-1 namearea text-truncate" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist" @mouseover="setTitle($event)"></td>
                     </tr>
@@ -215,12 +216,12 @@
         </div>
         <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}" :style="{'font-size': fontSizeC + 'em'}" v-show="showSeats">
             <!-- center area -->
-            <div class="row g-1" v-for="y in totalY">
-                <div class="col py-1" v-for="x in totalX">
-                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': getRefItemText('posdata', (y-1)*totalX + x-1) == highlightedPos}" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
-                        <div class="border-bottom text-center p-0 bg-light possize" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata" v-show="showNumber"></div>
+            <div class="row g-1" v-for="y in totalY" :key="'row' + y + 'x' + totalX">
+                <div class="col py-1" v-for="x in totalX" :key="'seat' + y + '-' + x">
+                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': posdata[(y-1)*totalX + x-1]?.innerText == highlightedPos}" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
+                        <div class="border-bottom text-center p-0 bg-light possize" :class="{'d-none': !showNumber}" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && getRefItemText('posname', (y-1)*totalX + x-1) == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
+                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && posname[(y-1)*totalX + x-1].innerText == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -246,7 +247,7 @@
                     <tr>
                         <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
-                    <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(getRefItemText('leaders', n - 1), 1)" @mouseout="showPos(getRefItemText('leaders', n - 1), 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
+                    <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
                         <td class="seat-container text-end no-border-right" :class="{'d-none': !showNumber}" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
                         <td class="seat-container text-nowrap namearea no-border-left" :class="{'text-center': !showNumber}" :colspan="!showNumber ? 2 : 0" @click="startEdit($event.target)" ref="leadersname"></td>
                     </tr>
@@ -392,124 +393,8 @@ const IDBHelper = {
     }
 };
 
-const { createApp } = Vue;
-
+const { createApp, ref, reactive, computed, nextTick } = Vue;
 const app = createApp({
-    data() {
-        return {
-            tabletitle: this.$gettext('Seating charts'),
-            today: new Date().toLocaleDateString(),
-            totalX: 6,
-            totalY: 8,
-            totalNamelist: 48,
-            totalLeader: 8,
-            deskname: this.$gettext('Desk'),
-            updateLabel: this.$gettext('Update'),
-            teacherLabel: this.$gettext('Teacher'),
-            studentListLabel: this.$gettext('Lists'),
-            noteLabel: this.$gettext('Note'),
-            note: '',
-            fontSizeL: 1,
-            fontSizeC: 1.8,
-            fontSizeR: 1.2,
-
-            toggleNavbar: localStorage.getItem('toggleNavbar') == 1,
-            toggleSubmenu: false,
-            totalnums: 48,
-            storeData: 0,
-            posindex: 0,
-            clearBtnCtl: 0,
-            isDataChanged: 0,
-            nameBgCtlChecked: [],
-            hideTips: false,
-            highlightedPos: null,
-            colors: Array.from({ length: 10 }, (_, i) => `color-${i}`),
-            colorIndex: -1,
-            currentTarget: null,
-            currentIndex: 0,
-            showList: localStorage.getItem('showList') == null,
-            showSeats: localStorage.getItem('showSeats') == null,
-            showNumber: localStorage.getItem('showNumber') == null,
-            showLeader: localStorage.getItem('showLeader') == null,
-            showVertical: localStorage.getItem('showVertical') == null,
-            showFonts: setFonts(localStorage.getItem('showFonts')) || '',
-            fontPos: 'c',
-            nameBtnCtl: false,
-            editingEl: null,
-            bingoButtonCtl: false,
-            photo: null,
-            seatsPos: '',
-            photoName: '',
-            posNameHovered: null,
-            doBingo: false,
-            storeSelected: '',
-
-            randomNumbers: [],
-            oldValue: null
-        };
-    },
-
-    computed: {
-        fontButtonCtl() {
-            const fontSizeMap = {
-                r: "fontSizeR",
-                c: "fontSizeC",
-                l: "fontSizeL"
-            };
-            const key = fontSizeMap[this.fontPos];
-            return this[key] <= 0.5;
-        },
-
-        safeNamelist() {
-            return this.$refs.namelist || [];
-        },
-
-        safePosdata() {
-            return this.$refs.posdata || [];
-        },
-
-        safePosname() {
-            return this.$refs.posname || [];
-        },
-
-        safeLeaders() {
-            return this.$refs.leaders || [];
-        },
-
-        safeLeadersname() {
-            return this.$refs.leadersname || [];
-        },
-
-        safeLeadernames() {
-            return this.$refs.leadernames || [];
-        },
-
-        safeNameBgCtl() {
-            return this.$refs.nameBgCtl || [];
-        }
-    },
-
-    watch: {
-        showList(newVal) {
-            newVal ? localStorage.removeItem('showList') : localStorage.setItem('showList', 0);
-        },
-        showSeats(newVal) {
-            newVal ? localStorage.removeItem('showSeats') : localStorage.setItem('showSeats', 0);
-        },
-        showNumber(newVal) {
-            newVal ? localStorage.removeItem('showNumber') : localStorage.setItem('showNumber', 0);
-        },
-        showLeader(newVal) {
-            newVal ? localStorage.removeItem('showLeader') : localStorage.setItem('showLeader', 0);
-        },
-        showVertical(newVal) {
-            newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
-        },
-        showFonts(newVal) {
-            setFonts(newVal);
-        }
-    },
-
     beforeCreate() {
         const params = new URLSearchParams(location.search);
         if (params.has('data')) {
@@ -537,6 +422,8 @@ const app = createApp({
                 for (const [key, value] of globalThis.dkeys) {
                     if (key == 'tabletitle') {
                         document.title = value;
+                    } else if (key == 'today') {
+                        this.today = value;
                     } else if (key in typeMap) {
                         this[key] = typeMap[key](value);
                     }
@@ -544,201 +431,144 @@ const app = createApp({
             } catch (e) {
                 console.error(e);
             }
-        }
-    },
 
-    async mounted() {
+        }
         this.hideTips = this.getCookie('hideTips') == 1;
-
-        if (document.title == "TY's Seating Chart Generator") {
-            document.title = this.$gettext('Seating charts');
-        }
-
-        await this.$nextTick();
-
-        if (this.$refs.leadernames) {
-            if (this.$refs.leadernames[0] && !this.$refs.leadernames[0].innerText.length) {
-                this.$refs.leadernames[0].innerText = this.$gettext('President');
-            }
-            if (this.$refs.leadernames[1] && !this.$refs.leadernames[1].innerText.length) {
-                this.$refs.leadernames[1].innerText = this.$gettext('Vice president');
-            }
-        }
-
-        if (globalThis.dkeys) {
-            globalThis.dkeys.forEach(i => {
-                const target = this.$refs[i[0]] || this[i[0]];
-                if (Array.isArray(i[1]) && i[1][0] != null) {
-                    i[1].forEach((_, j) => {
-                        if (target && undefined != target[j]?.innerHTML)
-                            target[j].innerHTML = i[1][j];
-                    });
-                } else if (target && undefined != target.innerHTML)
-                    target.innerHTML = i[1].replaceAll(' ', '<br>');
-                else if (target && undefined != target.value)
-                    target.value = i[1];
-                else if (i[0] in this && typeof this[i[0]] !== 'function')
-                    this[i[0]] = i[1];
-            });
-        }
-
-        await this.$nextTick();
-
-        this.updateDisplay();
-        this.storeData = 1;
-
-        if ('speechSynthesis' in globalThis) {
-            speechSynthesis.speak(new SpeechSynthesisUtterance(""));
-        }
-
     },
+    setup() {
 
-    methods: {
-        getCookie(name) {
+        let randomNumbers = [];
+        let oldValue;
+
+        const getCookie = name => {
             let value = '; ' + document.cookie;
             let parts = value.split(`; ${name}=`);
             if (parts.length == 2) return parts.pop().split(';').shift();
-        },
+        };
 
-        setCookie(name, value, age) {
+        const setCookie = (name, value, age) => {
             age = undefined == age ? 60 * 60 * 24 * 14 : age;
             document.cookie = `${name}=${value}; path=${location.pathname}; max-age=${age};`;
-        },
+        };
 
-        removeCookie(name, value) {
-            this.setCookie(name, value, 0);
-        },
+        const removeCookie = (name, value) => {
+            setCookie(name, value, 0);
+        };
 
-        goHome() {
-            location.href = location.origin;
-        },
+        function toggleNavBarCtl() {
+            refs.toggleNavbar.value = !refs.toggleNavbar.value;
+            refs.toggleNavbar.value ? localStorage.setItem('toggleNavbar', 1) : localStorage.removeItem('toggleNavbar');
+        }
 
-        toggleNavBarCtl() {
-            this.toggleNavbar = !this.toggleNavbar;
-            this.toggleNavbar ? localStorage.setItem('toggleNavbar', 1) : localStorage.removeItem('toggleNavbar');
-        },
+        const tipsToHide = () => {
+            refs.hideTips.value = true;
+            setCookie('hideTips', 1);
+        };
 
-        tipsToHide() {
-            this.hideTips = true;
-            this.setCookie('hideTips', 1);
-        },
-
-        getNameByNumber(num) {
-            if (!this.$refs.namelist) return "";
-            const nameListEntry = this.$refs.namelist[num - 1];
+        function getNameByNumber(num) {
+            const nameListEntry = storeRefs.namelist?.[num - 1];
             return nameListEntry ? nameListEntry.innerHTML : "";
-        },
+        }
 
-        setNameText(targetArr, index, num) {
-            const name = this.getNameByNumber(num);
+        function setNameText(targetArr, index, num) {
+            const name = getNameByNumber(num);
             targetArr[index].innerHTML = name;
-        },
+        }
 
-        updateDisplay(o, num, pos) {
-            this.totalnums = this.totalX * this.totalY;
+        function setNameHeight(toAuto) {
+            refs.nameDivHeight.value = toAuto ? 'auto' : window.defaultFontSize;
+        }
 
-            if (!this.$refs.posdata) return;
+        const updateDisplay = (o, num, pos) => {
+            refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
-            this.clearBtnCtl = this.$refs.posdata.every(i => i.innerText.trim() == "");
+            refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
 
             if (o == 'posdata' && num && pos) {
-                if (this.$refs.posname && this.$refs.posname[pos]) {
-                    this.setNameText(this.$refs.posname, pos, num);
-                }
-                const ctl = this.$refs.nameBgCtl?.[parseInt(num) - 1];
+                setNameText(refs.posname, pos, num);
+                const ctl = refs.nameBgCtl[parseInt(num) - 1];
                 if (ctl) ctl.checked = true;
-                this.addToRandomNumbers(num);
+                addToRandomNumbers(num);
             } else if (o == 'leaders' && num) {
-                if (this.$refs.leadersname && this.$refs.leadersname[pos - 1]) {
-                    this.setNameText(this.$refs.leadersname, pos - 1, num);
-                }
+                setNameText(refs.leadersname, pos - 1, num);
             } else if (!o) {
-                if (this.$refs.posdata && this.$refs.posname) {
-                    this.$refs.posdata.forEach((item, j) => {
-                        if (this.$refs.posname[j]) {
-                            this.$refs.posname[j].innerText = '';
-                        }
-                        const sNum = parseInt(item.innerText.trim());
-                        if (!isNaN(sNum) && this.$refs.posname[j]) {
-                            this.setNameText(this.$refs.posname, j, sNum);
-                            this.addToRandomNumbers(sNum);
-                            const ctl = this.$refs.nameBgCtl?.[parseInt(sNum) - 1];
-                            if (ctl) ctl.checked = true;
-                        }
-                    });
-                }
+                storeRefs.posdata.forEach((item, j) => {
+                    refs.posname[j].innerText = '';
+                    const sNum = parseInt(item.innerText.trim());
+                    if (!isNaN(sNum)) {
+                        setNameText(refs.posname, j, sNum);
+                        addToRandomNumbers(sNum);
+                        const ctl = refs.nameBgCtl[parseInt(sNum) - 1];
+                        if (ctl) ctl.checked = true;
+                    }
+                });
 
-                if (this.$refs.leaders && this.$refs.leadersname) {
-                    this.$refs.leaders.forEach((item, j) => {
-                        const sNum = parseInt(item.innerText.trim());
-                        if (!isNaN(sNum) && this.$refs.leadersname[j]) {
-                            this.setNameText(this.$refs.leadersname, j, sNum);
-                        }
-                    });
-                }
+                storeRefs.leaders.forEach((item, j) => {
+                    const sNum = parseInt(item.innerText.trim());
+                    if (!isNaN(sNum)) {
+                        setNameText(refs.leadersname, j, sNum);
+                    }
+                });
+
             }
-        },
+        };
 
-        store(o) {
-            const datakeys = ['tabletitle', 'today', 'totalX', 'totalY', 'totalNamelist', 'totalLeader',
-                             'namelist', 'posdata', 'teacher', 'leadernames', 'leaders', 'deskname',
-                             'updateLabel', 'teacherLabel', 'studentListLabel', 'noteLabel', 'note',
-                             'fontSizeL', 'fontSizeC', 'fontSizeR'];
 
-            if (this.$refs.namelist && !this.$refs.namelist.filter(i => i.innerText.trim().length).length) {
-                this.totalNamelist = this.totalX * this.totalY;
-            }
+        const store = (o) => {
 
-            if (o !== 'today' && this.$refs.today) {
-                this.$refs.today.innerText = new Date().toLocaleDateString();
-            }
+            const datakeys = Object.keys(storeRefs);
+
+            if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
+
+            if (o !== 'today') storeRefs.today.value.innerText = new Date().toLocaleDateString();
 
             const dataToSave = {};
 
             datakeys.forEach(key => {
-                const ref = this.$refs[key] || this[key];
+                const ref = storeRefs[key];
 
                 if (Array.isArray(ref)) {
                     dataToSave[key] = ref.map(item => item.innerText);
-                } else if (ref && undefined != ref.innerText) {
-                    dataToSave[key] = ref.innerText;
-                } else if (ref !== undefined && ref !== null) {
-                    dataToSave[key] = ref;
+                } else if (ref.value && undefined != ref.value?.innerText) {
+                    dataToSave[key] = ref.value.innerText;
+                } else if (ref.value) {
+                    dataToSave[key] = ref.value;
                 }
             });
 
             window.jsondata = JSON.stringify(dataToSave);
             localStorage.setItem('data', window.jsondata);
-        },
 
-        endEdit(o, num, pos) {
-            this.updateDisplay(o, num, pos);
+        };
+
+        const endEdit = (o, num, pos) => {
+            updateDisplay(o, num, pos);
 
             event.target?.removeAttribute('contenteditable');
-            this.editingEl = null;
-            if (event.target?.innerText !== this.oldValue) {
-                this.store(o);
+            refs.editingEl.value = null;
+            if (event.target?.innerText !== oldValue) {
+                store(o);
             }
-            this.oldValue = null;
-        },
+            oldValue = null;
+        };
 
-        startEdit(el) {
-            this.editingEl?.removeAttribute('contenteditable');
-            this.posNameHovered = null;
+        const startEdit = el => {
+            refs.editingEl.value?.removeAttribute('contenteditable');
+            refs.posNameHovered.value = null;
             if (!el) return;
             el.setAttribute('contenteditable', 'true');
-            this.editingEl = el;
-            this.$nextTick(() => el.focus());
+            refs.editingEl.value = el;
+            nextTick(() => el.focus());
 
-            this.oldValue = el.innerText;
+            oldValue = el.innerText;
 
             const text = el.innerText.trim();
             if (text.length) {
-                this.speakText(text.replaceAll(' ', ','));
+                speakText(text.replace(/\s/g, ','));
             }
-        },
+        };
 
-        focusAtEnd(el) {
+        const focusAtEnd = (el) => {
             if (!el) return;
             el.focus();
             const range = document.createRange();
@@ -747,102 +577,164 @@ const app = createApp({
             const sel = globalThis.getSelection();
             sel.removeAllRanges();
             sel.addRange(range);
-        },
+        }
 
-        async editKeydown(o, n) {
+        const editKeydown = async (o, n) => {
             const key = event.key;
 
             if (o == 'namelist') {
-                if (n == this.totalNamelist && (key == 'Enter' || key == 'ArrowDown')) {
+                if (n == storeRefs.totalNamelist.value && (key == 'Enter' || key == 'ArrowDown')) {
                     event.preventDefault();
-                    this.totalNamelist++;
-                    await this.$nextTick();
-                    this.startEdit(this.$refs.namelist[this.totalNamelist - 1]);
-                } else if (n == this.totalNamelist && key == 'Backspace') {
-                    if (this.$refs.namelist[this.totalNamelist - 1].innerText.trim().length) return;
+                    storeRefs.totalNamelist.value++;
+                    await nextTick();
+                    startEdit(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                } else if (n == storeRefs.totalNamelist.value && key == 'Backspace') {
+                    if (storeRefs.namelist[storeRefs.totalNamelist.value - 1].innerText.trim().length) return;
                     event.preventDefault();
-                    this.totalNamelist--;
-                    this.startEdit(this.$refs.namelist[this.totalNamelist - 1]);
-                    this.focusAtEnd(this.$refs.namelist[this.totalNamelist - 1]);
+                    storeRefs.totalNamelist.value--;
+                    startEdit(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
+                    focusAtEnd(storeRefs.namelist[storeRefs.totalNamelist.value - 1]);
                 } else if (key == 'ArrowUp') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.namelist[n - 2]);
+                    startEdit(storeRefs.namelist[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.namelist[n]);
+                    startEdit(storeRefs.namelist[n]);
                 }
             } else if (o == 'leadernames') {
-                if (n == this.totalLeader && (key == 'Enter' || key == 'ArrowDown')) {
+                if (n == storeRefs.totalLeader.value && (key == 'Enter' || key == 'ArrowDown')) {
                     event.preventDefault();
-                    this.totalLeader++;
-                    await this.$nextTick();
-                    this.startEdit(this.$refs.leadernames[this.totalLeader - 1]);
-                } else if (n == this.totalLeader && key == 'Backspace') {
-                    if (this.$refs.leadernames[this.totalLeader - 1].innerText.trim().length) return;
+                    storeRefs.totalLeader.value++;
+                    await nextTick();
+                    startEdit(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                } else if (n == storeRefs.totalLeader.value && key == 'Backspace') {
+                    if (storeRefs.leadernames[storeRefs.totalLeader.value - 1].innerText.trim().length) return;
                     event.preventDefault();
-                    this.totalLeader--;
-                    this.startEdit(this.$refs.leadernames[this.totalLeader - 1]);
-                    this.focusAtEnd(this.$refs.leadernames[this.totalLeader - 1]);
+                    storeRefs.totalLeader.value--;
+                    startEdit(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
+                    focusAtEnd(storeRefs.leadernames[storeRefs.totalLeader.value - 1]);
                 } else if (key == 'ArrowUp') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.leadernames[n - 2]);
-                    this.focusAtEnd(this.$refs.leadernames[n - 2]);
+                    startEdit(storeRefs.leadernames[n - 2]);
+                    focusAtEnd(storeRefs.leadernames[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.leadernames[n]);
-                    this.focusAtEnd(this.$refs.leadernames[n]);
+                    startEdit(storeRefs.leadernames[n]);
+                    focusAtEnd(storeRefs.leadernames[n]);
                 }
             } else if (o == 'posdata') {
                 if (key == 'ArrowUp') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.posdata[n - this.totalX]);
-                    this.focusAtEnd(this.$refs.posdata[n - this.totalX]);
+                    startEdit(storeRefs.posdata[n - storeRefs.totalX.value]);
+                    focusAtEnd(storeRefs.posdata[n - storeRefs.totalX.value]);
                 } else if (key == 'ArrowDown') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.posdata[n + this.totalX]);
-                    this.focusAtEnd(this.$refs.posdata[n + this.totalX]);
+                    startEdit(storeRefs.posdata[n + storeRefs.totalX.value]);
+                    focusAtEnd(storeRefs.posdata[n + storeRefs.totalX.value]);
                 } else if (key == 'ArrowLeft' || key == 'Backspace') {
-                    const hasText = this.$refs.posdata[n].innerText.trim().length;
+                    const hasText = storeRefs.posdata[n].innerText.trim().length;
                     if (hasText && key == 'Backspace') return;
-                    if (!hasText) this.$refs.posname[n].innerText = '';
+                    if (!hasText) refs.posname[n].innerText = '';
                     event.preventDefault();
-                    this.startEdit(this.$refs.posdata[n - 1]);
-                    this.focusAtEnd(this.$refs.posdata[n - 1]);
+                    startEdit(storeRefs.posdata[n - 1]);
+                    focusAtEnd(storeRefs.posdata[n - 1]);
                 } else if (key == 'ArrowRight' || key == 'Enter') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.posdata[n + 1]);
-                    this.focusAtEnd(this.$refs.posdata[n + 1]);
+                    startEdit(storeRefs.posdata[n + 1]);
+                    focusAtEnd(storeRefs.posdata[n + 1]);
                 }
             } else if (o == 'leaders') {
                 if (key == 'ArrowUp' || key == 'Backspace') {
-                    const hasText = this.$refs.leaders[n - 1].innerText.trim().length;
+                    const hasText = storeRefs.leaders[n - 1].innerText.trim().length;
                     if (hasText && key == 'Backspace') return;
-                    if (!hasText) this.$refs.leadersname[n - 1].innerText = '';
+                    if (!hasText) refs.leadersname[n - 1].innerText = '';
                     event.preventDefault();
-                    this.startEdit(this.$refs.leaders[n - 2]);
-                    this.focusAtEnd(this.$refs.leaders[n - 2]);
+                    startEdit(storeRefs.leaders[n - 2]);
+                    focusAtEnd(storeRefs.leaders[n - 2]);
                 } else if (key == 'ArrowDown' || key == 'Enter') {
                     event.preventDefault();
-                    this.startEdit(this.$refs.leaders[n]);
+                    startEdit(storeRefs.leaders[n]);
                 }
             } else if (o == 'nameBgCtl') {
                 if (key == 'ArrowUp') {
                     event.preventDefault();
-                    this.$refs.nameBgCtl[n - 2]?.focus();
+                    refs.nameBgCtl[n - 2]?.focus();
                 } else if (key == 'ArrowDown') {
                     event.preventDefault();
-                    this.$refs.nameBgCtl[n]?.focus();
+                    refs.nameBgCtl[n]?.focus();
                 } else if (key == 'Enter') {
                     event.preventDefault();
-                    this.$refs.nameBgCtl[n - 1].checked = !this.$refs.nameBgCtl[n - 1]?.checked;
+                    refs.nameBgCtl[n - 1].checked = !refs.nameBgCtl[n - 1]?.checked;
                 }
             }
-        },
+        };
 
-        convertPhotoToIndexedDB(photoItem, n) {
+        const IDBHelper = {
+            db: null,
+
+            async init(dbName, version, storeName) {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, version);
+
+                    request.onupgradeneeded = event => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(storeName)) {
+                            db.createObjectStore(storeName);
+                        }
+                    };
+
+                    request.onsuccess = event => {
+                        this.db = event.target.result;
+                        resolve(this.db);
+                    };
+                });
+            },
+
+            async put(storeName, value, key) {
+                if (!this.db) await this.init('photo', 1, storeName);
+
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction([storeName], 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = key ? store.put(value, key) : store.put(value);
+                    req.onsuccess = () => resolve(req.result);
+                });
+            },
+
+            async get(storeName, key) {
+                if (!this.db) await this.init('photo', 1, storeName);
+
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction([storeName], 'readonly');
+                    const store = tx.objectStore(storeName);
+                    let req;
+                    if (key) {
+                        req = store.get(key);
+                        req.onsuccess = () => resolve(req.result)
+                    } else {
+                        req = [];
+                        store.openCursor().onsuccess = event => {
+                            const cursor = event.target.result;
+                            if (cursor) {
+                                req.push({[cursor.key]: cursor.value});
+                                cursor.continue();
+                            } else {
+                                resolve(req);
+                            }
+                        };
+                    }
+                });
+            },
+            async remove(dbName) {
+                return indexedDB.deleteDatabase(dbName);
+            }
+
+        };
+
+        function convertPhotoToIndexedDB(photoItem, n) {
             let j = 0;
             for (const item of photoItem) {
-                if (this.$refs.nameBgCtl.length < n + j || n + j == 0 || isNaN(n)) return;
+                if (refs.nameBgCtl.length < n + j || n + j == 0 || isNaN(n)) return;
                 const file = item.getAsFile ? item.getAsFile() : item;
                 const reader = new FileReader();
                 reader.onload = event => {
@@ -863,9 +755,9 @@ const app = createApp({
                 };
                 reader.readAsDataURL(file);
             }
-        },
+        }
 
-        splitTextWithSpecialCaseSimple(text) {
+        const splitTextWithSpecialCaseSimple = text => {
             if (!text) return [];
 
             const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
@@ -892,24 +784,25 @@ const app = createApp({
             }
 
             return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
-        },
+        }
 
-        editPaste(o, n) {
-            const pasteData = this.splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
-            const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
-            if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
+        const editPaste = (o, n) => {
+
+             const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
+             const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
+             if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
 
             event.preventDefault();
 
             if (!pasteData.length && 'namelist' == o) {
-                this.convertPhotoToIndexedDB(photoItem, n);
+                convertPhotoToIndexedDB(photoItem, n);
             }
 
-            const list = this.$refs[o];
+            const list = storeRefs[o];
             const startIndex = n - 1;
 
-            this.totalNamelist = Math.max(pasteData.length + startIndex, this.totalNamelist);
-            this.$nextTick(() => {
+            storeRefs.totalNamelist.value = Math.max(pasteData.length + startIndex, storeRefs.totalNamelist.value);
+            nextTick(() => {
                 pasteData.forEach((text, j) => {
                     let item = list[startIndex + j];
                     if (item) {
@@ -917,16 +810,17 @@ const app = createApp({
                     }
                 });
             });
-        },
 
-        clearStore() {
-            if (!confirm(this.$gettext("Are you sure you want to clear all entered data?"))) return;
+        };
+
+        const clearStore = () => {
+            if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
             localStorage.removeItem('data');
             IDBHelper.remove('photo');
             location.href = '/';
-        },
+        }
 
-        async download() {
+        const download = async () => {
             if (!window.jsondata) return;
             let data = JSON.parse(window.jsondata);
             data.photo = await IDBHelper.get('photo');
@@ -936,32 +830,34 @@ const app = createApp({
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.setAttribute("href", dataStr);
-                dlAnchorElem.setAttribute("download", (this.$refs.tabletitle.innerText.trim() || this.$gettext('Seating charts')) +`_${this.today}.json`);
+                dlAnchorElem.setAttribute("download", (storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts')) +`_${storeRefs.today.value.innerText}.json`);
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
                 dlAnchorElem.remove();
             }
-        },
+        };
 
-        randomPos() {
+        const randomPos = () => {
             let rNum, i, studentNums;
-            for (i = this.totalNamelist; i > 0; i--) {
-                if (this.$refs.namelist[i - 1]?.innerText.trim().length) break;
+            // Ensure namelist is not empty and has valid elements
+            for (i = storeRefs.totalNamelist.value; i > 0; i--) {
+                if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
             }
 
-            if (i <= this.randomNumbers.length) return;
+            if (i <= randomNumbers.length) return;
 
-            studentNums = this.nameBgCtlChecked.length
-                ? this.nameBgCtlChecked.slice()
+            studentNums = refs.nameBgCtlChecked.value.length
+                ? refs.nameBgCtlChecked.value.slice()
                 : Array.from({length: i}, (_, index) => index + 1);
-            if (this.randomNumbers.length)
-                studentNums = studentNums.filter(num => !this.randomNumbers.includes(String(num)));
+            if (randomNumbers.length)
+                studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
 
-            const posdatas = this.$refs.posdata.slice().reverse();
+            const posdatas = storeRefs.posdata.slice().reverse();
             for (const element of posdatas) {
                 if (!element.innerText.trim().length) {
                     rNum = Math.floor(Math.random() * studentNums.length);
-                    if (this.$refs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
+                    // Check for valid index and valid namelist entry
+                    if (storeRefs.namelist[studentNums[rNum] - 1]?.innerText.trim().length) {
                         element.innerText = studentNums[rNum];
                     } else {
                         continue;
@@ -972,27 +868,27 @@ const app = createApp({
                 }
             }
 
-            this.store();
-            this.goHome();
-        },
+            store();
+            goHome();
+        };
 
-        resetPos() {
-            if (!confirm(this.$gettext("Are you sure you want to clear your current seating arrangement?"))) return;
-            this.$refs.posdata.forEach(i => { if (i) i.innerText = '' });
-            this.store();
-            this.goHome();
-        },
+        const resetPos = () => {
+            if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
+            storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
+            store();
+            goHome();
+        };
 
-        shareData() {
+        const shareData = () => {
             if (window.jsondata) {
                 const {photo, ...data} = JSON.parse(window.jsondata);
                 const zipData = gzipBase64UrlBC(data);
                 navigator.clipboard.writeText(`${location.origin}?data=${zipData}`);
-                alert(this.$gettext('Copied to clipboard'));
+                alert($gettext('Copied to clipboard'));
             }
-        },
+        };
 
-        uploadfileChange(e) {
+        const uploadfileChange = (e) => {
             const fileInput = e.target.files?.[0];
             if (!fileInput) return;
             const reader = new FileReader();
@@ -1013,55 +909,56 @@ const app = createApp({
                 location.href = '/';
             }
             e.target.value = '';
-        },
+        };
 
-        speakText(text) {
+        const speakText = text => {
             if (!text || speechSynthesis.speaking || !('speechSynthesis' in globalThis)) {
                 return;
             }
             speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-        },
+        }
 
-        doSpeak(n) {
-            const name = this.$refs.namelist[n - 1]?.innerText.trim();
+        const doSpeak = n => {
+            const name = storeRefs.namelist[n - 1]?.innerText.trim();
             if (name) {
-                const numberText = vue3gettext.current.includes('en') ? `${this.$gettext('Number')} ${n}` : `${n}${this.$gettext('Number')}`;
-                this.speakText(`${numberText}, ${name}`);
+                const numberText = vue3gettext.current.includes('en') ? `${$gettext('Number')} ${n}` : `${n}${$gettext('Number')}`;
+                speakText(`${numberText}, ${name}`);
             }
-        },
+        }
 
-        showPos(n, show) {
-            n && (this.highlightedPos = show ? n : null);
-        },
+        const showPos = (n, show) => {
+            n && (refs.highlightedPos.value = show ? n : null);
+        };
 
-        dragStart(index, type) {
+        const dragStart = (index, type) => {
             event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
             event.target.classList.add('dragging', `${type}-row`);
-        },
+        };
 
-        removeFromRandomNumbers(num) {
-            this.randomNumbers = this.randomNumbers.filter(n => n != num);
-        },
+        const removeFromRandomNumbers = num => {
+            randomNumbers = randomNumbers.filter(n => n != num);
+        }
 
-        addToRandomNumbers(num) {
-            if (num && !this.randomNumbers.includes(String(num))) {
-                this.randomNumbers.push(String(num));
+        const addToRandomNumbers = num => {
+            if (num && !randomNumbers.includes(String(num))) {
+                randomNumbers.push(String(num));
             }
-        },
+        }
 
-        swapElements(arr, idx1, idx2) {
+        const swapElements = (arr, idx1, idx2) => {
             const val1 = parseInt(arr[idx1]?.innerText || '');
             const val2 = parseInt(arr[idx2]?.innerText || '');
 
             if (arr[idx1]) arr[idx1].innerText = val2 || '';
             if (arr[idx2]) arr[idx2].innerText = val1 || '';
-        },
 
-        setElementValue(arr, idx, value) {
+        }
+
+        const setElementValue = (arr, idx, value) => {
             if (arr[idx]) arr[idx].innerText = value || '';
-        },
+        }
 
-        drop(targetIndex) {
+        const drop = targetIndex => {
             event.preventDefault();
             event.stopPropagation();
 
@@ -1079,65 +976,65 @@ const app = createApp({
             const isSeatRow = event.currentTarget.classList.contains('seat-row');
 
             if (event.dataTransfer.files.length && !isLeaderRow) {
-                return this.convertPhotoToIndexedDB(event.dataTransfer.files, isSeatRow ? parseInt(this.$refs.posdata[targetIndex].innerText) : targetIndex);
+                return convertPhotoToIndexedDB(event.dataTransfer.files, isSeatRow ? parseInt(storeRefs.posdata[targetIndex].innerText) : targetIndex);
             }
 
-            const targetNum = isLeaderRow ? parseInt(this.$refs.leaders[targetIndex]?.innerText || '') : parseInt(this.$refs.posdata[targetIndex]?.innerText || '');
+            const targetNum = isLeaderRow ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
 
             const sourceIndex = parseInt(data.index);
 
             const actions = [{
                 condition: () => data.type == 'student' && isSeatRow,
                     action: () => {
-                        if (sourceIndex < 1 || sourceIndex > this.totalNamelist) return;
-                        if (this.randomNumbers.includes(String(sourceIndex))) {
-                            alert(this.$gettext('Seat assigned'));
+                        if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                        if (randomNumbers.includes(String(sourceIndex))) {
+                            alert($gettext('Seat assigned'));
                             return;
                         }
-                        if (targetNum) this.removeFromRandomNumbers(targetNum);
-                        this.setElementValue(this.$refs.posdata, targetIndex, sourceIndex);
-                        this.addToRandomNumbers(sourceIndex);
+                        if (targetNum) removeFromRandomNumbers(targetNum);
+                        setElementValue(storeRefs.posdata, targetIndex, sourceIndex);
+                        addToRandomNumbers(sourceIndex);
                     }
                 },
                 {
                     condition: () => data.type == 'seat' && isSeatRow,
                     action: () => {
                         if (sourceIndex == targetIndex) return;
-                        this.swapElements(this.$refs.posdata, sourceIndex, targetIndex);
+                        swapElements(storeRefs.posdata, sourceIndex, targetIndex);
                     }
                 },
                 {
                     condition: () => data.type == 'seat' && isLeaderRow,
                     action: () => {
                         if (sourceIndex == targetIndex) return;
-                        const sourceNum = parseInt(this.$refs.posdata[sourceIndex]?.innerText || '');
-                        this.setElementValue(this.$refs.leaders, targetIndex, sourceNum);
+                        const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
+                        setElementValue(storeRefs.leaders, targetIndex, sourceNum);
                     }
                 },
                 {
                     condition: () => data.type == 'seat' && isNamelistRow,
                     action: () => {
-                        const sourceNum = parseInt(this.$refs.posdata[sourceIndex]?.innerText || '');
-                        this.randomNumbers = this.randomNumbers.filter(num => num != sourceNum);
-                        if (this.$refs.nameBgCtl[sourceNum - 1]) this.$refs.nameBgCtl[sourceNum - 1].checked = false;
-                        this.setElementValue(this.$refs.posdata, sourceIndex, '');
+                        const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
+                        randomNumbers = randomNumbers.filter(num => num != sourceNum);
+                        if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
+                        setElementValue(storeRefs.posdata, sourceIndex, '');
                     }
                 },
                 {
                     condition: () => data.type == 'leader' && isLeaderRow,
                     action: () => {
                         if (sourceIndex == targetIndex) return;
-                        this.swapElements(this.$refs.leaders, sourceIndex, targetIndex);
-                        if (!this.$refs.leaders[sourceIndex]?.innerText.trim().length) {
-                            this.setElementValue(this.$refs.leadersname, sourceIndex, '');
+                        swapElements(storeRefs.leaders, sourceIndex, targetIndex);
+                        if (!storeRefs.leaders[sourceIndex]?.innerText.trim().length) {
+                            setElementValue(refs.leadersname, sourceIndex, '');
                         }
                     }
                 },
                 {
                     condition: () => data.type == 'student' && isLeaderRow,
                     action: () => {
-                        if (sourceIndex < 1 || sourceIndex > this.totalNamelist) return;
-                        this.setElementValue(this.$refs.leaders, targetIndex, sourceIndex);
+                        if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
+                        setElementValue(storeRefs.leaders, targetIndex, sourceIndex);
                     }
                 }
             ];
@@ -1150,55 +1047,69 @@ const app = createApp({
             }
 
             document.querySelectorAll('.seat-container').forEach(el => el.classList.remove('dragging'));
-            this.store();
-            this.updateDisplay();
-        },
+            store();
+            updateDisplay();
+        };
 
-        toggleColor(event) {
+        const toggleColor = event => {
             const el = event.currentTarget;
-            let currentIndex = this.colors.findIndex(c => el.classList.contains(c));
+            let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
 
             if (currentIndex == -1) {
-                el.classList.add(this.colors[Math.max(this.colorIndex, 0)]);
+                el.classList.add(refs.colors[Math.max(refs.colorIndex.value, 0)]);
                 return;
             }
-            el.classList.remove(this.colors[currentIndex]);
-            if (currentIndex == this.colors.length - 1) {
+            el.classList.remove(refs.colors[currentIndex]);
+            if (currentIndex == refs.colors.length - 1) {
                 return;
             }
-            if (this.colorIndex != 0) el.classList.add(this.colors[currentIndex + 1]);
-        },
+            if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
+        };
 
-        async adujstFont(direction) {
-            const fontSizeMap = {
-                r: "fontSizeR",
-                c: "fontSizeC",
-                l: "fontSizeL"
-            };
-            const key = fontSizeMap[this.fontPos];
+        const fontSizeMap = {
+            r: "fontSizeR",
+            c: "fontSizeC",
+            l: "fontSizeL"
+        };
+        const adujstFont = async (direction) => {
+
+            const key = fontSizeMap[refs.fontPos.value];
             if (key) {
-                const val = this[key] + (direction == "+" ? 0.1 : -0.1);
+                const val = storeRefs[key].value + (direction == "+" ? 0.1 : -0.1);
                 if (val >= 0.5) {
-                    this[key] = Math.round(val * 10) / 10;
-                    this.store();
+                    storeRefs[key].value = Math.round(val * 10) / 10;
+                    store();
+                    if (refs.fontPos.value == 'c') {
+                        refs.nameDivHeight.value = Math.round(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.05 : -0.02))) + 2) + 'px';
+                        window.fontAdjustCount = (window.fontAdjustCount || 0) + 1;
+                        if (window.fontAdjustCount > 2) {
+                            localStorage.setItem('toggleNavbar', refs.toggleNavbar.value ? 1 : 0);
+                            goHome();
+                        }
+                    }
                 }
             }
-        },
+        };
 
-        nameBtnCtlChange() {
-            this.nameBgCtlChecked = this.$refs.nameBgCtl.filter(c => event.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
-        },
+        const fontButtonCtl = computed(() => {
+            const key = fontSizeMap[refs.fontPos.value];
+            return storeRefs[key].value <= 0.5;
+        });
 
-        binGo() {
-            this.bingoButtonCtl = true;
-            this.doBingo = true;
-            let arr = this.$refs.posdata.map(i => Number(i.innerText)).filter(Boolean);
+        const nameBtnCtlChange = () => {
+            refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => event.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
+        };
 
-            if (this.nameBgCtlChecked.length < 1) {
-                this.$refs.nameBtnCtl.checked = true;
-                this.nameBgCtlChecked = arr;
+        const binGo = () => {
+            refs.bingoButtonCtl.value = true;
+            refs.doBingo.value = true;
+            let arr = storeRefs.posdata.map(i => Number(i.innerText)).filter(Boolean);
+
+            if (refs.nameBgCtlChecked.value.length < 1) {
+                refs.nameBtnCtl.value.checked = true;
+                refs.nameBgCtlChecked.value = arr;
             } else {
-                arr = arr.filter(i => this.nameBgCtlChecked.includes(i));
+                arr = arr.filter(i => refs.nameBgCtlChecked.value.includes(i));
             }
 
             const finalNumber = Math.floor(Math.random() * arr.length);
@@ -1219,48 +1130,188 @@ const app = createApp({
                 return maxDelay - (maxDelay - minDelay) * (((t - 0.7) / 0.3) ** 20);
             };
 
-            const roll = (i) => {
+            function roll(i) {
                 current = (current % arr.length) + 1;
-                this.showPos(arr[current - 1], 1);
-                this.showPhoto(arr[current - 1]);
+                showPos(arr[current - 1], 1);
+                showPhoto(arr[current - 1]);
 
                 if (i < arr.length) {
                     setTimeout(() => roll(i + 1), getDelay(i, arr.length));
                 } else {
-                    this.showPos(arr[finalNumber], 1);
-                    this.showPhoto(arr[finalNumber]);
-                    this.nameBgCtlChecked = this.nameBgCtlChecked.filter(n => n != arr[finalNumber]);
-                    this.bingoButtonCtl = false;
+                    showPos(arr[finalNumber], 1);
+                    showPhoto(arr[finalNumber]);
+                    refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[finalNumber]);
+                    refs.bingoButtonCtl.value = false;
                 }
-            };
+            }
 
             roll(0);
-        },
+        };
 
-        showPhoto(n) {
+        const showPhoto = n => {
             IDBHelper.get('photo', n).then(img => {
-                this.photo = img?.length ? img : null;
+                refs.photo.value = img?.length ? img : null;
             });
-            const numPos = this.$refs.posdata.findIndex(i => i.innerText == n);
-            const row = (numPos % this.totalX) + 1;
-            const column = this.totalY - Math.floor(numPos / this.totalY);
-            this.seatsPos = `${row}-${column}`;
-            this.photoName = (this.showNumber ? `${n} ` : '') + `${this.$refs.namelist[n - 1].innerText}`;
-        },
+            const numPos = storeRefs.posdata.findIndex(i => i.innerText == n);
+            const row = (numPos % storeRefs.totalX.value) + 1;
+            const column = storeRefs.totalY.value - Math.floor(numPos / storeRefs.totalY.value);
+            refs.seatsPos.value = `${row}-${column}`;
+            refs.photoName.value = (refs.showNumber.value ? `${n} ` : '') + `${storeRefs.namelist[n - 1].innerText}`;
+        };
 
-        setTitle(event) {
+        const setTitle = event => {
             event.currentTarget.title = event.currentTarget.textContent;
-        },
-        getRefItem(refName, index) {
-            const ref = this.$refs[refName];
-            return (ref && ref[index]) || null;
-        },
+        };
 
-        getRefItemText(refName, index) {
-            const item = this.getRefItem(refName, index);
-            return item ? item.innerText : '';
+        const storeRefs = {
+            tabletitle: ref($gettext('Seating charts')),
+            today: ref(new Date().toLocaleDateString()),
+            totalX: ref(6),
+            totalY: ref(8),
+            totalNamelist: ref(48),
+            totalLeader: ref(8),
+            namelist: reactive([]),
+            posdata: reactive([]),
+            teacher: ref(null),
+            leadernames: reactive([]),
+            leaders: reactive([]),
+            deskname: ref($gettext('Desk')),
+            updateLabel: ref($gettext('Update')),
+            teacherLabel: ref($gettext('Teacher')),
+            studentListLabel: ref($gettext('Lists')),
+            noteLabel: ref($gettext('Note')),
+            note: ref(''),
+            fontSizeL: ref(1),
+            fontSizeC: ref(1.8),
+            fontSizeR: ref(1.2)
+        };
+
+        const refs = {
+            toggleNavbar: ref(localStorage.getItem('toggleNavbar') == 1),
+            toggleSubmenu: ref(false),
+            totalnums: ref(48),
+            storeData: ref(0),
+            posname: reactive([]),
+            posindex: ref(0),
+            leadersname: reactive([]),
+            clearBtnCtl: ref(0),
+            isDataChanged: ref(0),
+            nameBgCtlChecked: ref([]),
+            nameBgCtl: reactive([]),
+            hideTips: ref(false),
+            highlightedPos: ref(null),
+            colors: reactive(Array.from({ length: 10 }, (_, i) => `color-${i}`)),
+            colorIndex: ref(-1),
+            currentTarget: ref(null),
+            currentIndex: ref(0),
+            showList: ref(localStorage.getItem('showList') == null),
+            showSeats: ref(localStorage.getItem('showSeats') == null),
+            showNumber: ref(localStorage.getItem('showNumber') == null),
+            showLeader: ref(localStorage.getItem('showLeader') == null),
+            showVertical: ref(localStorage.getItem('showVertical') == null),
+            showFonts: ref(setFonts(localStorage.getItem('showFonts')) || ''),
+            fontPos: ref('c'),
+            nameBtnCtl: ref(false),
+            editingEl: ref(null),
+            bingoButtonCtl: ref(false),
+            photo: ref(null),
+            seatsPos: ref(''),
+            photoName: ref(''),
+            posNameHovered: ref(null),
+            doBingo: ref(false),
+            storeSelected: ref(''),
+            nameDivHeight: ref('')
+        };
+
+        return {
+            ...storeRefs,
+            ...refs,
+            goHome,
+            toggleNavBarCtl,
+            startEdit,
+            endEdit,
+            editKeydown,
+            editPaste,
+            store,
+            clearStore,
+            download,
+            randomPos,
+            resetPos,
+            shareData,
+            uploadfileChange,
+            updateDisplay,
+            tipsToHide,
+            getCookie,
+            showPos,
+            dragStart,
+            drop,
+            toggleColor,
+            adujstFont,
+            fontButtonCtl,
+            nameBtnCtlChange,
+            binGo,
+            IDBHelper,
+            showPhoto,
+            doSpeak,
+            setTitle,
+            setNameHeight
+        };
+    },
+    watch: {
+        showList(newVal) {
+            newVal ? localStorage.removeItem('showList') : localStorage.setItem('showList', 0);
+        },
+        showSeats(newVal) {
+            newVal ? localStorage.removeItem('showSeats') : localStorage.setItem('showSeats', 0);
+        },
+        showNumber(newVal) {
+            newVal ? localStorage.removeItem('showNumber') : localStorage.setItem('showNumber', 0);
+        },
+        showLeader(newVal) {
+            newVal ? localStorage.removeItem('showLeader') : localStorage.setItem('showLeader', 0);
+        },
+        showVertical(newVal) {
+            newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
+            this.setNameHeight(!newVal);
+        },
+        showFonts(newVal) {
+            setFonts(newVal);
         }
+    },
+    async mounted() {
+
+        if (document.title == "TY's Seating Chart Generator") document.title = $gettext('Seating charts');
+
+        if (this.leadernames) {
+            if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
+            if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
+        }
+
+        globalThis.dkeys?.forEach(i => {
+
+            if (Array.isArray(i[1]) && i[1][0] != null) {
+                i[1].forEach((_, j) => {
+                    if (this[i[0]] && undefined != this[i[0]][j]?.innerHTML)
+                        this[i[0]][j].innerHTML = i[1][j];
+                });
+            } else if (undefined != this[i[0]]?.innerHTML)
+                this[i[0]].innerHTML = i[1].replace(/\n/g, '<br>');
+            else if (undefined != this[i[0]]?.value)
+                this[i[0]].value = i[1];
+
+        });
+
+        await this.$nextTick();
+
+        this.updateDisplay();
+        this.storeData = 1;
+
+        if ('speechSynthesis' in globalThis) {
+            speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+        }
+
     }
+
 });
 
 const vue3gettext = VueGettext.createGettext({
