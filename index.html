@@ -48,6 +48,9 @@
 .seat-container.dragging {
     opacity: 0.5;
 }
+.seat-row {
+    outline: 1px solid #dee2e6;
+}
 .table-cell {
     text-align: center;
     white-space: nowrap;
@@ -114,6 +117,14 @@
   right: -5px;
   cursor: pointer;
 }
+.namearea {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+.row .namearea {
+    min-height: 100px;
+}
+
 </style>
 <style id="dynamic-zh-font" type="text/css">
 .emptycss {
@@ -205,12 +216,12 @@
         </div>
         <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showLeader, 'col-lg-10 col-md-9 col-sm-9': !showList && showLeader, 'col-lg-12 col-md-12 col-sm-12': !showList && !showLeader}" :style="{'font-size': fontSizeC + 'em'}" v-show="showSeats">
             <!-- center area -->
-            <div class="row" v-for="y in totalY">
-                <div class="col p-1" v-for="x in totalX">
-                    <div class="p-0 seat-row seat-container border h-100 d-flex flex-column" :class="{'bg-info': getRefItemText('posdata', (y-1)*totalX + x-1) == highlightedPos}" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
+            <div class="row g-1" v-for="y in totalY">
+                <div class="col py-1" v-for="x in totalX">
+                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': getRefItemText('posdata', (y-1)*totalX + x-1) == highlightedPos}" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata" v-show="showNumber"></div>
                         <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 pb-3 text-center mx-auto namearea" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && getRefItemText('posname', (y-1)*totalX + x-1) == ''}" :style="{'min-width': '30px'}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
+                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && getRefItemText('posname', (y-1)*totalX + x-1) == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -494,7 +505,6 @@ const app = createApp({
         },
         showVertical(newVal) {
             newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
-            this.setNameHeight(!newVal);
         },
         showFonts(newVal) {
             setFonts(newVal);
