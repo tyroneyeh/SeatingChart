@@ -437,7 +437,6 @@ const app = createApp({
     },
     setup() {
 
-        let randomNumbers = [];
         let oldValue;
 
         const getCookie = name => {
@@ -484,7 +483,6 @@ const app = createApp({
                 setNameText(refs.posname, pos, num);
                 const ctl = refs.nameBgCtl[parseInt(num) - 1];
                 if (ctl) ctl.checked = true;
-                addToRandomNumbers(num);
             } else if (o == 'leaders' && num) {
                 setNameText(refs.leadersname, pos - 1, num);
             } else if (!o) {
@@ -493,7 +491,6 @@ const app = createApp({
                     const sNum = parseInt(item.innerText.trim());
                     if (!isNaN(sNum)) {
                         setNameText(refs.posname, j, sNum);
-                        addToRandomNumbers(sNum);
                         const ctl = refs.nameBgCtl[parseInt(sNum) - 1];
                         if (ctl) ctl.checked = true;
                     }
@@ -538,6 +535,16 @@ const app = createApp({
         };
 
         const endEdit = (o, num, pos) => {
+            if (o == 'posdata') {
+                const excludePos = storeRefs.posdata.map(el => el?.innerText ?? '');
+                excludePos[pos] = '';
+                const alreadyInPos = excludePos.findIndex(el => el == num);
+                const oldPosValue = excludePos[pos];
+                if (alreadyInPos > -1) {
+                    storeRefs.posdata[alreadyInPos].innerText = oldPosValue;
+                    refs.posname[alreadyInPos].innerText = '';
+                }
+            }
             updateDisplay(o, num, pos);
 
             event.target?.removeAttribute('contenteditable');
@@ -560,7 +567,7 @@ const app = createApp({
 
             const text = el.innerText.trim();
             if (text.length) {
-                speakText(text.replaceAll(' ', ','));
+                speakText(text.replace(/\s/g, ','));
             }
         };
 
@@ -717,7 +724,7 @@ const app = createApp({
                 }
             }
 
-            return result.filter(segment => segment.replaceAll(' ', '').length >= 2);
+            return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
         }
 
         const editPaste = async (o, n) => {
@@ -777,13 +784,13 @@ const app = createApp({
                 if (storeRefs.namelist[i - 1]?.innerText.trim().length) break;
             }
 
-            if (i <= randomNumbers.length) return;
-
             studentNums = refs.nameBgCtlChecked.value.length
                 ? refs.nameBgCtlChecked.value.slice()
                 : Array.from({length: i}, (_, index) => index + 1);
-            if (randomNumbers.length)
-                studentNums = studentNums.filter(num => !randomNumbers.includes(String(num)));
+
+            const alreadyInPos = new Set(storeRefs.posdata.map(el => el.innerText).filter(el => el !== ''));
+
+            studentNums = studentNums.filter(num => !alreadyInPos.has(String(num)));
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (const element of posdatas) {
@@ -868,16 +875,6 @@ const app = createApp({
             event.target.classList.add('dragging', `${type}-row`);
         };
 
-        const removeFromRandomNumbers = num => {
-            randomNumbers = randomNumbers.filter(n => n != num);
-        }
-
-        const addToRandomNumbers = num => {
-            if (num && !randomNumbers.includes(String(num))) {
-                randomNumbers.push(String(num));
-            }
-        }
-
         const swapElements = (arr, idx1, idx2) => {
             const val1 = parseInt(arr[idx1]?.innerText || '');
             const val2 = parseInt(arr[idx2]?.innerText || '');
@@ -912,21 +909,19 @@ const app = createApp({
                 return convertPhotoToIndexedDB(event.dataTransfer.files, isSeatRow ? parseInt(storeRefs.posdata[targetIndex].innerText) : targetIndex);
             }
 
-            const targetNum = isLeaderRow ? parseInt(storeRefs.leaders[targetIndex]?.innerText || '') : parseInt(storeRefs.posdata[targetIndex]?.innerText || '');
-
             const sourceIndex = parseInt(data.index);
 
             const actions = [{
                 condition: () => data.type == 'student' && isSeatRow,
                     action: () => {
                         if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
-                        if (randomNumbers.includes(String(sourceIndex))) {
-                            alert($gettext('Seat assigned'));
-                            return;
+                        const targetElement = storeRefs.posdata.find(el => el.innerText.trim() == sourceIndex);
+                        const oldValue = storeRefs.posdata[targetIndex].innerText;
+                        if (targetElement) {
+                            storeRefs.posdata[targetIndex].innerText = targetElement.innerText;
+                            targetElement.innerText = oldValue;
                         }
-                        if (targetNum) removeFromRandomNumbers(targetNum);
                         setElementValue(storeRefs.posdata, targetIndex, sourceIndex);
-                        addToRandomNumbers(sourceIndex);
                     }
                 },
                 {
@@ -948,7 +943,6 @@ const app = createApp({
                     condition: () => data.type == 'seat' && isNamelistRow,
                     action: () => {
                         const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                        randomNumbers = randomNumbers.filter(num => num != sourceNum);
                         if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
                         setElementValue(storeRefs.posdata, sourceIndex, '');
                     }
@@ -1085,7 +1079,7 @@ const app = createApp({
         };
 
         const setTitle = event => {
-            event.currentTarget.title = event.currentTarget.textContent;
+            event.currentTarget.title = event.currentTarget.innerText;
         };
 
         const storeRefs = {
