@@ -270,8 +270,8 @@
         </div>
     </div>
 
-    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><span class="close">✕</span><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><img :src="photo" alt="" /><p class="text-center namearea">{{ photoName }}</p></div>
-    <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary" :class="{'bg-info': !bingoButtonCtl}"><span class="close">✕</span><div class="fs-6 text-end pe-2">{{ seatsPos }}</div><p class="text-center namearea">{{ photoName }}</p></div>
+    <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><span class="close">✕</span><div class="fs-6 text-end pe-2">&nbsp;<span :class="{'d-none': !showPlace}">{{ seatsPos }}</span></div><img :src="photo" alt="" /><p class="text-center namearea"><span :class="{'d-none': !showNumber}">{{photoNo}}&nbsp;</span><span :class="{'d-none': !showName}">{{ photoName }}</span></p></div>
+    <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary" :class="{'bg-info': !bingoButtonCtl}"><span class="close">✕</span><div class="fs-6 text-end pe-2">&nbsp;<span :class="{'d-none': !showPlace}">{{ seatsPos }}</span></div><p class="text-center namearea"><span :class="{'d-none': !showNumber}">{{photoNo}}&nbsp;</span><span :class="{'d-none': !showName}">{{ photoName }}</span></p></div>
 
     <footer class="d-print-none text-end">
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
@@ -1078,6 +1078,7 @@ const app = createApp({
         };
 
         const showPhoto = n => {
+            if (!n) return;
             IDBHelper.get('photo', n).then(img => {
                 refs.photo.value = img?.length ? img : null;
             });
@@ -1085,7 +1086,8 @@ const app = createApp({
             const row = (numPos % storeRefs.totalX.value) + 1;
             const column = storeRefs.totalY.value - Math.floor(numPos / storeRefs.totalY.value);
             refs.seatsPos.value = `${row}-${column}`;
-            refs.photoName.value = (refs.showNumber.value ? `${n} ` : '') + `${storeRefs.namelist[n - 1].innerText}`;
+            refs.photoNo.value = n;
+            refs.photoName.value = storeRefs.namelist[n - 1].innerText;
         };
 
         const setTitle = event => {
@@ -1149,6 +1151,7 @@ const app = createApp({
             bingoButtonCtl: ref(false),
             photo: ref(null),
             seatsPos: ref(''),
+            photoNo: ref(''),
             photoName: ref(''),
             posNameHovered: ref(null),
             doBingo: ref(false),
