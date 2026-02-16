@@ -150,7 +150,7 @@
                         <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
                         <li class="nav-item dropdown position-relative text-center">
-                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Store') }}</button>
+                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Methods') }}</button>
                             <ul class="dropdown-menu show" v-if="toggleSubmenu">
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
                                 <li><hr class="dropdown-divider"></li>
@@ -1270,7 +1270,6 @@ const vue3gettext = VueGettext.createGettext({
             "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
             "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?",
             "President": "班長",
-            "Store": "儲存",
             "Clear": "清除",
             "Desk": "講桌",
             "Download": "下載",
@@ -1306,6 +1305,7 @@ const vue3gettext = VueGettext.createGettext({
             "Vertical": "垂直",
             "Share": "分享",
             "Copied to clipboard": "已複製到剪貼簿",
+            "Methods": "功能",
             "Options": "選項"
         }
     }
