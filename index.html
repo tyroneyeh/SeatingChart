@@ -205,7 +205,7 @@
                 <thead>
                     <tr class="border-secondary small">
                         <th class="ps-3 py-1 no-border-right" style="min-width:25%">
-                            <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange">
+                            <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange($event)">
                         </th>
                         <th class="text-nowrap py-1 no-border-left w-75" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
@@ -215,7 +215,7 @@
                 <tbody>
                     <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
-                            <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText">
+                            <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="n">
                             <span class="d-none d-print-block px-1">{{nameBgCtl[n - 1]?.checked ? '✓' : '☐'}}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
                         </td>
                         <td class="no-border-left py-1 namearea text-truncate" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist" @mouseover="setTitle($event)"></td>
@@ -1025,8 +1025,8 @@ const app = createApp({
             return storeRefs[key].value <= 0.5;
         });
 
-        const nameBtnCtlChange = () => {
-            refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => event.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
+        const nameBtnCtlChange = (e) => {
+            refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => e.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
         };
 
         const binGo = () => {
