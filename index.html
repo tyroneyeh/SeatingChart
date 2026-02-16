@@ -310,12 +310,12 @@ function setFonts(newVal) {
 
 function toBase64Url(u8) {
   let s = "";
-  for (const element of u8) s += String.fromCharCode(element);
-  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  for (const element of u8) s += String.fromCodePoint(element);
+  return btoa(s).replaceAll('+', "-").replaceAll('/', "_").replace(/=+$/g, "");
 }
 
 function fromBase64Url(b64url) {
-  let b64 = b64url.replace(/-/g, "+").replace(/_/g, "/");
+  let b64 = b64url.replaceAll('-', '+').replaceAll('_', '/');
   while (b64.length % 4) b64 += "=";
   const bin = atob(b64);
   const u8 = new Uint8Array(bin.length);
@@ -398,14 +398,14 @@ const app = createApp({
     beforeCreate() {
         const params = new URLSearchParams(location.search);
         if (params.has('data')) {
-            window.jsondata = ungzipBase64UrlBC(params.get('data'));
+            globalThis.jsondata = ungzipBase64UrlBC(params.get('data'));
         } else {
-            window.jsondata = localStorage.getItem('data');
+            globalThis.jsondata = localStorage.getItem('data');
         }
 
-        if (window.jsondata) {
+        if (globalThis.jsondata) {
             try {
-                const data = JSON.parse(window.jsondata);
+                const data = JSON.parse(globalThis.jsondata);
 
                 const typeMap = {
                     totalNamelist: Number,
@@ -475,16 +475,12 @@ const app = createApp({
             targetArr[index].innerHTML = name;
         }
 
-        function setNameHeight(toAuto) {
-            refs.nameDivHeight.value = toAuto ? 'auto' : window.defaultFontSize;
-        }
-
         const updateDisplay = (o, num, pos) => {
             refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
 
-            if (o == 'posdata' && num && pos) {
+            if (o == 'posdata' && num) {
                 setNameText(refs.posname, pos, num);
                 const ctl = refs.nameBgCtl[parseInt(num) - 1];
                 if (ctl) ctl.checked = true;
@@ -536,8 +532,8 @@ const app = createApp({
                 }
             });
 
-            window.jsondata = JSON.stringify(dataToSave);
-            localStorage.setItem('data', window.jsondata);
+            globalThis.jsondata = JSON.stringify(dataToSave);
+            localStorage.setItem('data', globalThis.jsondata);
 
         };
 
@@ -564,7 +560,7 @@ const app = createApp({
 
             const text = el.innerText.trim();
             if (text.length) {
-                speakText(text.replace(/\s/g, ','));
+                speakText(text.replaceAll(' ', ','));
             }
         };
 
@@ -669,68 +665,6 @@ const app = createApp({
             }
         };
 
-        const IDBHelper = {
-            db: null,
-
-            async init(dbName, version, storeName) {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(dbName, version);
-
-                    request.onupgradeneeded = event => {
-                        const db = event.target.result;
-                        if (!db.objectStoreNames.contains(storeName)) {
-                            db.createObjectStore(storeName);
-                        }
-                    };
-
-                    request.onsuccess = event => {
-                        this.db = event.target.result;
-                        resolve(this.db);
-                    };
-                });
-            },
-
-            async put(storeName, value, key) {
-                if (!this.db) await this.init('photo', 1, storeName);
-
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction([storeName], 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const req = key ? store.put(value, key) : store.put(value);
-                    req.onsuccess = () => resolve(req.result);
-                });
-            },
-
-            async get(storeName, key) {
-                if (!this.db) await this.init('photo', 1, storeName);
-
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction([storeName], 'readonly');
-                    const store = tx.objectStore(storeName);
-                    let req;
-                    if (key) {
-                        req = store.get(key);
-                        req.onsuccess = () => resolve(req.result)
-                    } else {
-                        req = [];
-                        store.openCursor().onsuccess = event => {
-                            const cursor = event.target.result;
-                            if (cursor) {
-                                req.push({[cursor.key]: cursor.value});
-                                cursor.continue();
-                            } else {
-                                resolve(req);
-                            }
-                        };
-                    }
-                });
-            },
-            async remove(dbName) {
-                return indexedDB.deleteDatabase(dbName);
-            }
-
-        };
-
         function convertPhotoToIndexedDB(photoItem, n) {
             let j = 0;
             for (const item of photoItem) {
@@ -783,10 +717,10 @@ const app = createApp({
                 }
             }
 
-            return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
+            return result.filter(segment => segment.replaceAll(' ', '').length >= 2);
         }
 
-        const editPaste = (o, n) => {
+        const editPaste = async (o, n) => {
 
              const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
              const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
@@ -802,13 +736,12 @@ const app = createApp({
             const startIndex = n - 1;
 
             storeRefs.totalNamelist.value = Math.max(pasteData.length + startIndex, storeRefs.totalNamelist.value);
-            nextTick(() => {
-                pasteData.forEach((text, j) => {
-                    let item = list[startIndex + j];
-                    if (item) {
-                        item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
-                    }
-                });
+            await nextTick();
+            pasteData.forEach((text, j) => {
+                let item = list[startIndex + j];
+                if (item) {
+                    item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
+                }
             });
 
         };
@@ -821,8 +754,8 @@ const app = createApp({
         }
 
         const download = async () => {
-            if (!window.jsondata) return;
-            let data = JSON.parse(window.jsondata);
+            if (!globalThis.jsondata) return;
+            let data = JSON.parse(globalThis.jsondata);
             data.photo = await IDBHelper.get('photo');
             data = JSON.stringify(data);
 
@@ -880,8 +813,8 @@ const app = createApp({
         };
 
         const shareData = () => {
-            if (window.jsondata) {
-                const {photo, ...data} = JSON.parse(window.jsondata);
+            if (globalThis.jsondata) {
+                const {photo, ...data} = JSON.parse(globalThis.jsondata);
                 const zipData = gzipBase64UrlBC(data);
                 navigator.clipboard.writeText(`${location.origin}?data=${zipData}`);
                 alert($gettext('Copied to clipboard'));
@@ -1079,14 +1012,6 @@ const app = createApp({
                 if (val >= 0.5) {
                     storeRefs[key].value = Math.round(val * 10) / 10;
                     store();
-                    if (refs.fontPos.value == 'c') {
-                        refs.nameDivHeight.value = Math.round(parseInt(refs.nameDivHeight.value) * (storeRefs[key].value / (storeRefs[key].value - (direction == "+" ? 0.05 : -0.02))) + 2) + 'px';
-                        window.fontAdjustCount = (window.fontAdjustCount || 0) + 1;
-                        if (window.fontAdjustCount > 2) {
-                            localStorage.setItem('toggleNavbar', refs.toggleNavbar.value ? 1 : 0);
-                            goHome();
-                        }
-                    }
                 }
             }
         };
@@ -1219,8 +1144,7 @@ const app = createApp({
             photoName: ref(''),
             posNameHovered: ref(null),
             doBingo: ref(false),
-            storeSelected: ref(''),
-            nameDivHeight: ref('')
+            storeSelected: ref('')
         };
 
         return {
@@ -1253,8 +1177,7 @@ const app = createApp({
             IDBHelper,
             showPhoto,
             doSpeak,
-            setTitle,
-            setNameHeight
+            setTitle
         };
     },
     watch: {
@@ -1272,7 +1195,6 @@ const app = createApp({
         },
         showVertical(newVal) {
             newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
-            this.setNameHeight(!newVal);
         },
         showFonts(newVal) {
             setFonts(newVal);
@@ -1295,13 +1217,13 @@ const app = createApp({
                         this[i[0]][j].innerHTML = i[1][j];
                 });
             } else if (undefined != this[i[0]]?.innerHTML)
-                this[i[0]].innerHTML = i[1].replace(/\n/g, '<br>');
+                this[i[0]].innerHTML = i[1].replaceAll('\n', '<br>');
             else if (undefined != this[i[0]]?.value)
                 this[i[0]].value = i[1];
 
         });
 
-        await this.$nextTick();
+        await nextTick();
 
         this.updateDisplay();
         this.storeData = 1;
@@ -1320,7 +1242,7 @@ const vue3gettext = VueGettext.createGettext({
         zh_TW: "Chinese"
     },
     silent: true,
-    defaultLanguage: navigator.language.replace(/-/, '_'),
+    defaultLanguage: navigator.language.replace('-', '_'),
     translations: {
         "zh_TW": {
             "TY's Seating Chart Generator": "TY的座位表產生器",
