@@ -4,7 +4,7 @@
   <meta name="google-site-verification" content="XMksXOyLKjmb5ytHkIccl5eZYVXte1OgEkrzg2UWaKs" />
   <title>TY的座位表隨機產生器 - TY's Seating Chart Generator</title>
   <meta name="description" content="TY的座位表隨機產生器 提供老師與學生們可以快速隨機產生座位表，支援即時編輯並提供下載的功能">
-  <meta name="keywords" content="免費線上座位表產生器，提供教室排座位表、換座位、抽籤，支援自定義行列並可匯出下載">
+  <meta name="keywords" content="免費線上座位表產生器 座位表生成器 教室座位表 換座位 教室抽籤 隨機座位">
   <meta name="author" content="TY的生活記錄 TY's Life in Taiwan">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Open Graph / Facebook -->
@@ -23,7 +23,9 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pako/dist/pako.min.js"></script>
-<script src="https://ty-seatingchart.pages.dev/index.js"></script>
+<script>
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports,require("vue")):"function"==typeof define&&define.amd?define(["exports","vue"],t):t((e="undefined"!=typeof globalThis?globalThis:e||self).VueGettext={},e.Vue)}(this,function(e,t){"use strict";const n=/[[\].]{1,2}/g,a=/%\{((?:.|\n)+?)\}/g,r=/\{\{((?:.|\n)+?)\}\}/g,s=e=>(t,s={},c)=>{!e.silent&&r.test(t)&&console.warn(`Mustache syntax cannot be used with vue-gettext. Please use "%{}" instead of "{{}}" in: ${t}`);const o=t.replace(a,(e,t)=>{const a=t.trim();let r;return function e(t,a,s){try{r=function(e,t){const a=t.split(n).filter(e=>e);for(;a.length;)e=e[a.shift()];return e}(t,a)}catch(e){}if(null==r){if(s)return e(s.ctx,a,s.parent);console.warn(`Cannot evaluate expression: ${a}`),r=a}return r.toString()}(s,a,c)});return o};s.INTERPOLATION_RE=a,s.INTERPOLATION_PREFIX="%{";var c=function(e,t){switch(t="number"==typeof(t=Number(t))&&isNaN(t)?1:t,e.length>2&&"pt_BR"!==e&&(e=e.split("_")[0]),e){case"ay":case"bo":case"cgg":case"dz":case"fa":case"id":case"ja":case"jbo":case"ka":case"kk":case"km":case"ko":case"ky":case"lo":case"ms":case"my":case"sah":case"su":case"th":case"tt":case"ug":case"vi":case"wo":case"zh":return 0;case"is":return t%10!=1||t%100==11?1:0;case"jv":return 0!==t?1:0;case"mk":return 1===t||t%10==1?0:1;case"ach":case"ak":case"am":case"arn":case"br":case"fil":case"fr":case"gun":case"ln":case"mfe":case"mg":case"mi":case"oc":case"pt_BR":case"tg":case"ti":case"tr":case"uz":case"wa":return t>1?1:0;case"lv":return t%10==1&&t%100!=11?0:0!==t?1:2;case"lt":return t%10==1&&t%100!=11?0:t%10>=2&&(t%100<10||t%100>=20)?1:2;case"be":case"bs":case"hr":case"ru":case"sr":case"uk":return t%10==1&&t%100!=11?0:t%10>=2&&t%10<=4&&(t%100<10||t%100>=20)?1:2;case"mnk":return 0===t?0:1===t?1:2;case"ro":return 1===t?0:0===t||t%100>0&&t%100<20?1:2;case"pl":case"csb":return 1===t?0:t%10>=2&&t%10<=4&&(t%100<10||t%100>=20)?1:2;case"cs":case"sk":return 1===t?0:t>=2&&t<=4?1:2;case"sl":return t%100==1?0:t%100==2?1:t%100==3||t%100==4?2:3;case"mt":return 1===t?0:0===t||t%100>1&&t%100<11?1:t%100>10&&t%100<20?2:3;case"gd":return 1===t||11===t?0:2===t||12===t?1:t>2&&t<20?2:3;case"cy":return 1===t?0:2===t?1:8!==t&&11!==t?2:3;case"kw":return 1===t?0:2===t?1:3===t?2:3;case"ga":return 1===t?0:2===t?1:t>2&&t<7?2:t>6&&t<11?3:4;case"ar":return 0===t?0:1===t?1:2===t?2:t%100>=3&&t%100<=10?3:t%100>=11?4:5;default:return 1!==t?1:0}};const o=Symbol("GETTEXT");function u(e){return e.replaceAll(/\r?\n/g,"\n")}function i(e){const t={};return Object.keys(e).forEach(n=>{const a=e[n],r={};Object.keys(a).forEach(e=>{r[u(e)]=a[e]}),t[n]=r}),t}const l=e=>({getTranslation:function(t,n=1,a=null,r=null,s,o){void 0===s&&(s=e.current);const i=(t,n)=>n?e.interpolate(t,n):t;if(t=u(t),r=r?u(r):null,!t)return"";const l=!!s&&(e.silent||-1!==e.muted.indexOf(s));let g="en";e.sourceCodeLanguage&&(g=e.sourceCodeLanguage);const f=r&&c(g,n)>0?r:t,p=e.translations,d=p[s]||p[s.split("_")[0]];if(!d)return l||console.warn(`No translations found for ${s}`),i(f,o);const x=()=>{if(!l){let e=`Untranslated ${s} key found: ${t}`;a&&(e+=` (with context: ${a})`),console.warn(e)}return i(f,o)},b=(a,r=null)=>{if(a instanceof Object){if(Array.isArray(a))return(a=>{let r=c(s,n);1===a.length&&1===n&&(r=0);const u=a[r];if(!u){if(""===u)return i(f,o);throw new Error(t+" "+r+" "+e.current+" "+n)}return i(u,o)})(a);const u=a[null!=r?r:""];return b(u)}return r?x():a?i(a,o):x()},h=d[t];return b(h,a)},gettext:function(e,t){return this.getTranslation(e,void 0,void 0,void 0,void 0,t)},pgettext:function(e,t,n){return this.getTranslation(t,1,e,void 0,void 0,n)},ngettext:function(e,t,n,a){return this.getTranslation(e,n,null,t,void 0,a)},npgettext:function(e,t,n,a,r){return this.getTranslation(t,a,e,n,void 0,r)}}),g={availableLanguages:{en:"English"},defaultLanguage:"en",sourceCodeLanguage:void 0,mutedLanguages:[],silent:!1,translations:{},setGlobalProperties:!0,globalProperties:{language:["$language"],gettext:["$gettext"],pgettext:["$pgettext"],ngettext:["$ngettext"],npgettext:["$npgettext"],interpolate:["$gettextInterpolate"]}};e.createGettext=function(e={}){Object.keys(e).forEach(e=>{if(-1===Object.keys(g).indexOf(e))throw new Error(`${e} is an invalid option for the translate plugin.`)});const n={...g,...e},a=t.ref(i(n.translations)),r=t.reactive({available:n.availableLanguages,muted:n.mutedLanguages,silent:n.silent,translations:t.computed({get:()=>a.value,set:e=>{a.value=i(e)}}),current:n.defaultLanguage,sourceCodeLanguage:n.sourceCodeLanguage,install(e){if(e[o]=r,e.provide(o,r),n.setGlobalProperties){const t=e.config.globalProperties;let a=n.globalProperties.gettext||["$gettext"];a.forEach(e=>{t[e]=r.$gettext}),a=n.globalProperties.pgettext||["$pgettext"],a.forEach(e=>{t[e]=r.$pgettext}),a=n.globalProperties.ngettext||["$ngettext"],a.forEach(e=>{t[e]=r.$ngettext}),a=n.globalProperties.npgettext||["$npgettext"],a.forEach(e=>{t[e]=r.$npgettext}),a=n.globalProperties.language||["$language"],a.forEach(e=>{t[e]=r})}}}),c=l(r),u=s(r);return r.$gettext=c.gettext.bind(c),r.$pgettext=c.pgettext.bind(c),r.$ngettext=c.ngettext.bind(c),r.$npgettext=c.npgettext.bind(c),r.interpolate=u.bind(u),r},e.defineGettextConfig=e=>e,e.useGettext=()=>{const e=t.inject(o,null);if(!e)throw new Error("Failed to inject gettext. Make sure vue3-gettext is set up properly.");return e}});
+</script>
 <style>
 [v-cloak] {
     display: none;
@@ -148,8 +150,8 @@
                         <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
                         <li class="nav-item dropdown position-relative text-center">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Store') }}</button>
-                            <ul class="dropdown-menu show" v-if="toggleSubmenu" style="display: block">
+                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Store') }}</button>
+                            <ul class="dropdown-menu show" v-if="toggleSubmenu">
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
@@ -161,18 +163,26 @@
                             </ul>
                         </li>
                         <input id="uploadfile" type="file" @change="uploadfileChange($event)" class="visually-hidden" accept="application/json">
-                        <div class="navbar-nav border">
+                        <div class="navbar-nav h-100">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
-                            <select class="text-center" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
+                            <select class="text-center form-control-sm" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
                         </div>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showList">{{ $gettext('Lists') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showSeats">{{ $gettext('Seats') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Numbers') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showVertical" :disabled="!showSeats"    >{{ $gettext('Vertical') }}</label>
-                        <label class="nav-link text-center"><input type="checkbox" v-model="showLeader">{{ $gettext('Leaders') }}</label>
-                        <select class="text-center" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
-                        <button class="form-control-sm" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
+                        <div class="text-center">
+                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu">{{ $gettext('Options') }}</button>
+                            <div class="form-check form-switch show" v-if="toggleOptionmenu">
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showList">{{ $gettext('Lists') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showSeats">{{ $gettext('Seats') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showNumber" :disabled="!showSeats">{{ $gettext('Numbers') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showPlace" :disabled="!showSeats">{{ $gettext('Place') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showName" :disabled="!showSeats">{{ $gettext('Names') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showVertical" :disabled="!showSeats">{{ $gettext('Vertical') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">{{ $gettext('Leaders') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showNote">{{ $gettext('Note') }}</label>
+                            </div>
+                        </div>
+                        <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
+                        <button class="form-control-sm h-100" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
                     </ul>
                 </div>
             </div>
@@ -220,8 +230,8 @@
                 <div class="col py-1" v-for="x in totalX" :key="'seat' + y + '-' + x">
                     <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': posdata[(y-1)*totalX + x-1]?.innerText == highlightedPos}" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
                         <div class="border-bottom text-center p-0 bg-light possize" :class="{'d-none': !showNumber}" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata"></div>
-                        <div class="fs-6 text-light text-end p-0">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && posname[(y-1)*totalX + x-1].innerText == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
+                        <div class="fs-6 text-light text-end p-0" :class="{'d-none': !showPlace}">{{ `${x}-${totalY - y + 1}` }}</div>
+                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'d-none': !showName,'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && posname[(y-1)*totalX + x-1].innerText == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -248,12 +258,12 @@
                         <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
                     <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
-                        <td class="seat-container text-end no-border-right" :class="{'d-none': !showNumber}" @click="startEdit($event.target)" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
-                        <td class="seat-container text-nowrap namearea no-border-left" :class="{'text-center': !showNumber}" :colspan="!showNumber ? 2 : 0" @click="startEdit($event.target)" ref="leadersname"></td>
+                        <td class="seat-container" :class="{'d-none': !showNumber, 'text-end no-border-right': showName, 'text-center': !showName}" @click="startEdit($event.target)" :colspan="!showName ? 2 : 0" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
+                        <td class="seat-container text-nowrap namearea no-border-left" :class="{'text-center': !showNumber, 'd-none': !showName}" :colspan="!showNumber ? 2 : 0" @click="startEdit($event.target)" ref="leadersname"></td>
                     </tr>
                 </tbody>
             </table>
-            <div class="card">
+            <div class="card" :class="{'d-none': !showNote}">
                 <div class="card-header namearea" :style="{'font-size': fontSizeR + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="noteLabel">{{ $gettext('Note') }}</div>
                 <div class="card-body namearea" :style="{'font-size': fontSizeR + 'em', 'min-height': fontSizeR * 2 + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="note"></div>
             </div>
@@ -733,7 +743,7 @@ const app = createApp({
              const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
              if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
 
-            event.preventDefault();
+            pasteData.length && event.preventDefault();
 
             if (!pasteData.length && 'namelist' == o) {
                 convertPhotoToIndexedDB(photoItem, n);
@@ -1108,6 +1118,7 @@ const app = createApp({
         const refs = {
             toggleNavbar: ref(localStorage.getItem('toggleNavbar') == 1),
             toggleSubmenu: ref(false),
+            toggleOptionmenu: ref(false),
             totalnums: ref(48),
             storeData: ref(0),
             posname: reactive([]),
@@ -1126,7 +1137,10 @@ const app = createApp({
             showList: ref(localStorage.getItem('showList') == null),
             showSeats: ref(localStorage.getItem('showSeats') == null),
             showNumber: ref(localStorage.getItem('showNumber') == null),
+            showPlace: ref(localStorage.getItem('showPlace') == null),
+            showName: ref(localStorage.getItem('showName') == null),
             showLeader: ref(localStorage.getItem('showLeader') == null),
+            showNote: ref(localStorage.getItem('showNote') == null),
             showVertical: ref(localStorage.getItem('showVertical') == null),
             showFonts: ref(setFonts(localStorage.getItem('showFonts')) || ''),
             fontPos: ref('c'),
@@ -1184,8 +1198,17 @@ const app = createApp({
         showNumber(newVal) {
             newVal ? localStorage.removeItem('showNumber') : localStorage.setItem('showNumber', 0);
         },
+        showPlace(newVal) {
+            newVal ? localStorage.removeItem('showPlace') : localStorage.setItem('showPlace', 0);
+        },
+        showName(newVal) {
+            newVal ? localStorage.removeItem('showName') : localStorage.setItem('showName', 0);
+        },
         showLeader(newVal) {
             newVal ? localStorage.removeItem('showLeader') : localStorage.setItem('showLeader', 0);
+        },
+        showNote(newVal) {
+            newVal ? localStorage.removeItem('showNote') : localStorage.setItem('showNote', 0);
         },
         showVertical(newVal) {
             newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
@@ -1271,13 +1294,16 @@ const vue3gettext = VueGettext.createGettext({
             "PinYin": "拼音",
             "Both": "兩者",
             "Print": "列印",
-            "Note": "公佈欄",
+            "Note": "備註",
             "Bingo": "抽籤",
             "Numbers": "座號",
+            "Place": "位置",
+            "Names": "姓名",
             "Number": "號",
             "Vertical": "垂直",
             "Share": "分享",
-            "Copied to clipboard": "已複製到剪貼簿"
+            "Copied to clipboard": "已複製到剪貼簿",
+            "Options": "選項"
         }
     }
 });
