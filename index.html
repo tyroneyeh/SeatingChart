@@ -1224,6 +1224,9 @@ const app = createApp({
         },
         showFonts(newVal) {
             setFonts(newVal);
+        },
+        speechVoice(newVal) {
+            newVal ? localStorage.removeItem('speechVoice') : localStorage.setItem('speechVoice', 0);
         }
     },
     async mounted() {
@@ -1254,7 +1257,7 @@ const app = createApp({
         this.updateDisplay();
         this.storeData = 1;
 
-        if (refs.speechVoice.value && 'speechSynthesis' in globalThis) {
+        if ('speechSynthesis' in globalThis) {
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
