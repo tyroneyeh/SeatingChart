@@ -179,6 +179,7 @@
                                 <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showVertical" :disabled="!showSeats">{{ $gettext('Vertical') }}</label>
                                 <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">{{ $gettext('Leaders') }}</label>
                                 <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="showNote">{{ $gettext('Note') }}</label>
+                                <label class="nav-link text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">{{ $gettext('Voice') }}</label>
                             </div>
                         </div>
                         <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
@@ -485,7 +486,9 @@ const app = createApp({
         }
 
         const updateDisplay = (o, num, pos) => {
-            refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
+            if (storeRefs.totalX.value > 1 && storeRefs.totalY.value > 1) {
+                refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
+            }
 
             refs.clearBtnCtl.value = storeRefs.posdata.every(i => i.innerText.trim() == "");
 
@@ -521,7 +524,7 @@ const app = createApp({
 
             const datakeys = Object.keys(storeRefs);
 
-            if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
+            if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length && storeRefs.totalX.value > 1 && storeRefs.totalY.value > 1) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
             if (o !== 'today') storeRefs.today.value.innerText = new Date().toLocaleDateString();
 
@@ -862,6 +865,7 @@ const app = createApp({
         };
 
         const speakText = text => {
+            if (!refs.speechVoice.value) return;
             if (!text || speechSynthesis.speaking || !('speechSynthesis' in globalThis)) {
                 return;
             }
@@ -869,6 +873,7 @@ const app = createApp({
         }
 
         const doSpeak = n => {
+            if (!refs.speechVoice.value) return;
             const name = storeRefs.namelist[n - 1]?.innerText.trim();
             if (name) {
                 const numberText = vue3gettext.current.includes('en') ? `${$gettext('Number')} ${n}` : `${n}${$gettext('Number')}`;
@@ -1145,6 +1150,7 @@ const app = createApp({
             showNote: ref(localStorage.getItem('showNote') == null),
             showVertical: ref(localStorage.getItem('showVertical') == null),
             showFonts: ref(setFonts(localStorage.getItem('showFonts')) || ''),
+            speechVoice: ref(localStorage.getItem('speechVoice') == null || ''),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
             editingEl: ref(null),
@@ -1248,7 +1254,7 @@ const app = createApp({
         this.updateDisplay();
         this.storeData = 1;
 
-        if ('speechSynthesis' in globalThis) {
+        if (refs.speechVoice.value && 'speechSynthesis' in globalThis) {
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
 
@@ -1306,7 +1312,8 @@ const vue3gettext = VueGettext.createGettext({
             "Share": "分享",
             "Copied to clipboard": "已複製到剪貼簿",
             "Methods": "功能",
-            "Options": "選項"
+            "Options": "選項",
+            "Voice": "語音"
         }
     }
 });
