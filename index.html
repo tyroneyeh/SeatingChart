@@ -832,12 +832,22 @@ const app = createApp({
             goHome();
         };
 
-        const shareData = () => {
+        const shareData = async () => {
             if (globalThis.jsondata) {
                 const {photo, ...data} = JSON.parse(globalThis.jsondata);
                 const zipData = gzipBase64UrlBC(data);
-                navigator.clipboard.writeText(`${location.origin}#data=${zipData}`);
-                alert($gettext('Copied to clipboard'));
+                const url = new URL(location.href);
+                url.hash = `data=${zipData}`;
+                if (navigator.share) {
+                    await navigator.share({
+                        title: $gettext("TY's Seating Chart Generator"),
+                        text: storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts'),
+                        url: url.toString()
+                    });
+                } else {
+                    await navigator.clipboard.writeText(url.toString());
+                    alert($gettext('Copied to clipboard'));
+                }
             }
         };
 
