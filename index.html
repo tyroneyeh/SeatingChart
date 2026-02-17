@@ -406,7 +406,7 @@ const IDBHelper = {
 const { createApp, ref, reactive, computed, nextTick } = Vue;
 const app = createApp({
     beforeCreate() {
-        const params = new URLSearchParams(location.search);
+        const params = new URLSearchParams(location.hash.substring(1));
         if (params.has('data')) {
             globalThis.jsondata = ungzipBase64UrlBC(params.get('data'));
         } else {
@@ -833,7 +833,7 @@ const app = createApp({
             if (globalThis.jsondata) {
                 const {photo, ...data} = JSON.parse(globalThis.jsondata);
                 const zipData = gzipBase64UrlBC(data);
-                navigator.clipboard.writeText(`${location.origin}?data=${zipData}`);
+                navigator.clipboard.writeText(`${location.origin}#data=${zipData}`);
                 alert($gettext('Copied to clipboard'));
             }
         };
