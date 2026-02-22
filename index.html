@@ -182,6 +182,7 @@
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDesk">&nbsp;{{ $gettext('Desk') }}</label>
                             </div>
                         </div>
                         <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
@@ -238,7 +239,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row mx-auto m-2 resize-x" :style="{'font-size': fontSizeR + 'em'}">
+            <div class="row mx-auto m-2 resize-x" :class="{'d-none': !showDesk}" :style="{'font-size': fontSizeR + 'em'}">
                 <div class="mx-auto text-center desk" @click="startEdit($event.target)" @blur="endEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
@@ -1208,6 +1209,7 @@ const app = createApp({
             showFonts: ref(setFonts(localStorage.getItem('showFonts')) || ''),
             speechVoice: ref(localStorage.getItem('speechVoice') == null || ''),
             showDate: ref(localStorage.getItem('showDate') == null),
+            showDesk: ref(localStorage.getItem('showDesk') == null),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
             editingEl: ref(null),
@@ -1287,6 +1289,9 @@ const app = createApp({
         },
         showDate(newVal) {
             newVal ? localStorage.removeItem('showDate') : localStorage.setItem('showDate', 0);
+        },
+        showDesk(newVal) {
+            newVal ? localStorage.removeItem('showDesk') : localStorage.setItem('showDesk', 0);
         }
     },
     async mounted() {
