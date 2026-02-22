@@ -770,6 +770,8 @@ const app = createApp({
             const list = storeRefs[o];
             const startIndex = n - 1;
 
+            globalThis.pasteDataLength = pasteData.length;
+
             storeRefs.totalNamelist.value = Math.max(pasteData.length + startIndex, storeRefs.totalNamelist.value);
             await nextTick();
             pasteData.forEach((text, j) => {
@@ -820,7 +822,13 @@ const app = createApp({
 
             const alreadyInPos = new Set(storeRefs.posdata.map(el => el.innerText).filter(el => el !== ''));
 
-            studentNums = studentNums.filter(num => !alreadyInPos.has(String(num)));
+            const validNums = studentNums.filter(num => !alreadyInPos.has(String(num)));
+
+            if (validNums.length) {
+                studentNums = validNums;
+            } else {
+                resetPos();
+            }
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (const element of posdatas) {
@@ -838,15 +846,15 @@ const app = createApp({
                 }
             }
 
+            updateDisplay();
             store();
-            goHome();
         };
 
         const resetPos = () => {
             if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
-            storeRefs.posdata.forEach(i => { if (i) i.innerText = '' });
+            storeRefs.posdata.forEach(i => i.innerText = '');
+            refs.posname.forEach(i => i.innerText = '');
             store();
-            goHome();
         };
 
         const shareData = async () => {
@@ -914,7 +922,7 @@ const app = createApp({
 
         const dragStart = (index, type) => {
             event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
-            event.target.classList.add('dragging', `${type}-row`);
+            event.target.classList?.add('dragging', `${type}-row`);
         };
 
         const swapElements = (arr, idx1, idx2) => {
@@ -940,6 +948,7 @@ const app = createApp({
             if ((!(globalThis.getSelection().rangeCount && !globalThis.getSelection().getRangeAt(0).collapsed)) && data.includes('\n')) {
                 globalThis.dropData = data;
                 editPaste('namelist', 1);
+                storeRefs.totalNamelist.value = globalThis.pasteDataLength;
                 return;
             }
 
