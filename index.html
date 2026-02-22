@@ -757,14 +757,14 @@ const app = createApp({
 
         const editPaste = async (o, n) => {
 
-             const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData.getData('text').trim());
-             const photoItem = Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
+             const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData?.getData('text').trim() || globalThis.dropData?.trim());
+             const photoItem = event.clipboardData?.items && Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
              if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
 
             pasteData.length && event.preventDefault();
 
             if (!pasteData.length && 'namelist' == o) {
-                convertPhotoToIndexedDB(photoItem, n);
+                await convertPhotoToIndexedDB(photoItem, n);
             }
 
             const list = storeRefs[o];
@@ -778,6 +778,8 @@ const app = createApp({
                     item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
                 }
             });
+
+            randomPos();
 
         };
 
@@ -928,26 +930,38 @@ const app = createApp({
             if (arr[idx]) arr[idx].innerText = value || '';
         }
 
-        const drop = targetIndex => {
+        const drop = async (targetIndex) => {
             event.preventDefault();
             event.stopPropagation();
 
             if (!event.dataTransfer) return;
 
-            let data;
-            try {
-                data = JSON.parse(event.dataTransfer.getData('text/plain') || '{}');
-            } catch (e) {
-                console.error(e);
+            let data = event.dataTransfer.getData('text/plain');
+            if ((!(globalThis.getSelection().rangeCount && !globalThis.getSelection().getRangeAt(0).collapsed)) && data.includes('\n')) {
+                globalThis.dropData = data;
+                editPaste('namelist', 1);
                 return;
             }
-            const isNamelistRow = event.currentTarget.classList.contains('namelist-row');
+
+            let isNamelistRow = event.currentTarget.classList.contains('namelist-row');
             const isLeaderRow = event.currentTarget.classList.contains('leader-row');
             const isSeatRow = event.currentTarget.classList.contains('seat-row');
 
+            if (!isNamelistRow && !isLeaderRow && !isSeatRow) isNamelistRow = true;
+
             if (event.dataTransfer.files.length && !isLeaderRow) {
+                if (typeof targetIndex != 'number') targetIndex = 1;
                 return convertPhotoToIndexedDB(event.dataTransfer.files, isSeatRow ? parseInt(storeRefs.posdata[targetIndex].innerText) : targetIndex);
             }
+
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                console.log(e);
+                return;
+            }
+
+            let isVaild = false;
 
             const sourceIndex = parseInt(data.index);
 
@@ -962,6 +976,7 @@ const app = createApp({
                             targetElement.innerText = oldValue;
                         }
                         setElementValue(storeRefs.posdata, targetIndex, sourceIndex);
+                        isVaild = true;
                     }
                 },
                 {
@@ -969,14 +984,15 @@ const app = createApp({
                     action: () => {
                         if (sourceIndex == targetIndex) return;
                         swapElements(storeRefs.posdata, sourceIndex, targetIndex);
+                        isVaild = true;
                     }
                 },
                 {
                     condition: () => data.type == 'seat' && isLeaderRow,
                     action: () => {
-                        if (sourceIndex == targetIndex) return;
                         const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
                         setElementValue(storeRefs.leaders, targetIndex, sourceNum);
+                        isVaild = true;
                     }
                 },
                 {
@@ -985,6 +1001,7 @@ const app = createApp({
                         const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
                         if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
                         setElementValue(storeRefs.posdata, sourceIndex, '');
+                        isVaild = true;
                     }
                 },
                 {
@@ -995,6 +1012,7 @@ const app = createApp({
                         if (!storeRefs.leaders[sourceIndex]?.innerText.trim().length) {
                             setElementValue(refs.leadersname, sourceIndex, '');
                         }
+                        isVaild = true;
                     }
                 },
                 {
@@ -1002,6 +1020,7 @@ const app = createApp({
                     action: () => {
                         if (sourceIndex < 1 || sourceIndex > storeRefs.totalNamelist.value) return;
                         setElementValue(storeRefs.leaders, targetIndex, sourceIndex);
+                        isVaild = true;
                     }
                 }
             ];
@@ -1014,6 +1033,8 @@ const app = createApp({
             }
 
             document.querySelectorAll('.seat-container').forEach(el => el.classList.remove('dragging'));
+
+            if (!isVaild) return;
             store();
             updateDisplay();
         };
@@ -1285,6 +1306,9 @@ const app = createApp({
         if ('speechSynthesis' in globalThis) {
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
+
+        document.body.addEventListener('dragover', (e) => e.preventDefault());
+        document.body.addEventListener('drop', this.drop);
 
     }
 
