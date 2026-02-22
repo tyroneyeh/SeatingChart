@@ -4,7 +4,7 @@
   <meta name="google-site-verification" content="XMksXOyLKjmb5ytHkIccl5eZYVXte1OgEkrzg2UWaKs" />
   <title>TY的座位表隨機產生器 - TY's Seating Chart Generator</title>
   <meta name="description" content="TY的座位表隨機產生器 提供老師與學生們可以快速隨機產生座位表，支援即時編輯並提供下載的功能">
-  <meta name="keywords" content="免費線上座位表產生器 座位表生成器 教室座位表 換座位 教室抽籤 隨機座位">
+  <meta name="keywords" content="免費線上座位表產生器 座位表生成器 教室座位表 換座位 教室抽籤 隨機座位 座位表">
   <meta name="author" content="TY的生活記錄 TY's Life in Taiwan">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="canonical" href="https://ty-seatingchart.pages.dev" />
@@ -276,6 +276,20 @@
     <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary" :class="{'bg-info': !bingoButtonCtl}"><span class="close">✕</span><div class="fs-6 text-end pe-2">&nbsp;<span :class="{'d-none': !showPlace}">{{ seatsPos }}</span></div><p class="text-center namearea"><span :class="{'d-none': !showNumber}">{{photoNo}}&nbsp;</span><span :class="{'d-none': !showName}">{{ photoName }}</span></p></div>
 
     <footer class="d-print-none text-end">
+        <noscript>
+            <h1>TY 座位表隨機產生器 - 真心推薦的線上免費排座位工具</h1>
+            <p>歡迎使用 TY's Seating Chart Generator。這是一款專為老師、班級幹部設計的<b>線上座位表工具</b>，旨在解決換座位、排座位的煩惱。透過這個<b>座位表產生器</b>，您可以輕鬆完成<b>隨機排座位</b>與配置調整。</p>
+            <h2>核心功能介紹：</h2>
+            <ul>
+                <li><b>線上座位表產生器：</b>免下載、免安裝，開啟網域即可使用，電腦手機皆可操作。</li>
+                <li><b>隨機排座位：</b>內建演算法一鍵自動排列學生名單，公平、透明、快速。</li>
+                <li><b>學生名單快速匯入：</b>支援直接貼上名單，不用一個一個手打，省下大量行政時間。</li>
+                <li><b>自定義教室配置：</b>靈活調整欄位與排數，適應各種規模的教室大小。</li>
+                <li><b>一鍵列印與匯出：</b>排好後支援直接列印，方便老師將座位表張貼於班級佈告欄。</li>
+                <li><b>開源專案：</b>本工具為開放原始碼專案，安全且持續維護。</li>
+            </ul>
+            <p>這是一個由開發者獨立維護的 Side Project ，致力於提供最簡便、有效率且完全免費的線上排座位工具。</p>
+        </noscript>
         <a href="https://github.com/tyroneyeh/SeatingChart/" target="_blank">
             <img src="https://img.shields.io/github/last-commit/tyroneyeh/SeatingChart" alt="GitHub last commit" />
             <img src="https://data.jsdelivr.com/v1/package/gh/tyroneyeh/SeatingChart/badge?style=rounded" alt="JSDelivr CDN" />
