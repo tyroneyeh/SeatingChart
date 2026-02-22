@@ -785,7 +785,7 @@ const app = createApp({
             if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
             localStorage.removeItem('data');
             IDBHelper.remove('photo');
-            location.href = '/';
+            goHome();
         }
 
         const download = async () => {
@@ -884,7 +884,7 @@ const app = createApp({
                 }
                 data = JSON.stringify(data);
                 localStorage.setItem('data', data);
-                location.href = '/';
+                goHome();
             }
             e.target.value = '';
         };
