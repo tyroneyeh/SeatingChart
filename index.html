@@ -181,6 +181,7 @@
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">&nbsp;{{ $gettext('Leaders') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
                             </div>
                         </div>
                         <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
@@ -197,7 +198,7 @@
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
         <div class="text-nowrap text-center col-sm-6" @click="startEdit($event.target)" @blur="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3"><span @click="startEdit($event.target)" @blur="endEdit" ref="updateLabel">{{ $gettext('Update') }}</span> <span @click="startEdit($event.target)" @blur="endEdit('today')" ref="today"></span></div>
+        <div class="text-nowrap text-end col-sm-3" :class="{'d-none': !showDate}"><span @click="startEdit($event.target)" @blur="endEdit" ref="updateLabel">{{ $gettext('Date') }}:</span><span class="ps-2" @click="startEdit($event.target)" @blur="endEdit('today')" ref="today"></span></div>
     </div>
 
     <div class="container-fluid row mx-auto">
@@ -1206,6 +1207,7 @@ const app = createApp({
             showVertical: ref(localStorage.getItem('showVertical') == null),
             showFonts: ref(setFonts(localStorage.getItem('showFonts')) || ''),
             speechVoice: ref(localStorage.getItem('speechVoice') == null || ''),
+            showDate: ref(localStorage.getItem('showDate') == null),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
             editingEl: ref(null),
@@ -1282,6 +1284,9 @@ const app = createApp({
         },
         speechVoice(newVal) {
             newVal ? localStorage.removeItem('speechVoice') : localStorage.setItem('speechVoice', 0);
+        },
+        showDate(newVal) {
+            newVal ? localStorage.removeItem('showDate') : localStorage.setItem('showDate', 0);
         }
     },
     async mounted() {
@@ -1315,6 +1320,8 @@ const app = createApp({
         if ('speechSynthesis' in globalThis) {
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
         }
+
+        if (this.today.innerText == '') this.today.innerText = new Date().toLocaleDateString();
 
         document.body.addEventListener('dragover', (e) => e.preventDefault());
         document.body.addEventListener('drop', this.drop);
@@ -1351,7 +1358,7 @@ const vue3gettext = VueGettext.createGettext({
             "Seating charts": "座位表",
             "Lists": "名單",
             "Teacher": "導師",
-            "Update": "更新日期",
+            "Date": "日期",
             "Upload": "上傳",
             "Vice president": "副班長",
             "Left": "左",
