@@ -293,14 +293,14 @@
                     <th scope="row" colspan="2" class="text-justify-last bg-light" @click="startEdit($event.target)" @blur="endEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
-                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" :style="{'height': fontSizeR * 2 + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="teacher"></td>
+                    <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" style="height: 2em" @click="startEdit($event.target)" @blur="endEdit" ref="teacher"></td>
                 </tr>
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr class="leader-row" @drop="drop(index)">
-                        <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
+                        <th scope="row" class="text-end text-nowrap text-justify-last" style="height: 2em" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
-                    <tr class="seat-container leader-row" :class="{'dragging': draggingPos == `leader-${index}`}" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart('leader', index)" @dragover.prevent @drop="drop(index)">
+                    <tr class="seat-container leader-row" :class="{'dragging': draggingPos == `leader-${index}`}" style="height: 2em" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart('leader', index)" @dragover.prevent @drop="drop(index)">
                         <td :class="{'d-none': !showNumber, 'text-end no-border-right': showName, 'text-center': !showName}" @click="startEdit($event.target)" :colspan="!showName ? 2 : 0" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
                         <td class="text-nowrap namearea no-border-left" :class="{'text-center': !showNumber, 'd-none': !showName}" :colspan="!showNumber ? 2 : 0" @click="startEdit($event.target)" ref="leadersname"></td>
                     </tr>
@@ -308,7 +308,7 @@
             </table>
             <div class="card" :class="{'d-none': !showNote}">
                 <div class="card-header namearea" :style="{'font-size': fontSizeR + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="noteLabel">{{ $gettext('Note') }}</div>
-                <div class="card-body namearea" :style="{'font-size': fontSizeR + 'em', 'min-height': fontSizeR * 2 + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="note"></div>
+                <div class="card-body namearea" style="min-height: 2em" :style="{'font-size': fontSizeR + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="note"></div>
             </div>
         </div>
     </div>
