@@ -466,7 +466,11 @@ const app = createApp({
     beforeCreate() {
         const params = new URLSearchParams(location.hash.substring(1));
         if (params.has('data')) {
-            globalThis.jsondata = ungzipBase64UrlBC(params.get('data'));
+            try {
+                globalThis.jsondata = ungzipBase64UrlBC(params.get('data'));
+            } catch (e) {
+                console.log(e);
+            }
         } else {
             globalThis.jsondata = localStorage.getItem('data');
         }
