@@ -583,7 +583,7 @@ const app = createApp({
 
             if (!storeRefs.namelist.filter(i => i.innerText.trim().length).length && storeRefs.totalX.value > 1 && storeRefs.totalY.value > 1) storeRefs.totalNamelist.value = storeRefs.totalX.value * storeRefs.totalY.value;
 
-            if (o !== 'today') storeRefs.today.value.innerText = new Date().toLocaleDateString();
+            if (o !== 'today' && storeRefs.today.value) storeRefs.today.value.innerText = new Date().toLocaleDateString();
 
             const dataToSave = {};
 
@@ -819,7 +819,7 @@ const app = createApp({
 
             globalThis.pasteDataLength = pasteData.length;
 
-            storeRefs.totalNamelist.value = Math.max(pasteData.length + startIndex, storeRefs.totalNamelist.value);
+            storeRefs.totalNamelist.value = Math.max(pasteData.length + startIndex, storeRefs.totalNamelist.value || 0);
             await nextTick();
             pasteData.forEach((text, j) => {
                 let item = list[startIndex + j];
