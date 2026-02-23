@@ -194,6 +194,7 @@
                             <ul class="dropdown-menu show" v-if="toggleSubmenu">
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
                                 <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item" type="button" @click="editPaste('namelist', 1)">{{ $gettext('Paste') }}</button></li>
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
                                 <li><button class="dropdown-item" type="button" onclick="uploadfile.click()">{{ $gettext('Upload') }}</button></li>
                                 <li><button class="dropdown-item" type="button" @click="randomPos">{{ $gettext('Random') }}</button></li>
@@ -798,11 +799,13 @@ const app = createApp({
 
         const editPaste = async (o, n) => {
 
-             const pasteData = splitTextWithSpecialCaseSimple(event.clipboardData?.getData('text').trim() || globalThis.dropData?.trim());
-             const photoItem = event.clipboardData?.items && Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
-             if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
+            const text = await navigator.clipboard.readText();
 
-            pasteData.length && event.preventDefault();
+            const pasteData = splitTextWithSpecialCaseSimple(event?.clipboardData?.getData('text').trim() || globalThis.dropData?.trim() || text?.trim());
+            const photoItem = event?.clipboardData?.items && Array.from(event.clipboardData.items).filter(i => i.type.includes('image'));
+            if (!['namelist', 'leadernames'].includes(o) || (!pasteData?.length && !photoItem)) return;
+
+            pasteData.length && event?.preventDefault();
 
             if (!pasteData.length && 'namelist' == o) {
                 await convertPhotoToIndexedDB(photoItem, n);
@@ -1376,6 +1379,7 @@ const app = createApp({
 
         document.body.addEventListener('dragover', (e) => e.preventDefault());
         document.body.addEventListener('drop', this.drop);
+        document.body.addEventListener('paste', () => this.editPaste('namelist', 1));
 
     }
 
@@ -1395,6 +1399,7 @@ const vue3gettext = VueGettext.createGettext({
             "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
             "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?",
             "President": "班長",
+            "Paste": "貼上",
             "Clear": "清除",
             "Desk": "講桌",
             "Download": "下載",
