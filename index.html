@@ -2,8 +2,8 @@
 <html lang="zh-Hant-TW">
 <head>
   <meta name="google-site-verification" content="XMksXOyLKjmb5ytHkIccl5eZYVXte1OgEkrzg2UWaKs" />
-  <title>TY的座位表隨機產生器 - TY's Seating Chart Generator</title>
-  <meta name="description" content="TY的座位表隨機產生器 提供老師與學生們可以快速隨機產生座位表，支援即時編輯並提供下載的功能">
+  <title>TY的座位表產生器 - TY's Seating Chart Generator</title>
+  <meta name="description" content="TY的座位表產生器 提供老師與學生們可以快速隨機產生座位表，支援即時編輯並提供下載的功能">
   <meta name="keywords" content="免費線上座位表產生器 座位表生成器 教室座位表 換座位 教室抽籤 隨機座位 座位表">
   <meta name="author" content="TY的生活記錄 TY's Life in Taiwan">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -256,7 +256,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart(n, 'student')" @dragover.prevent @drop="drop(n)">
+                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0, 'dragging': draggingPos == `student-${n}`}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart('student', n)" @dragover.prevent @drop="drop(n)">
                         <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
                             <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="n">
                             <span class="d-none d-print-block px-1">{{nameBgCtl[n - 1]?.checked ? '✓' : '☐'}}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
@@ -271,10 +271,10 @@
             <!-- center area -->
             <div class="row g-1" v-for="y in totalY" :key="'row' + y + 'x' + totalX">
                 <div class="col py-1" v-for="x in totalX" :key="'seat' + y + '-' + x">
-                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[(y-1)*totalX + x-1]?.innerText == highlightedPos}" @click="toggleColor" draggable="true" @dragstart="dragStart(((y-1)*totalX + x-1), 'seat')" @dragover.prevent @drop="drop(((y-1)*totalX + x-1))">
-                        <div class="border-bottom text-center p-0 bg-light possize" :class="{'d-none': !showNumber}" @paste="editPaste('posdata', ((y-1)*totalX + x-1))" @keydown="editKeydown('posdata', ((y-1)*totalX + x-1))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, ((y-1)*totalX + x-1))" ref="posdata"></div>
+                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" @click="toggleColor" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
+                        <div class="border-bottom text-center p-0 bg-light possize" :class="{'d-none': !showNumber}" @paste="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0" :class="{'d-none': !showPlace}">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'d-none': !showName,'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == ((y-1)*totalX + x-1) && posname[(y-1)*totalX + x-1].innerText == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=((y-1)*totalX + x-1)" ref="posname">&nbsp;</div>
+                        <div class="p-0 text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'d-none': !showName,'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == indexPos(x, y) && posname[indexPos(x, y)].innerText == ''}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=indexPos(x, y)" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -300,9 +300,9 @@
                     <tr class="leader-row" @drop="drop(index)">
                         <th scope="row" class="text-end text-nowrap text-justify-last" :style="{'height': fontSizeR * 2 + 'em'}" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
-                    <tr class="leader-row" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart(index, 'leader')" @dragover.prevent @drop="drop(index)">
-                        <td class="seat-container" :class="{'d-none': !showNumber, 'text-end no-border-right': showName, 'text-center': !showName}" @click="startEdit($event.target)" :colspan="!showName ? 2 : 0" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
-                        <td class="seat-container text-nowrap namearea no-border-left" :class="{'text-center': !showNumber, 'd-none': !showName}" :colspan="!showNumber ? 2 : 0" @click="startEdit($event.target)" ref="leadersname"></td>
+                    <tr class="seat-container leader-row" :class="{'dragging': draggingPos == `leader-${index}`}" :style="{'height': fontSizeR * 2 + 'em'}" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart('leader', index)" @dragover.prevent @drop="drop(index)">
+                        <td :class="{'d-none': !showNumber, 'text-end no-border-right': showName, 'text-center': !showName}" @click="startEdit($event.target)" :colspan="!showName ? 2 : 0" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste="editPaste('leaders', n)" ref="leaders"></td>
+                        <td class="text-nowrap namearea no-border-left" :class="{'text-center': !showNumber, 'd-none': !showName}" :colspan="!showNumber ? 2 : 0" @click="startEdit($event.target)" ref="leadersname"></td>
                     </tr>
                 </tbody>
             </table>
@@ -961,9 +961,10 @@ const app = createApp({
             n && (refs.highlightedPos.value = show ? n : null);
         };
 
-        const dragStart = (index, type) => {
+        const dragStart = (type, index) => {
             event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
             event.target.classList?.add('dragging', `${type}-row`);
+            refs.draggingPos.value = `${type}-${index}`;
         };
 
         const swapElements = (arr, idx1, idx2) => {
@@ -1082,7 +1083,7 @@ const app = createApp({
                 }
             }
 
-            document.querySelectorAll('.seat-container').forEach(el => el.classList.remove('dragging'));
+            refs.draggingPos.value = null;
 
             if (!isVaild) return;
             store();
@@ -1195,6 +1196,10 @@ const app = createApp({
             event.currentTarget.title = event.currentTarget.innerText;
         };
 
+        function indexPos(x, y) {
+            return (y - 1) * storeRefs.totalX.value + (x - 1);
+        }
+
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -1233,6 +1238,7 @@ const app = createApp({
             nameBgCtl: reactive([]),
             hideTips: ref(false),
             highlightedPos: ref(null),
+            draggingPos: ref(null),
             colors: reactive(Array.from({ length: 50 }, (_, i) => `color-${i}`)),
             colorIndex: ref(-1),
             currentTarget: ref(null),
@@ -1292,7 +1298,8 @@ const app = createApp({
             IDBHelper,
             showPhoto,
             doSpeak,
-            setTitle
+            setTitle,
+            indexPos
         };
     },
     watch: {
