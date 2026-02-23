@@ -1380,7 +1380,7 @@ const app = createApp({
 
         document.body.addEventListener('dragover', (e) => e.preventDefault());
         document.body.addEventListener('drop', this.drop);
-        document.body.addEventListener('paste', () => this.editPaste('namelist', 1));
+        window.addEventListener('paste', () => this.editPaste('namelist', 1));
 
     }
 
