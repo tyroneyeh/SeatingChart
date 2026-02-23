@@ -489,7 +489,7 @@ const app = createApp({
 
                 for (const [key, value] of globalThis.dkeys) {
                     if (key == 'tabletitle') {
-                        document.title = value;
+                        document.title = value + ' - ' + $gettext("TY's Seating Chart Generator");
                     } else if (key == 'today') {
                         this.today = value;
                     } else if (key in typeMap) {
@@ -590,7 +590,10 @@ const app = createApp({
             datakeys.forEach(key => {
                 const ref = storeRefs[key];
 
-                if (Array.isArray(ref)) {
+                if (key == 'tabletitle') {
+                    dataToSave[key] = ref.value.innerText;
+                    document.title = ref.value.innerText + ' - ' + $gettext("TY's Seating Chart Generator");
+                } else if (Array.isArray(ref)) {
                     dataToSave[key] = ref.map(item => item.innerText);
                 } else if (ref.value && undefined != ref.value?.innerText) {
                     dataToSave[key] = ref.value.innerText;
@@ -1344,8 +1347,6 @@ const app = createApp({
         }
     },
     async mounted() {
-
-        if (document.title == "TY's Seating Chart Generator") document.title = $gettext('Seating charts');
 
         if (this.leadernames) {
             if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
