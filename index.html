@@ -315,7 +315,7 @@
     </div>
 
     <div v-if="photo" @click="photo=null" class="floating-img card p-0 m-0"><span class="close">✕</span><div class="fs-6 text-end pe-2">&nbsp;<span :class="{'d-none': !showPlace}">{{ seatsPos }}</span></div><img :src="photo" alt="" /><p class="text-center namearea"><span :class="{'d-none': !showNumber}">{{photoNo}}&nbsp;</span><span :class="{'d-none': !showName}">{{ photoName }}</span></p></div>
-    <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary" :class="{'bg-info': !bingoButtonCtl}"><span class="close">✕</span><div class="fs-6 text-end pe-2">&nbsp;<span :class="{'d-none': !showPlace}">{{ seatsPos }}</span></div><p class="text-center namearea"><span :class="{'d-none': !showNumber}">{{photoNo}}&nbsp;</span><span :class="{'d-none': !showName}">{{ photoName }}</span></p></div>
+    <div v-if="!photo && doBingo" @click="doBingo = false" class="floating-img card p-3 m-2 border-primary" :class="{'bg-info': !bingoButtonCtl}"><span class="close">✕</span><div class="fs-6 text-end pe-2">&nbsp;<span :class="{'d-none': !showPlace}">{{ seatsPos }}</span></div><p class="text-center namearea text-nowrap" :style="{'font-size': fontSizeC + 'em'}"><span :class="{'d-none': !showNumber}">{{photoNo}}&nbsp;</span><span :class="{'d-none': !showName}">{{ photoName }}</span></p></div>
 
     <footer class="d-print-none text-end">
         <noscript>
