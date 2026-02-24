@@ -252,7 +252,7 @@
                 <thead>
                     <tr class="border-secondary small">
                         <th class="ps-3 py-1 no-border-right" style="min-width:25%">
-                            <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange($event)">
+                            <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl">
                         </th>
                         <th class="text-nowrap py-1 no-border-left w-75" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
@@ -558,8 +558,7 @@ const app = createApp({
 
             if (o == 'posdata' && num) {
                 setNameText(refs.posname, pos, num);
-                const ctl = refs.nameBgCtl[parseInt(num) - 1];
-                if (ctl) ctl.checked = true;
+                refs.nameBgCtlChecked.value.push(num);
             } else if (o == 'leaders' && num) {
                 setNameText(refs.leadersname, pos - 1, num);
             } else if (!o) {
@@ -568,8 +567,7 @@ const app = createApp({
                     const sNum = parseInt(item.innerText.trim());
                     if (!isNaN(sNum)) {
                         setNameText(refs.posname, j, sNum);
-                        const ctl = refs.nameBgCtl[parseInt(sNum) - 1];
-                        if (ctl) ctl.checked = true;
+                        refs.nameBgCtlChecked.value.push(sNum);
                     }
                 });
 
@@ -746,7 +744,12 @@ const app = createApp({
                     refs.nameBgCtl[n]?.focus();
                 } else if (key == 'Enter') {
                     event.preventDefault();
-                    refs.nameBgCtl[n - 1].checked = !refs.nameBgCtl[n - 1]?.checked;
+                    const currentIndex = refs.nameBgCtlChecked.value.indexOf(n);
+                    if (currentIndex === -1) {
+                        refs.nameBgCtlChecked.value.push(n);
+                    } else {
+                        refs.nameBgCtlChecked.value.splice(currentIndex, 1);
+                    }
                 }
             }
         };
@@ -1061,7 +1064,7 @@ const app = createApp({
                     condition: () => data.type == 'seat' && isNamelistRow,
                     action: () => {
                         const sourceNum = parseInt(storeRefs.posdata[sourceIndex]?.innerText || '');
-                        if (refs.nameBgCtl[sourceNum - 1]) refs.nameBgCtl[sourceNum - 1].checked = false;
+                        refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(num => num != sourceNum);
                         setElementValue(storeRefs.posdata, sourceIndex, '');
                         isVaild = true;
                     }
@@ -1137,10 +1140,6 @@ const app = createApp({
             const key = fontSizeMap[refs.fontPos.value];
             return storeRefs[key].value <= 0.5;
         });
-
-        const nameBtnCtlChange = (e) => {
-            refs.nameBgCtlChecked.value = refs.nameBgCtl.filter(c => e.target.checked && c.value.trim() != '').map(c => parseInt(c.value));
-        };
 
         const binGo = () => {
             refs.bingoButtonCtl.value = true;
@@ -1313,7 +1312,6 @@ const app = createApp({
             toggleColor,
             adujstFont,
             fontButtonCtl,
-            nameBtnCtlChange,
             binGo,
             IDBHelper,
             showPhoto,
