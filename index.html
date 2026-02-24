@@ -879,9 +879,7 @@ const app = createApp({
 
             if (validNums.length) {
                 studentNums = validNums;
-            } else {
-                resetPos();
-            }
+            } else if (!resetPos()) return;
 
             const posdatas = storeRefs.posdata.slice().reverse();
             for (const element of posdatas) {
@@ -908,6 +906,7 @@ const app = createApp({
             storeRefs.posdata.forEach(i => i.innerText = '');
             refs.posname.forEach(i => i.innerText = '');
             store();
+            return 1;
         };
 
         const shareData = async () => {
