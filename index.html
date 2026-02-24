@@ -24,7 +24,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pako/dist/pako.min.js"></script>
-<script> 
+<script>
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?t(exports,require("vue")):"function"==typeof define&&define.amd?define(["exports","vue"],t):t((e="undefined"!=typeof globalThis?globalThis:e||self).VueGettext={},e.Vue)}(this,function(e,t){"use strict";const n=/[[\].]{1,2}/g,a=/%\{((?:.|\n)+?)\}/g,r=/\{\{((?:.|\n)+?)\}\}/g,s=e=>(t,s={},c)=>{!e.silent&&r.test(t)&&console.warn(`Mustache syntax cannot be used with vue-gettext. Please use "%{}" instead of "{{}}" in: ${t}`);const o=t.replace(a,(e,t)=>{const a=t.trim();let r;return function e(t,a,s){try{r=function(e,t){const a=t.split(n).filter(e=>e);for(;a.length;)e=e[a.shift()];return e}(t,a)}catch(e){}if(null==r){if(s)return e(s.ctx,a,s.parent);console.warn(`Cannot evaluate expression: ${a}`),r=a}return r.toString()}(s,a,c)});return o};s.INTERPOLATION_RE=a,s.INTERPOLATION_PREFIX="%{";var c=function(e,t){switch(t="number"==typeof(t=Number(t))&&isNaN(t)?1:t,e.length>2&&"pt_BR"!==e&&(e=e.split("_")[0]),e){case"ay":case"bo":case"cgg":case"dz":case"fa":case"id":case"ja":case"jbo":case"ka":case"kk":case"km":case"ko":case"ky":case"lo":case"ms":case"my":case"sah":case"su":case"th":case"tt":case"ug":case"vi":case"wo":case"zh":return 0;case"is":return t%10!=1||t%100==11?1:0;case"jv":return 0!==t?1:0;case"mk":return 1===t||t%10==1?0:1;case"ach":case"ak":case"am":case"arn":case"br":case"fil":case"fr":case"gun":case"ln":case"mfe":case"mg":case"mi":case"oc":case"pt_BR":case"tg":case"ti":case"tr":case"uz":case"wa":return t>1?1:0;case"lv":return t%10==1&&t%100!=11?0:0!==t?1:2;case"lt":return t%10==1&&t%100!=11?0:t%10>=2&&(t%100<10||t%100>=20)?1:2;case"be":case"bs":case"hr":case"ru":case"sr":case"uk":return t%10==1&&t%100!=11?0:t%10>=2&&t%10<=4&&(t%100<10||t%100>=20)?1:2;case"mnk":return 0===t?0:1===t?1:2;case"ro":return 1===t?0:0===t||t%100>0&&t%100<20?1:2;case"pl":case"csb":return 1===t?0:t%10>=2&&t%10<=4&&(t%100<10||t%100>=20)?1:2;case"cs":case"sk":return 1===t?0:t>=2&&t<=4?1:2;case"sl":return t%100==1?0:t%100==2?1:t%100==3||t%100==4?2:3;case"mt":return 1===t?0:0===t||t%100>1&&t%100<11?1:t%100>10&&t%100<20?2:3;case"gd":return 1===t||11===t?0:2===t||12===t?1:t>2&&t<20?2:3;case"cy":return 1===t?0:2===t?1:8!==t&&11!==t?2:3;case"kw":return 1===t?0:2===t?1:3===t?2:3;case"ga":return 1===t?0:2===t?1:t>2&&t<7?2:t>6&&t<11?3:4;case"ar":return 0===t?0:1===t?1:2===t?2:t%100>=3&&t%100<=10?3:t%100>=11?4:5;default:return 1!==t?1:0}};const o=Symbol("GETTEXT");function u(e){return e.replaceAll(/\r?\n/g,"\n")}function i(e){const t={};return Object.keys(e).forEach(n=>{const a=e[n],r={};Object.keys(a).forEach(e=>{r[u(e)]=a[e]}),t[n]=r}),t}const l=e=>({getTranslation:function(t,n=1,a=null,r=null,s,o){void 0===s&&(s=e.current);const i=(t,n)=>n?e.interpolate(t,n):t;if(t=u(t),r=r?u(r):null,!t)return"";const l=!!s&&(e.silent||-1!==e.muted.indexOf(s));let g="en";e.sourceCodeLanguage&&(g=e.sourceCodeLanguage);const f=r&&c(g,n)>0?r:t,p=e.translations,d=p[s]||p[s.split("_")[0]];if(!d)return l||console.warn(`No translations found for ${s}`),i(f,o);const x=()=>{if(!l){let e=`Untranslated ${s} key found: ${t}`;a&&(e+=` (with context: ${a})`),console.warn(e)}return i(f,o)},b=(a,r=null)=>{if(a instanceof Object){if(Array.isArray(a))return(a=>{let r=c(s,n);1===a.length&&1===n&&(r=0);const u=a[r];if(!u){if(""===u)return i(f,o);throw new Error(t+" "+r+" "+e.current+" "+n)}return i(u,o)})(a);const u=a[null!=r?r:""];return b(u)}return r?x():a?i(a,o):x()},h=d[t];return b(h,a)},gettext:function(e,t){return this.getTranslation(e,void 0,void 0,void 0,void 0,t)},pgettext:function(e,t,n){return this.getTranslation(t,1,e,void 0,void 0,n)},ngettext:function(e,t,n,a){return this.getTranslation(e,n,null,t,void 0,a)},npgettext:function(e,t,n,a,r){return this.getTranslation(t,a,e,n,void 0,r)}}),g={availableLanguages:{en:"English"},defaultLanguage:"en",sourceCodeLanguage:void 0,mutedLanguages:[],silent:!1,translations:{},setGlobalProperties:!0,globalProperties:{language:["$language"],gettext:["$gettext"],pgettext:["$pgettext"],ngettext:["$ngettext"],npgettext:["$npgettext"],interpolate:["$gettextInterpolate"]}};e.createGettext=function(e={}){Object.keys(e).forEach(e=>{if(-1===Object.keys(g).indexOf(e))throw new Error(`${e} is an invalid option for the translate plugin.`)});const n={...g,...e},a=t.ref(i(n.translations)),r=t.reactive({available:n.availableLanguages,muted:n.mutedLanguages,silent:n.silent,translations:t.computed({get:()=>a.value,set:e=>{a.value=i(e)}}),current:n.defaultLanguage,sourceCodeLanguage:n.sourceCodeLanguage,install(e){if(e[o]=r,e.provide(o,r),n.setGlobalProperties){const t=e.config.globalProperties;let a=n.globalProperties.gettext||["$gettext"];a.forEach(e=>{t[e]=r.$gettext}),a=n.globalProperties.pgettext||["$pgettext"],a.forEach(e=>{t[e]=r.$pgettext}),a=n.globalProperties.ngettext||["$ngettext"],a.forEach(e=>{t[e]=r.$ngettext}),a=n.globalProperties.npgettext||["$npgettext"],a.forEach(e=>{t[e]=r.$npgettext}),a=n.globalProperties.language||["$language"],a.forEach(e=>{t[e]=r})}}}),c=l(r),u=s(r);return r.$gettext=c.gettext.bind(c),r.$pgettext=c.pgettext.bind(c),r.$ngettext=c.ngettext.bind(c),r.$npgettext=c.npgettext.bind(c),r.interpolate=u.bind(u),r},e.defineGettextConfig=e=>e,e.useGettext=()=>{const e=t.inject(o,null);if(!e)throw new Error("Failed to inject gettext. Make sure vue3-gettext is set up properly.");return e}});
 </script>
 <style>
@@ -167,6 +167,9 @@
     word-break: break-word;
     overflow-wrap: break-word;
 }
+.hover-border:empty:hover {
+  border: 1px solid #6c757d;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css">
 .emptycss {
@@ -275,7 +278,7 @@
                     <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" @click="toggleColor" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
                         <div class="border-bottom text-center p-0 bg-light possize" :class="{'d-none': !showNumber}" @paste.stop="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0" :class="{'d-none': !showPlace}">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="text-center mx-auto namearea d-flex align-items-center justify-content-center" :class="{'d-none': !showName,'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'border border-secondary': posNameHovered == indexPos(x, y) && posname[indexPos(x, y)].innerText == '', 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @mouseover="posNameHovered=indexPos(x, y)" ref="posname">&nbsp;</div>
+                        <div class="text-center mx-auto namearea d-flex align-items-center justify-content-center hover-border" :class="{'d-none': !showName,'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" ref="posname">&nbsp;</div>
                     </div>
                 </div>
             </div>
@@ -634,7 +637,6 @@ const app = createApp({
 
         const startEdit = el => {
             refs.editingEl.value?.removeAttribute('contenteditable');
-            refs.posNameHovered.value = null;
             if (!el) return;
             el.setAttribute('contenteditable', 'true');
             refs.editingEl.value = el;
@@ -1283,7 +1285,6 @@ const app = createApp({
             seatsPos: ref(''),
             photoNo: ref(''),
             photoName: ref(''),
-            posNameHovered: ref(null),
             doBingo: ref(false),
             storeSelected: ref('')
         };
