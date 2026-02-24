@@ -1,4 +1,4 @@
-## SeatingChart 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上教室座位表
+## TY的座位表產生器 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上教室座位表
 
 - 網址 https://ty-seatingchart.pages.dev
 
@@ -18,7 +18,7 @@
 - 頭像儲存於瀏覽器索引式資料庫
 - 文字轉語音
 
-## SeatingChart 是一个用 VueJS 3 + Bootstrap 5 所写的一个纯前端网页线上教室座位表
+## TY的座位表产生器 是一个用 VueJS 3 + Bootstrap 5 所写的一个纯前端网页线上教室座位表
 
 - 网址 https://ty-seatingchart.pages.dev
 
@@ -40,7 +40,7 @@
 
 ## Students Classroom Seating Chart
 
-**SeatingChart** is a pure front-end online classroom seating chart built with **VueJS 3** + **Bootstrap 5**.
+TY's SeatingChart Generator is a pure front-end online classroom seating chart built with **VueJS 3** + **Bootstrap 5**.
 
 - URL https://ty-seatingchart.pages.dev
 
