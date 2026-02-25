@@ -1200,7 +1200,7 @@ const app = createApp({
             });
             const numPos = storeRefs.posdata.findIndex(i => i.innerText == n);
             const row = (numPos % storeRefs.totalX.value) + 1;
-            const column = storeRefs.totalY.value - Math.floor(numPos / storeRefs.totalY.value);
+            const column = storeRefs.totalY.value - Math.floor(numPos / storeRefs.totalX.value);
             refs.seatsPos.value = `${row}-${column}`;
             refs.photoNo.value = n;
             refs.photoName.value = storeRefs.namelist[n - 1].innerText;
