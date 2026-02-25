@@ -1001,7 +1001,7 @@ const app = createApp({
             if (!event.dataTransfer) return;
 
             let data = event.dataTransfer.getData('text/plain');
-            if ((!(globalThis.getSelection().rangeCount && !globalThis.getSelection().getRangeAt(0).collapsed)) && data.includes('\n')) {
+            if ((!(globalThis.getSelection().rangeCount && !globalThis.getSelection().getRangeAt(0).collapsed)) && data.split('').filter(c => /[,\s]/.test(c)).length > 1) {
                 globalThis.dropData = data;
                 editPaste('namelist', 1);
                 storeRefs.totalNamelist.value = globalThis.pasteDataLength;
