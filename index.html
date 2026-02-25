@@ -195,8 +195,6 @@
                         <li class="nav-item dropdown position-relative text-center">
                             <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Methods') }}</button>
                             <ul class="dropdown-menu show" v-if="toggleSubmenu">
-                                <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
-                                <li><hr class="dropdown-divider"></li>
                                 <li><button class="dropdown-item" type="button" @click="editPaste('namelist', 1)">{{ $gettext('Paste') }}</button></li>
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
                                 <li><button class="dropdown-item" type="button" onclick="uploadfile.click()">{{ $gettext('Upload') }}</button></li>
@@ -204,6 +202,8 @@
                                 <li><button class="dropdown-item" type="button" :disabled="clearBtnCtl" @click="resetPos">{{ $gettext('Reset') }}</button></li>
                                 <li><button class="dropdown-item" type="button" @click="print">{{ $gettext('Print') }}</button></li>
                                 <li><button class="dropdown-item" type="button" @click="shareData">{{ $gettext('Share') }}</button></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
                             </ul>
                         </li>
                         <input id="uploadfile" type="file" @change="uploadfileChange($event)" class="visually-hidden" accept="application/json">
