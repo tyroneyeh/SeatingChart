@@ -170,6 +170,13 @@
 .hover-border:empty:hover {
   border: 1px solid #6c757d;
 }
+.namelist td:nth-child(1) {
+    border-right: none;
+}
+.namelist td:nth-child(2) {
+    border-left: none;
+    padding-left: 15%;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css">
 .emptycss {
@@ -248,7 +255,7 @@
     <div id="print-area" class="container-fluid row mx-auto">
         <div class="col-lg-2 col-md-2 col-sm-2 pt-1 table-responsive overflow-x-hidden resize-y" v-show="showList">
             <!-- left area -->
-            <table class="table table-bordered table-striped small">
+            <table class="table table-bordered table-striped small namelist">
                 <thead>
                     <tr class="border-secondary small">
                         <th class="ps-3 py-1 no-border-right" style="min-width:25%">
@@ -260,12 +267,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="seat-container namelist-row" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0, 'dragging': draggingPos == `student-${n}`}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart('student', n)" @dragover.prevent @drop="drop(n)">
-                        <td class="text-nowrap no-border-right p-1" :class="{'border-start': n % 5 == 0}">
+                    <tr class="seat-container" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0, 'dragging': draggingPos == `student-${n}`}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart('student', n)" @dragover.prevent @drop="drop(n)">
+                        <td class="p-1" :class="{'border-start': n % 5 == 0}">
                             <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText && n">
                             <span class="d-none d-print-block px-1">{{nameBgCtl[n - 1]?.checked ? '✓' : '☐'}}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
                         </td>
-                        <td class="no-border-left py-1 namearea text-truncate" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste.stop="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist" @mouseover="setTitle($event)"></td>
+                        <td class="py-1 namearea text-truncate" :class="{'border-end': n % 5 == 0}" @focus="showPos(n, 1)" @paste.stop="editPaste('namelist', n)" @keydown="editKeydown('namelist', n)" @click="startEdit($event.target);toggleColor($event)" @blur="endEdit" ref="namelist" @mouseover="setTitle($event)"></td>
                     </tr>
                 </tbody>
             </table>
