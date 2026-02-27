@@ -178,7 +178,7 @@
     padding-left: 15%;
 }
 @media print {
-  @media (max-width: 991.98px) {
+  @media (max-width: 575.98px) {
     .mobile-no-print {
       display: none !important;
     }
@@ -627,6 +627,7 @@ const app = createApp({
         };
 
         const endEdit = (o, num, pos) => {
+            globalThis.startEditing = false;
             if (o == 'posdata') {
                 const excludePos = storeRefs.posdata.map(el => el?.innerText ?? '');
                 excludePos[pos] = '';
@@ -648,6 +649,7 @@ const app = createApp({
         };
 
         const startEdit = el => {
+            globalThis.startEditing = true;
             refs.editingEl.value?.removeAttribute('contenteditable');
             if (!el) return;
             el.setAttribute('contenteditable', 'true');
@@ -1412,7 +1414,7 @@ const app = createApp({
 
         document.body.addEventListener('dragover', (e) => e.preventDefault());
         document.body.addEventListener('drop', this.drop);
-        window.addEventListener('paste', () => this.editPaste('namelist', 1));
+        globalThis.addEventListener('paste', () => !globalThis.startEditing && this.editPaste('namelist', 1));
 
         this.nameBtnCtl.checked = Boolean(this.nameBgCtlChecked.length == this.namelist.filter(el => el.innerText.trim() != '').length);
 
