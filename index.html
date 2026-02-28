@@ -255,8 +255,8 @@
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
         <div class="col-sm-3"></div>
-        <div class="text-nowrap text-center col-sm-6" @click="startEdit($event.target)" @blur="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
-        <div class="text-nowrap text-end col-sm-3" :class="{'d-none': !showDate}"><span @click="startEdit($event.target)" @blur="endEdit" ref="updateLabel">{{ $gettext('Date') }}:</span><span class="ps-2" @click="startEdit($event.target)" @blur="endEdit('today')" ref="today"></span></div>
+        <div class="text-nowrap text-center col-sm-6 namearea" @click="startEdit($event.target)" @blur="endEdit" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-end col-sm-3" :class="{'d-none': !showDate}"><span class="namearea" @click="startEdit($event.target)" @blur="endEdit" ref="updateLabel">{{ $gettext('Date') }}:</span><span class="ps-2" @click="startEdit($event.target)" @blur="endEdit('today')" ref="today"></span></div>
     </div>
 
     <div id="print-area" class="container-fluid row mx-auto">
@@ -268,7 +268,7 @@
                         <th class="ps-3 py-1 no-border-right" style="min-width:25%">
                             <input class="form-check-input d-print-none" type="checkbox" ref="nameBtnCtl" @change="nameBtnCtlChange($event)">
                         </th>
-                        <th class="text-nowrap py-1 no-border-left w-75" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
+                        <th class="text-nowrap py-1 no-border-left w-75 namearea" :style="{'font-size': fontSizeL + 'em'}" @click="startEdit($event.target)" @blur="endEdit" ref="studentListLabel">
                             {{ $gettext('Lists') }}
                         </th>
                     </tr>
@@ -297,7 +297,7 @@
                 </div>
             </div>
             <div class="row mx-auto m-2 resize-x" :class="{'d-none': !showDesk}" :style="{'font-size': fontSizeR + 'em'}">
-                <div class="mx-auto text-center desk" @click="startEdit($event.target)" @blur="endEdit" ref="deskname">{{ $gettext('Desk') }}</div>
+                <div class="mx-auto text-center desk namearea" @click="startEdit($event.target)" @blur="endEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
         <div class="col-lg-2 col-md-3 col-sm-3 pt-1">
@@ -308,7 +308,7 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th scope="row" colspan="2" class="text-justify-last bg-light" @click="startEdit($event.target)" @blur="endEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
+                    <th scope="row" colspan="2" class="text-justify-last bg-light namearea" @click="startEdit($event.target)" @blur="endEdit" ref="teacherLabel">{{ $gettext('Teacher') }}</th>
                 </tr>
                 <tr>
                     <td colspan="2" class="text-center ps-0 pe-0 text-nowrap namearea" style="height: 2em" @click="startEdit($event.target)" @blur="endEdit" ref="teacher"></td>
@@ -316,7 +316,7 @@
                 </thead>
                 <tbody v-for="(n, index) in totalLeader">
                     <tr class="leader-row" @drop="drop(index)">
-                        <th scope="row" class="text-end text-nowrap text-justify-last" style="height: 2em" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste.stop="editPaste('leadernames', n)" ref="leadernames"></th>
+                        <th scope="row" class="text-end text-nowrap text-justify-last namearea" style="height: 2em" colspan="2" @click="startEdit($event.target)" @blur="endEdit" @keydown="editKeydown('leadernames', n)" @paste.stop="editPaste('leadernames', n)" ref="leadernames"></th>
                     </tr>
                     <tr class="seat-container leader-row" :class="{'dragging': draggingPos == `leader-${index}`}" style="height: 2em" @mouseover="showPos(leaders[n - 1].innerText, 1)" @mouseout="showPos(leaders[n - 1]?.innerText, 0)" draggable="true" @dragstart="dragStart('leader', index)" @dragover.prevent @drop="drop(index)">
                         <td :class="{'d-none': !showNumber, 'text-end no-border-right': showName, 'text-center': !showName}" @click="startEdit($event.target)" :colspan="!showName ? 2 : 0" @keydown="editKeydown('leaders', n)" @blur="endEdit('leaders', $event.target.innerText, n)" @paste.stop="editPaste('leaders', n)" ref="leaders"></td>
