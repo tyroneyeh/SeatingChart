@@ -1222,6 +1222,7 @@ const app = createApp({
                     showPhoto(arr[finalNumber]);
                     refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[finalNumber]);
                     refs.bingoButtonCtl.value = false;
+                    doSpeak(arr[finalNumber]);
                 }
             }
 
