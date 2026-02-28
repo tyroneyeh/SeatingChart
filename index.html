@@ -218,7 +218,7 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavBarCtl">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a class="navbar-brand" href="#" @click="goHome">🏠 {{ $gettext("TY's Seating Chart Generator") }}</a>
+                <a class="navbar-brand" href="#" @click="goHome">🏠 {{ $gettext("TY's Seating Chart Generator") }} <img src="https://img.shields.io/github/commit-activity/t/tyroneyeh/SeatingChart?logoColor=%23fff&label=Ver.&labelColor=%23fff&color=%23fff" alt="Version"></a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <ul class="navbar-nav m-auto">
                         <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
