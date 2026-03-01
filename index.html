@@ -272,7 +272,7 @@
             </div>
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
-        <div class="row justify-content-center m-2">
+        <div class="hstack justify-content-center m-2">
             <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
         </div>
     </div>
@@ -324,7 +324,7 @@
                 <div class="mx-auto text-center desk namearea" @click="startEdit($event.target)" @blur="endEdit" ref="deskname">{{ $gettext('Desk') }}</div>
             </div>
         </div>
-        <div class="col-lg-2 col-md-3 col-sm-3 pt-1">
+        <div class="pt-1" :class="{'col-lg-2 col-md-3 col-sm-3': showList && showSeats || showSeats && showLeader, 'col-lg-10 col-md-10 col-sm-10': showList && !showSeats}" >
             <!-- right area -->
             <table class="table table-bordered table-striped" :style="{'font-size': fontSizeR + 'em'}" v-show="showLeader">
                 <colgroup>
