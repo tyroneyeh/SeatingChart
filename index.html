@@ -959,7 +959,6 @@ const app = createApp({
         };
 
         const resetPos = () => {
-            if (!confirm($gettext("Are you sure you want to clear your current seating arrangement?"))) return;
             storeRefs.posdata.forEach(i => i.innerText = '');
             refs.posname.forEach(i => i.innerText = '');
             refs.nameBgCtlChecked.value = [];
@@ -1479,7 +1478,6 @@ const vue3gettext = VueGettext.createGettext({
             "TY's Seating Chart Generator": "TY的座位表產生器",
             "Seat assigned": "已排位子",
             "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
-            "Are you sure you want to clear your current seating arrangement?": "確定要清除目前的座位排列嗎?",
             "President": "班長",
             "Paste": "貼上",
             "Clear": "清除",
