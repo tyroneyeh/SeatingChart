@@ -185,15 +185,18 @@
   transform: translate(-50%, -50%);
   z-index: 999;
 }
-.responsive-qr {
-  @media (max-width: 575.98px) {
-    width: 80vmin !important;
-    height: 80vmin !important;
-  }
-  @media (min-width: 576px) {
-    width: 40vmin !important;
-    height: 40vmin !important;
-  }
+
+@media (max-width: 575.98px) {
+    .responsive-qr {
+        width: 80vmin !important;
+        height: 80vmin !important;
+    }
+}
+@media (min-width: 576px) {
+    .responsive-qr {
+        width: 40vmin !important;
+        height: 40vmin !important;
+    }
 }
 @media print {
   @media (max-width: 575.98px) {
@@ -225,7 +228,7 @@
                         <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
                         <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
                         <li class="nav-item dropdown position-relative text-center">
-                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu">{{ $gettext('Methods') }}</button>
+                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu" accesskey="m">{{ $gettext('Methods') }}</button>
                             <ul class="dropdown-menu show" v-if="toggleSubmenu">
                                 <li><button class="dropdown-item" type="button" @click="editPaste('namelist', 1)">{{ $gettext('Paste') }}</button></li>
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
@@ -245,7 +248,7 @@
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
                         </div>
                         <div class="text-center">
-                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu">{{ $gettext('Options') }}</button>
+                            <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu" accesskey="o">{{ $gettext('Options') }}</button>
                             <div class="dropdown-menu form-switch show" v-if="toggleOptionmenu">
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showList">&nbsp;{{ $gettext('Lists') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showSeats">&nbsp;{{ $gettext('Seats') }}</label>
@@ -261,7 +264,7 @@
                             </div>
                         </div>
                         <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
-                        <button class="form-control-sm h-100" @click="binGo" :disabled="bingoButtonCtl">{{ $gettext('Bingo') }}</button>
+                        <button class="form-control-sm h-100" @click="binGo" :disabled="bingoButtonCtl" accesskey="b">{{ $gettext('Bingo') }}</button>
                     </ul>
                 </div>
             </div>
