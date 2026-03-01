@@ -248,6 +248,8 @@
                             <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu" accesskey="o">{{ $gettext('Options') }}</button>
                             <div class="dropdown-menu form-switch show" v-if="toggleOptionmenu">
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showList">&nbsp;{{ $gettext('Lists') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showTitle">&nbsp;{{ $gettext('Title') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showSeats">&nbsp;{{ $gettext('Seats') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNumber" :disabled="!showSeats">&nbsp;{{ $gettext('Numbers') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showPlace" :disabled="!showSeats">&nbsp;{{ $gettext('Place') }}</label>
@@ -256,9 +258,8 @@
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDesk" :disabled="!showSeats">&nbsp;{{ $gettext('Desk') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">&nbsp;{{ $gettext('Leaders') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
+                                <li><hr class="dropdown-divider"></li>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showTitle">&nbsp;{{ $gettext('Title') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
                             </div>
                         </div>
                         <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
