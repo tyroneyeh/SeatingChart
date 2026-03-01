@@ -378,8 +378,10 @@
 <script>
 'use strict';
 
-function goHome() {
-    location.href = location.origin;
+function navigateToHomePage() {
+    const currentOrigin = location.origin;
+    const currentPathname = location.pathname;
+    location.href = `${currentOrigin}${currentPathname}`;
 }
 
 function setFonts(newVal) {
