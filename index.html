@@ -221,28 +221,28 @@
                 <a class="navbar-brand" href="#" @click="goHome">🏠 {{ $gettext("TY's Seating Chart Generator") }} <img src="https://img.shields.io/github/commit-activity/t/tyroneyeh/SeatingChart?logoColor=%23fff&label=Ver.&labelColor=%23fff&color=%23fff" alt="Version"></a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <ul class="navbar-nav m-auto">
-                        <a class="nav-link text-center">{{ $gettext('Columns') }}: <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
-                        <a class="nav-link text-center">{{ $gettext('Rows') }}: <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
-                        <a class="nav-link text-center">{{ $gettext('Seats') }}: <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
+                        <a class="nav-link text-center">{{ $gettext('Columns') }} <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link text-center">{{ $gettext('Rows') }} <input type="number" class="w-50px" v-model="totalY" min="1" ref="totalys" @change="store" @focus="$event.target.select()"></a>
+                        <a class="nav-link text-center">{{ $gettext('Seats') }} <input type="number" class="w-50px" min="1" ref="totalnums" @change="store" :value="totalX * totalY" :disabled="true"></a>
                         <li class="nav-item dropdown position-relative text-center">
                             <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleSubmenu = !toggleSubmenu" accesskey="m">{{ $gettext('Methods') }}</button>
                             <ul class="dropdown-menu show" v-if="toggleSubmenu">
                                 <li><button class="dropdown-item" type="button" @click="editPaste('namelist', 1)">{{ $gettext('Paste') }}</button></li>
-                                <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
                                 <li><button class="dropdown-item" type="button" onclick="uploadfile.click()">{{ $gettext('Upload') }}</button></li>
+                                <li v-if="storeData"><button class="dropdown-item" type="button" @click="download">{{ $gettext('Download') }}</button></li>
                                 <li><button class="dropdown-item" type="button" @click="randomPos">{{ $gettext('Random') }}</button></li>
-                                <li><button class="dropdown-item" type="button" :disabled="clearBtnCtl" @click="resetPos">{{ $gettext('Reset') }}</button></li>
                                 <li><button class="dropdown-item" type="button" @click="print">{{ $gettext('Print') }}</button></li>
                                 <li><button class="dropdown-item" type="button" @click="shareData">{{ $gettext('Share') }}</button></li>
                                 <li><hr class="dropdown-divider"></li>
+                                <li><button class="dropdown-item" type="button" :disabled="clearBtnCtl" @click="resetPos">{{ $gettext('Reset') }}</button></li>
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
                             </ul>
                         </li>
                         <input id="uploadfile" type="file" @change="uploadfileChange($event)" class="visually-hidden" accept="application/json">
-                        <div class="navbar-nav h-100">
-                            <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
-                            <select class="text-center form-control-sm" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
+                        <div class="text-center h-100">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
+                            <select class="form-control-sm" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
+                            <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
                         </div>
                         <div class="text-center">
                             <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu" accesskey="o">{{ $gettext('Options') }}</button>
@@ -250,19 +250,22 @@
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showList">&nbsp;{{ $gettext('Lists') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showTitle">&nbsp;{{ $gettext('Title') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">&nbsp;{{ $gettext('Leaders') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
+                                <li><hr class="dropdown-divider"></li>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showSeats">&nbsp;{{ $gettext('Seats') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNumber" :disabled="!showSeats">&nbsp;{{ $gettext('Numbers') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showPlace" :disabled="!showSeats">&nbsp;{{ $gettext('Place') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showName" :disabled="!showSeats">&nbsp;{{ $gettext('Names') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showVertical" :disabled="!showSeats">&nbsp;{{ $gettext('Vertical') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDesk" :disabled="!showSeats">&nbsp;{{ $gettext('Desk') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">&nbsp;{{ $gettext('Leaders') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
                                 <li><hr class="dropdown-divider"></li>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
                             </div>
                         </div>
-                        <select class="text-center h-100 form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
+                        <div class="text-center h-100">
+                            <select class="form-control-sm" v-model="showFonts"><option value="">{{ $gettext('Fonts') }}</option><option value="zhuyin">{{ $gettext('ZhuYin') }}</option><option value="pinyin">{{ $gettext('PinYin') }}</option><option value="bothfonts">{{ $gettext('Both') }}</option></select>
+                        </div>
                         <button class="form-control-sm h-100" @click="binGo" :disabled="bingoButtonCtl" accesskey="b">{{ $gettext('Bingo') }}</button>
                     </ul>
                 </div>
