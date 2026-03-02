@@ -1205,7 +1205,7 @@ const app = createApp({
                 return;
             }
 
-            let isNamelistRow = event.currentTarget.classList.contains('namelist-row');
+            let isNamelistRow = event.currentTarget.closest('table')?.classList.contains('namelist');
             const isLeaderRow = event.currentTarget.classList.contains('leader-row');
             const isSeatRow = event.currentTarget.classList.contains('seat-row');
 
