@@ -239,7 +239,7 @@
                             </ul>
                         </li>
                         <input id="uploadfile" type="file" @change="uploadfileChange($event)" class="visually-hidden" accept="application/json">
-                        <div class="text-center h-100">
+                        <div class="text-center text-nowrap h-100">
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('-')" :disabled="fontButtonCtl">-</button>
                             <select class="form-control-sm" v-model="fontPos"><option value="l">{{ $gettext('Left') }}</option><option value="c">{{ $gettext('Center') }}</option><option value="r">{{ $gettext('Right') }}</option></select>
                             <button class="form-control-sm" :title="$gettext('Font size')" @click="adujstFont('+')">+</button>
