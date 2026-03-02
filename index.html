@@ -1031,7 +1031,7 @@ const app = createApp({
             pasteData.forEach((text, j) => {
                 let item = list[startIndex + j];
                 if (item) {
-                    item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').trim();
+                    item.innerHTML = text.replace(/(['"])(.*?)\1/g, '$2').replaceAll(',', '').trim();
                 }
             });
 
