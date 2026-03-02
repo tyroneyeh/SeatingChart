@@ -274,8 +274,8 @@
             </div>
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
-        <div class="hstack justify-content-center m-2">
-            <a class="col-auto seat-container p-2 mx-1 overflow-x-auto" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
+        <div class="hstack justify-content-center m-2 overflow-x-auto">
+            <a class="col-auto seat-container p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
         </div>
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
