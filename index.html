@@ -202,6 +202,9 @@
     }
   }
 }
+.pos-container {
+    flex-direction: column-reverse;
+}
 </style>
 <style id="dynamic-zh-font" type="text/css">
 .emptycss {
@@ -259,6 +262,7 @@
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showName" :disabled="!showSeats">&nbsp;{{ $gettext('Names') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showVertical" :disabled="!showSeats">&nbsp;{{ $gettext('Vertical') }}</label>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDesk" :disabled="!showSeats">&nbsp;{{ $gettext('Desk') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="deskPos" :disabled="!showSeats">&nbsp;{{ $gettext('Reverse') }}</label>
                                 <li><hr class="dropdown-divider"></li>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
                             </div>
@@ -311,7 +315,7 @@
             </table>
 
         </div>
-        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && (showLeader || showNote), 'col-lg-10 col-md-10 col-sm-10': showList && !(showLeader || showNote), 'col-lg-10 col-md-9 col-sm-9': !showList && (showLeader || showNote), 'col-lg-12 col-md-12 col-sm-12': !showList && !(showLeader || showNote)}" :style="{'font-size': fontSizeC + 'em'}" v-show="showSeats">
+        <div class="bg-white seats px-0" :class="{'col-lg-8 col-md-7 col-sm-7': showList && (showLeader || showNote), 'col-lg-10 col-md-10 col-sm-10': showList && !(showLeader || showNote), 'col-lg-10 col-md-9 col-sm-9': !showList && (showLeader || showNote), 'col-lg-12 col-md-12 col-sm-12': !showList && !(showLeader || showNote), 'pos-container': deskPos}" :style="{'font-size': fontSizeC + 'em'}" v-show="showSeats">
             <!-- center area -->
             <div class="row g-1" v-for="y in totalY" :key="'row' + y + 'x' + totalX">
                 <div class="col py-1" v-for="x in totalX" :key="'seat' + y + '-' + x">
@@ -1478,6 +1482,7 @@ const app = createApp({
             speechVoice: ref(localStorage.getItem('speechVoice') == null || ''),
             showDate: ref(localStorage.getItem('showDate') == null),
             showDesk: ref(localStorage.getItem('showDesk') == null),
+            deskPos: ref(localStorage.getItem('deskPos') != null),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
             editingEl: ref(null),
@@ -1566,6 +1571,9 @@ const app = createApp({
         },
         showDesk(newVal) {
             newVal ? localStorage.removeItem('showDesk') : localStorage.setItem('showDesk', 0);
+        },
+        deskPos(newVal) {
+            newVal ? localStorage.setItem('deskPos', 0) : localStorage.removeItem('deskPos');
         }
     },
     async mounted() {
@@ -1620,14 +1628,13 @@ const vue3gettext = VueGettext.createGettext({
     translations: {
         "zh_TW": {
             "TY's Seating Chart Generator": "TY的座位表產生器",
-            "Seat assigned": "已排位子",
             "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
             "President": "班長",
             "Paste": "貼上",
             "Clear": "清除",
             "Desk": "講桌",
+            "Reverse": "反轉",
             "Download": "下載",
-            "Not enough seats!": "座位數不夠坐!",
             "Columns": "排",
             "Leaders": "股長",
             "Seats": "座位",
