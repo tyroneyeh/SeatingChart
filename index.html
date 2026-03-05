@@ -35,56 +35,6 @@
 .seat-container {
     cursor: move;
 }
-.color-0  {background-color: #fff}
-.color-1  {background-color: hsl(7, 50%, 95%)}
-.color-2  {background-color: hsl(14, 50%, 95%)}
-.color-3  {background-color: hsl(21, 50%, 95%)}
-.color-4  {background-color: hsl(28, 50%, 95%)}
-.color-5  {background-color: hsl(36, 50%, 95%)}
-.color-6  {background-color: hsl(43, 50%, 95%)}
-.color-7  {background-color: hsl(50, 50%, 95%)}
-.color-8  {background-color: hsl(57, 50%, 95%)}
-.color-9  {background-color: hsl(64, 50%, 95%)}
-.color-10 {background-color: hsl(71, 50%, 95%)}
-.color-11 {background-color: hsl(79, 50%, 95%)}
-.color-12 {background-color: hsl(86, 50%, 95%)}
-.color-13 {background-color: hsl(93, 50%, 95%)}
-.color-14 {background-color: hsl(100, 50%, 95%)}
-.color-15 {background-color: hsl(107, 50%, 95%)}
-.color-16 {background-color: hsl(114, 50%, 95%)}
-.color-17 {background-color: hsl(121, 50%, 95%)}
-.color-18 {background-color: hsl(129, 50%, 95%)}
-.color-19 {background-color: hsl(136, 50%, 95%)}
-.color-20 {background-color: hsl(143, 50%, 95%)}
-.color-21 {background-color: hsl(150, 50%, 95%)}
-.color-22 {background-color: hsl(157, 50%, 95%)}
-.color-23 {background-color: hsl(164, 50%, 95%)}
-.color-24 {background-color: hsl(171, 50%, 95%)}
-.color-25 {background-color: hsl(179, 50%, 95%)}
-.color-26 {background-color: hsl(186, 50%, 95%)}
-.color-27 {background-color: hsl(193, 50%, 95%)}
-.color-28 {background-color: hsl(200, 50%, 95%)}
-.color-29 {background-color: hsl(207, 50%, 95%)}
-.color-30 {background-color: hsl(214, 50%, 95%)}
-.color-31 {background-color: hsl(221, 50%, 95%)}
-.color-32 {background-color: hsl(229, 50%, 95%)}
-.color-33 {background-color: hsl(236, 50%, 95%)}
-.color-34 {background-color: hsl(243, 50%, 95%)}
-.color-35 {background-color: hsl(250, 50%, 95%)}
-.color-36 {background-color: hsl(257, 50%, 95%)}
-.color-37 {background-color: hsl(264, 50%, 95%)}
-.color-38 {background-color: hsl(271, 50%, 95%)}
-.color-39 {background-color: hsl(279, 50%, 95%)}
-.color-40 {background-color: hsl(286, 50%, 95%)}
-.color-41 {background-color: hsl(293, 50%, 95%)}
-.color-42 {background-color: hsl(300, 50%, 95%)}
-.color-43 {background-color: hsl(307, 50%, 95%)}
-.color-44 {background-color: hsl(314, 50%, 95%)}
-.color-45 {background-color: hsl(321, 50%, 95%)}
-.color-46 {background-color: hsl(329, 50%, 95%)}
-.color-47 {background-color: hsl(336, 50%, 95%)}
-.color-48 {background-color: hsl(343, 50%, 95%)}
-.color-49 {background-color: hsl(350, 50%, 95%)}
 .seat-container[draggable="true"]:hover {
     background-color: #f8f9fa;
 }
@@ -280,7 +230,7 @@
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
         <div class="d-flex overflow-x-auto position-relative">
-            <a class="p-2 mx-1" v-for="(color, i) in colors" :class="[color, {'border': i == 0, 'border border-primary': colorIndex == i}]" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
+            <a class="p-2 mx-1" v-for="i in 48" :key="i" :class="{'border': i == 1, 'border border-primary': colorIndex == i}" :style="{backgroundColor: i == 1 ? '' : `hsl(${(i - 2) * (360 / 48)}, 70%, 85%)`}" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
         </div>
     </div>
     <div class="container-fluid row mx-auto" :style="{'font-size': fontSizeR + 'em'}">
@@ -320,7 +270,7 @@
             <!-- center area -->
             <div class="row g-1" v-for="y in totalY" :key="'row' + y + 'x' + totalX">
                 <div class="col py-1" v-for="x in totalX" :key="'seat' + y + '-' + x">
-                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" @click="toggleColor" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
+                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" @click="toggleColor($event)" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
                         <div class="border-bottom text-center p-0 bg-light possize" v-show="showNumber" @paste.stop="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0" v-show="showPlace">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="text-center mx-auto namearea d-flex align-items-center justify-content-center hover-border" :class="{'d-none': !showName, 'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" ref="posname">&nbsp;</div>
@@ -1306,19 +1256,14 @@ const app = createApp({
             updateDisplay();
         };
 
-        const toggleColor = event => {
+        const toggleColor = (event) => {
             const el = event.currentTarget;
-            let currentIndex = refs.colors.findIndex(c => el.classList.contains(c));
 
-            if (currentIndex == -1) {
-                el.classList.add(refs.colors[Math.max(refs.colorIndex.value, 0)]);
+            if (refs.colorIndex.value > 1) {
+                el.style.backgroundColor = `hsl(${(refs.colorIndex.value - 2) * (360 / 48)}, 70%, 85%)`;
                 return;
             }
-            el.classList.remove(refs.colors[currentIndex]);
-            if (currentIndex == refs.colors.length - 1) {
-                return;
-            }
-            if (refs.colorIndex.value != 0) el.classList.add(refs.colors[currentIndex + 1]);
+            el.style.backgroundColor = '';
         };
 
         const fontSizeMap = {
@@ -1466,7 +1411,6 @@ const app = createApp({
             hideTips: ref(false),
             highlightedPos: ref(null),
             draggingPos: ref(null),
-            colors: reactive(Array.from({ length: 50 }, (_, i) => `color-${i}`)),
             colorIndex: ref(-1),
             currentTarget: ref(null),
             currentIndex: ref(0),
