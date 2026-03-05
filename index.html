@@ -230,8 +230,8 @@
         </nav>
         <div class="alert alert-primary p-1 m-auto text-center" @click="tipsToHide" v-show="!hideTips">{{ $gettext('Please directly click on the name or seat number area to enter information') }}</div>
         <div class="d-flex justify-content-center">
-            <div class="d-flex overflow-x-auto position-relative">
-                <a class="p-2 mx-1" v-for="i in 48" :key="i" :class="{'border': i == 1, 'border border-primary': colorIndex == i}" :style="{backgroundColor: i == 1 ? '' : `hsl(${(i - 2) * (360 / 48)}, 70%, 85%)`}" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
+            <div class="overflow-x-auto position-relative">
+                <a class="px-2 mx-1" v-for="i in 48" :key="i" :class="{'border': i == 1, 'border border-primary': colorIndex == i}" :style="{backgroundColor: i == 1 ? '' : `hsl(${(i - 2) * (360 / 48)}, 70%, 85%)`}" style="cursor:pointer" @click="colorIndex = i"><span class="visually-hidden"></span></a>
             </div>
         </div>
     </div>
