@@ -216,6 +216,7 @@
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="deskPos" :disabled="!showSeats">&nbsp;{{ $gettext('Reverse') }}</label>
                                 <li><hr class="dropdown-divider"></li>
                                 <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
+                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showPhoto" :disabled="!photos?.length">&nbsp;{{ $gettext('Photo') }}</label>
                             </div>
                         </div>
                         <div class="text-center h-100">
@@ -257,7 +258,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="seat-container" v-for="n in totalNamelist" @mouseover="showPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0, 'dragging': draggingPos == `student-${n}`}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart('student', n)" @dragover.prevent @drop="drop(n)">
+                    <tr class="seat-container" v-for="n in totalNamelist" @mouseover="tipPhoto(n)" @mouseout="photo = ''" :class="{'border-secondary': n % 5 == 0, 'dragging': draggingPos == `student-${n}`}" :style="{'font-size': fontSizeL + 'em'}" draggable="true" @dragstart="dragStart('student', n)" @dragover.prevent @drop="drop(n)">
                         <td class="p-1" :class="{'border-start': n % 5 == 0}" v-show="showNumber" :colspan="!showName ? 2 : 0">
                             <label class="d-flex w-100"><input class="form-check-input d-print-none" type="checkbox" @click="doSpeak(n)" @focus="showPos(n, 1)" @keydown="editKeydown('nameBgCtl', n)" ref="nameBgCtl" v-model="nameBgCtlChecked" :value="namelist[n - 1]?.innerText && n">
                             <span class="d-none d-print-block px-1 mobile-no-print">{{nameBgCtl[n - 1]?.checked ? '✓' : '☐'}}</span><span class="d-flex justify-content-end" style="min-width:20px">{{ n }}</span></label>
@@ -275,7 +276,8 @@
                     <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" @click="toggleColor($event)" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
                         <div class="border-bottom text-center p-0 bg-light bg-opacity-25 possize" v-show="showNumber" @paste.stop="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0" v-show="showPlace">{{ `${x}-${totalY - y + 1}` }}</div>
-                        <div class="text-center mx-auto namearea d-flex align-items-center justify-content-center hover-border" :class="{'d-none': !showName, 'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" ref="posname">&nbsp;</div>
+                        <div class="text-center mx-auto namearea align-items-center justify-content-center hover-border" :class="{'d-none': !showName || showPhoto, 'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" ref="posname">&nbsp;</div>
+                        <div class="text-center mx-auto namearea align-items-center justify-content-center hover-border" v-show="showPhoto"><span v-if="showName">{{posname[indexPos(x, y)]?.innerText}}</span><img draggable="false" class="w-100" :src="photos[posdata[indexPos(x, y)]?.innerText]" :alt="" /></div>
                     </div>
                 </div>
             </div>
@@ -603,7 +605,7 @@ const IDBHelper = {
                 store.openCursor().onsuccess = event => {
                     const cursor = event.target.result;
                     if (cursor) {
-                        req.push({[cursor.key]: cursor.value});
+                        req.push([cursor.key, cursor.value]);
                         cursor.continue();
                     } else {
                         resolve(req);
@@ -614,6 +616,9 @@ const IDBHelper = {
     },
     async remove(dbName) {
         return indexedDB.deleteDatabase(dbName);
+    },
+    async getAll(storeName) {
+        return this.get(storeName);
     }
 };
 
@@ -927,7 +932,10 @@ const app = createApp({
                         ctx.imageSmoothingEnabled = true;
                         ctx.imageSmoothingQuality = 'high';
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        IDBHelper.put('photo', canvas.toDataURL('image/png'), n + j);
+                        const num = n + j;
+                        const dataUrl = canvas.toDataURL('image/png');
+                        IDBHelper.put('photo', dataUrl, num);
+                        refs.photos[num] = dataUrl;
                         j++;
                     }
                 };
@@ -1327,13 +1335,13 @@ const app = createApp({
             function roll(i) {
                 current = (current % arr.length) + 1;
                 showPos(arr[current - 1], 1);
-                showPhoto(arr[current - 1]);
+                tipPhoto(arr[current - 1]);
 
                 if (i < arr.length) {
                     setTimeout(() => roll(i + 1), getDelay(i, arr.length));
                 } else {
                     showPos(arr[finalNumber], 1);
-                    showPhoto(arr[finalNumber]);
+                    tioPhoto(arr[finalNumber]);
                     refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[finalNumber]);
                     refs.bingoButtonCtl.value = false;
                     doSpeak(arr[finalNumber]);
@@ -1343,11 +1351,11 @@ const app = createApp({
             roll(0);
         };
 
-        const showPhoto = n => {
+        const tipPhoto = async n => {
             if (!n) return;
-            IDBHelper.get('photo', n).then(img => {
-                refs.photo.value = img?.length ? img : null;
-            });
+
+            refs.photo.value = await IDBHelper.get('photo', n);
+
             const numPos = storeRefs.posdata.findIndex(i => i.innerText == n);
             const row = (numPos % storeRefs.totalX.value) + 1;
             const column = storeRefs.totalY.value - Math.floor(numPos / storeRefs.totalX.value);
@@ -1429,6 +1437,7 @@ const app = createApp({
             speechVoice: ref(localStorage.getItem('speechVoice') == null || ''),
             showDate: ref(localStorage.getItem('showDate') == null),
             showDesk: ref(localStorage.getItem('showDesk') == null),
+            showPhoto: ref(localStorage.getItem('showPhoto') != null),
             deskPos: ref(localStorage.getItem('deskPos') != null),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
@@ -1441,7 +1450,8 @@ const app = createApp({
             doBingo: ref(false),
             storeSelected: ref(''),
             shareText: ref(null),
-            fonts: reactive(fonts)
+            fonts: reactive(fonts),
+            photos: reactive([])
         };
 
         return {
@@ -1472,7 +1482,7 @@ const app = createApp({
             nameBtnCtlChange,
             binGo,
             IDBHelper,
-            showPhoto,
+            tipPhoto,
             doSpeak,
             setTitle,
             indexPos,
@@ -1519,6 +1529,15 @@ const app = createApp({
         showDesk(newVal) {
             newVal ? localStorage.removeItem('showDesk') : localStorage.setItem('showDesk', 0);
         },
+        async showPhoto(newVal) {
+            newVal ? localStorage.setItem('showPhoto', 1) : localStorage.removeItem('showPhoto');
+            if (newVal && !this.photos.length) {
+                const photos = await IDBHelper.getAll('photo');
+                for (const [key, value] of photos) {
+                    this.photos[key] = value;
+                }
+            }
+        },
         deskPos(newVal) {
             newVal ? localStorage.setItem('deskPos', 0) : localStorage.removeItem('deskPos');
         }
@@ -1560,6 +1579,14 @@ const app = createApp({
         globalThis.addEventListener('paste', () => !globalThis.startEditing && this.editPaste('namelist', 1));
 
         this.nameBtnCtl.checked = Boolean(this.nameBgCtlChecked.length == this.namelist.filter(el => el.innerText.trim() != '').length);
+
+        if (this.showPhoto) {
+            const photosData = await IDBHelper.getAll('photo');
+            this.showPhoto = photosData.length > 0;
+            for (const [key, value] of photosData) {
+                this.photos[key] = value;
+            }
+        }
 
     }
 
@@ -1615,7 +1642,8 @@ const vue3gettext = VueGettext.createGettext({
             "Share": "分享",
             "Methods": "功能",
             "Options": "選項",
-            "Voice": "語音"
+            "Voice": "語音",
+            "Photo": "照片"
         }
     }
 });
