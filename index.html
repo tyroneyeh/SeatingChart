@@ -1594,7 +1594,6 @@ const app = createApp({
         this.nameBtnCtl.checked = Boolean(this.nameBgCtlChecked.length == this.namelist.filter(el => el.innerText.trim() != '').length);
 
         const photosData = await IDBHelper.getAll('photo');
-        this.showPhoto = photosData && photosData.length > 0;
         for (const [key, value] of photosData) {
             this.photos[key] = value;
         }
