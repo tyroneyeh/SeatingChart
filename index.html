@@ -201,22 +201,23 @@
                         <div class="text-center">
                             <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu" accesskey="o">{{ $gettext('Options') }}</button>
                             <div class="dropdown-menu form-switch show" v-if="toggleOptionmenu">
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showList">&nbsp;{{ $gettext('Lists') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showTitle">&nbsp;{{ $gettext('Title') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showLeader">&nbsp;{{ $gettext('Leaders') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showList">&nbsp;{{ $gettext('Lists') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showTitle">&nbsp;{{ $gettext('Title') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showLeader">&nbsp;{{ $gettext('Leaders') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showNote">&nbsp;{{ $gettext('Note') }}</label>
                                 <li><hr class="dropdown-divider"></li>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showSeats">&nbsp;{{ $gettext('Seats') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showNumber" :disabled="!showSeats">&nbsp;{{ $gettext('Numbers') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showPlace" :disabled="!showSeats">&nbsp;{{ $gettext('Place') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showName" :disabled="!showSeats">&nbsp;{{ $gettext('Names') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showVertical" :disabled="!showSeats">&nbsp;{{ $gettext('Vertical') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showDesk" :disabled="!showSeats">&nbsp;{{ $gettext('Desk') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="deskPos" :disabled="!showSeats">&nbsp;{{ $gettext('Reverse') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showSeats">&nbsp;{{ $gettext('Seats') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showNumber" :disabled="!showSeats">&nbsp;{{ $gettext('Numbers') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showPlace" :disabled="!showSeats">&nbsp;{{ $gettext('Place') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showName" :disabled="!showSeats">&nbsp;{{ $gettext('Names') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showVertical" :disabled="!showSeats">&nbsp;{{ $gettext('Vertical') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showDesk" :disabled="!showSeats">&nbsp;{{ $gettext('Desk') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="deskPos" :disabled="!showSeats">&nbsp;{{ $gettext('Reverse') }}</label>
                                 <li><hr class="dropdown-divider"></li>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
-                                <label class="nav-link form-switch text-center"><input type="checkbox" class="form-check-input" v-model="showPhoto" :disabled="!photos?.length">&nbsp;{{ $gettext('Photo') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="speechVoice">&nbsp;{{ $gettext('Voice') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showPhoto" :disabled="!photos?.length">&nbsp;{{ $gettext('Photo') }}</label>
+                                <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="onlyPhoto" :disabled="!showPhoto">&nbsp;{{ $gettext('Only Photo') }}</label>
                             </div>
                         </div>
                         <div class="text-center h-100">
@@ -277,7 +278,7 @@
                         <div class="border-bottom text-center p-0 bg-light bg-opacity-25 possize" v-show="showNumber" @paste.stop="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" ref="posdata"></div>
                         <div class="fs-6 text-light text-end p-0" v-show="showPlace">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="text-center mx-auto namearea align-items-center justify-content-center hover-border" :class="{'d-none': !showName || showPhoto, 'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" ref="posname">&nbsp;</div>
-                        <div class="text-center mx-auto namearea align-items-center justify-content-center hover-border" v-show="showPhoto"><span v-if="showName">{{posname[indexPos(x, y)]?.innerText}}</span><img draggable="false" class="w-100" :src="photos[posdata[indexPos(x, y)]?.innerText]" :alt="" /></div>
+                        <div class="text-center mx-auto namearea align-items-center justify-content-center hover-border" v-show="showPhoto"><span v-if="showName && !onlyPhoto">{{posname[indexPos(x, y)]?.innerText}}</span><img draggable="false" class="w-100" :src="photos[posdata[indexPos(x, y)]?.innerText]" :alt="" /></div>
                     </div>
                 </div>
             </div>
@@ -1438,6 +1439,7 @@ const app = createApp({
             showDate: ref(localStorage.getItem('showDate') == null),
             showDesk: ref(localStorage.getItem('showDesk') == null),
             showPhoto: ref(localStorage.getItem('showPhoto') != null),
+            onlyPhoto: ref(localStorage.getItem('onlyPhoto') != null),
             deskPos: ref(localStorage.getItem('deskPos') != null),
             fontPos: ref('c'),
             nameBtnCtl: ref(false),
@@ -1537,6 +1539,9 @@ const app = createApp({
                     this.photos[key] = value;
                 }
             }
+        },
+        onlyPhoto(newVal) {
+            newVal ? localStorage.setItem('onlyPhoto', 1) : localStorage.removeItem('onlyPhoto');
         },
         deskPos(newVal) {
             newVal ? localStorage.setItem('deskPos', 0) : localStorage.removeItem('deskPos');
@@ -1643,7 +1648,8 @@ const vue3gettext = VueGettext.createGettext({
             "Methods": "功能",
             "Options": "選項",
             "Voice": "語音",
-            "Photo": "照片"
+            "Photo": "照片",
+            "Only Photo": "只要照片"
         }
     }
 });
