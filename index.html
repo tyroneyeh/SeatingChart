@@ -1015,6 +1015,7 @@ const app = createApp({
 
         const clearPhotos = () => {
             if (!confirm($gettext("Are you sure you want to clear all photos?"))) return;
+            localStorage.removeItem('showPhoto');
             IDBHelper.remove('photo');
             goHome();
         };
@@ -1594,8 +1595,11 @@ const app = createApp({
         this.nameBtnCtl.checked = Boolean(this.nameBgCtlChecked.length == this.namelist.filter(el => el.innerText.trim() != '').length);
 
         const photosData = await IDBHelper.getAll('photo');
-        for (const [key, value] of photosData) {
-            this.photos[key] = value;
+        if (!photosData?.length) {
+            this.showPhoto = false;
+            for (const [key, value] of photosData) {
+                this.photos[key] = value;
+            }
         }
 
     }
