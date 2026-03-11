@@ -1358,7 +1358,7 @@ const app = createApp({
                     setTimeout(() => roll(i + 1), getDelay(i, arr.length));
                 } else {
                     showPos(arr[finalNumber], 1);
-                    tioPhoto(arr[finalNumber]);
+                    tipPhoto(arr[finalNumber]);
                     refs.nameBgCtlChecked.value = refs.nameBgCtlChecked.value.filter(n => n != arr[finalNumber]);
                     refs.bingoButtonCtl.value = false;
                     doSpeak(arr[finalNumber]);
