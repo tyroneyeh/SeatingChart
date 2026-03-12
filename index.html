@@ -650,7 +650,7 @@ const app = createApp({
             try {
                 const data = JSON.parse(globalThis.jsondata);
 
-                if (data.colors.length != data.posdata.length) {
+                if (data.colors && data.colors.length != data.posdata.length) {
                     const oldLen = data.colors.length;
                     data.colors.length = data.posdata.length;
                     data.colors.fill(0, oldLen);
