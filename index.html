@@ -283,7 +283,7 @@
             <!-- center area -->
             <div class="row g-1" v-for="y in totalY" :key="'row' + y + 'x' + totalX">
                 <div class="col py-1" v-for="x in totalX" :key="'seat' + y + '-' + x">
-                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" @click="toggleColor($event)" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
+                    <div class="p-0 seat-row seat-container h-100 d-flex flex-column justify-content-be-tween" :class="{'bg-info': highlightedPos && posdata[indexPos(x, y)]?.innerText == highlightedPos, 'dragging': draggingPos == `seat-${indexPos(x, y)}`}" :style="{'background-color': backgroundColor(colors[indexPos(x, y)])}" @click="toggleColor($event, indexPos(x, y))" draggable="true" @dragstart="dragStart('seat', indexPos(x, y))" @dragover.prevent @drop="drop(indexPos(x, y))">
                         <div class="border-bottom text-center bg-light bg-opacity-25 possize"><span :class="{'w-100': !showPhoto || onlyPhoto}" v-show="showNumber" @paste.stop="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" ref="posdata"></span> <span class="namearea" v-if="showName && showPhoto && !onlyPhoto">{{posname[indexPos(x, y)]?.innerText}}</span></div>
                         <div class="fs-6 text-light text-end" v-show="showPlace">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="text-center mx-auto namearea align-items-center justify-content-center hover-border" :class="{'d-none': !showName || showPhoto, 'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target)" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" ref="posname">&nbsp;</div>
@@ -650,6 +650,12 @@ const app = createApp({
             try {
                 const data = JSON.parse(globalThis.jsondata);
 
+                if (data.colors.length != data.posdata.length) {
+                    const oldLen = data.colors.length;
+                    data.colors.length = data.posdata.length;
+                    data.colors.fill(0, oldLen);
+                }
+
                 const typeMap = {
                     totalNamelist: Number,
                     totalX: Number,
@@ -669,6 +675,8 @@ const app = createApp({
                         this.today = value;
                     } else if (key in typeMap) {
                         this[key] = typeMap[key](value);
+                    } else if (key == 'colors') {
+                        this[key] = value;
                     }
                 }
             } catch (e) {
@@ -766,6 +774,8 @@ const app = createApp({
                 if (key == 'tabletitle') {
                     dataToSave[key] = ref.value.innerText;
                     document.title = ref.value.innerText + ' - ' + $gettext("TY's Seating Chart Generator");
+                } else if (key == 'colors') {
+                    dataToSave[key] = ref;
                 } else if (Array.isArray(ref)) {
                     dataToSave[key] = ref.map(item => item.innerText);
                 } else if (ref.value && undefined != ref.value?.innerText) {
@@ -1283,11 +1293,23 @@ const app = createApp({
             updateDisplay();
         };
 
-        const toggleColor = (event) => {
+        const backgroundColor = (index) => {
+            if (index > 0) {
+                return `hsl(${index * (360 / 48)}, 70%, 85%)`;
+            }
+            return '';
+        }
+
+        const toggleColor = (event, index) => {
             const el = event.currentTarget;
 
+            if (index != undefined) {
+                if (!storeRefs.colors.length) storeRefs.colors = globalThis.dkeys.find(e => e[0] == 'colors')[1];
+                storeRefs.colors[index] = refs.colorIndex.value - 1;
+                store();
+            }
             if (refs.colorIndex.value > 1) {
-                el.style.backgroundColor = `hsl(${(refs.colorIndex.value - 2) * (360 / 48)}, 70%, 85%)`;
+                el.style.backgroundColor = backgroundColor(refs.colorIndex.value - 1);
                 return;
             }
             el.style.backgroundColor = '';
@@ -1419,7 +1441,8 @@ const app = createApp({
             note: ref(''),
             fontSizeL: ref(1),
             fontSizeC: ref(1.8),
-            fontSizeR: ref(1.2)
+            fontSizeR: ref(1.2),
+            colors: reactive([])
         };
 
         const refs = {
@@ -1505,7 +1528,8 @@ const app = createApp({
             doSpeak,
             setTitle,
             indexPos,
-            print
+            print,
+            backgroundColor
         };
     },
     watch: {
