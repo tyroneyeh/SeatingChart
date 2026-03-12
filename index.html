@@ -1304,7 +1304,8 @@ const app = createApp({
             const el = event.currentTarget;
 
             if (index != undefined) {
-                if (!storeRefs.colors.length) storeRefs.colors = globalThis.dkeys.find(e => e[0] == 'colors')[1];
+                const colors = globalThis.dkeys.find(e => e[0] == 'colors');
+                if (colors && !storeRefs.colors.length) storeRefs.colors = colors[1];
                 storeRefs.colors[index] = refs.colorIndex.value - 1;
                 store();
             }
