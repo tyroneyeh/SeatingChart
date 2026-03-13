@@ -197,6 +197,7 @@
                                 <li><button class="dropdown-item" type="button" @click="shareData">{{ $gettext('Share') }}</button></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><button class="dropdown-item" type="button" :disabled="clearBtnCtl" @click="resetPos">{{ $gettext('Reset') }}</button></li>
+                                <li><button class="dropdown-item" type="button" :disabled="!hasValidColors" @click="clearColors">{{ $gettext('Clear Colors') }}</button></li>
                                 <li><button class="dropdown-item" type="button" :disabled="!photos?.length" @click="clearPhotos">{{ $gettext('Clear Photos') }}</button></li>
                                 <li v-if="storeData"><button class="dropdown-item" type="button" @click="clearStore">{{ $gettext('Clear') }}</button></li>
                             </ul>
@@ -774,8 +775,6 @@ const app = createApp({
                 if (key == 'tabletitle') {
                     dataToSave[key] = ref.value.innerText;
                     document.title = ref.value.innerText + ' - ' + $gettext("TY's Seating Chart Generator");
-                } else if (key == 'colors') {
-                    dataToSave[key] = ref;
                 } else if (Array.isArray(ref)) {
                     dataToSave[key] = ref.map(item => item.innerText);
                 } else if (ref.value && undefined != ref.value?.innerText) {
@@ -1036,6 +1035,11 @@ const app = createApp({
             localStorage.removeItem('showPhoto');
             IDBHelper.remove('photo');
             goHome();
+        };
+
+        const clearColors = () => {
+            storeRefs.colors.value.fill(0);
+            store();
         };
 
         const download = async () => {
@@ -1304,9 +1308,7 @@ const app = createApp({
             const el = event.currentTarget;
 
             if (index != undefined) {
-                const colors = globalThis.dkeys.find(e => e[0] == 'colors');
-                if (colors && !storeRefs.colors.length) storeRefs.colors = colors[1];
-                storeRefs.colors[index] = refs.colorIndex.value - 1;
+                storeRefs.colors.value[index] = refs.colorIndex.value - 1;
                 store();
             }
             if (refs.colorIndex.value > 1) {
@@ -1336,6 +1338,11 @@ const app = createApp({
         const fontButtonCtl = computed(() => {
             const key = fontSizeMap[refs.fontPos.value];
             return storeRefs[key].value <= 0.5;
+        });
+
+        const hasValidColors = computed(() => {
+            if (!storeRefs.colors.value) return false;
+            return storeRefs.colors.value.some(item => item != 0);
         });
 
         const nameBtnCtlChange = (e) => {
@@ -1443,7 +1450,7 @@ const app = createApp({
             fontSizeL: ref(1),
             fontSizeC: ref(1.8),
             fontSizeR: ref(1.2),
-            colors: reactive([])
+            colors: ref([])
         };
 
         const refs = {
@@ -1508,6 +1515,7 @@ const app = createApp({
             store,
             clearStore,
             clearPhotos,
+            clearColors,
             download,
             randomPos,
             resetPos,
@@ -1522,6 +1530,7 @@ const app = createApp({
             toggleColor,
             adujstFont,
             fontButtonCtl,
+            hasValidColors,
             nameBtnCtlChange,
             binGo,
             IDBHelper,
@@ -1599,10 +1608,14 @@ const app = createApp({
         globalThis.dkeys?.forEach(i => {
 
             if (Array.isArray(i[1]) && i[1][0] != null) {
-                i[1].forEach((_, j) => {
-                    if (this[i[0]] && undefined != this[i[0]][j]?.innerHTML)
-                        this[i[0]][j].innerHTML = i[1][j];
-                });
+                if (i[0] == 'colors') {
+                    this[i[0]] = i[1];
+                } else {
+                    i[1].forEach((_, j) => {
+                        if (this[i[0]] && undefined != this[i[0]][j]?.innerHTML)
+                            this[i[0]][j].innerHTML = i[1][j];
+                    });
+                }
             } else if (undefined != this[i[0]]?.innerHTML)
                 this[i[0]].innerHTML = i[1].replaceAll('\n', '<br>');
             else if (undefined != this[i[0]]?.value)
@@ -1690,7 +1703,8 @@ const vue3gettext = VueGettext.createGettext({
             "Voice": "語音",
             "Photo": "照片",
             "Only Photo": "只要照片",
-            "Clear Photos": "清除照片"
+            "Clear Photos": "清除照片",
+            "Clear Colors": "清除顏色"
         }
     }
 });
