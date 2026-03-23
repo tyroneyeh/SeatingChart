@@ -160,26 +160,19 @@
     justify-content: flex-end;
     flex-direction: column-reverse;
 }
-.with-pencil {
-  position: relative;
-  cursor: pointer;
-}
-.with-pencil::after {
-  content: "";
-  width: 12px;
-  height: 12px;
-  display: inline-block;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'%3E%3C/path%3E%3Cpath d='m15 5 4 4'%3E%3C/path%3E%3C/svg%3E");
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
 .with-pencil:hover::after {
-  opacity: 1;
+    position: relative;
+    content: "";
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z'%3E%3C/path%3E%3Cpath d='m15 5 4 4'%3E%3C/path%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    transition: opacity 0.2s ease;
 }
 .with-pencil:focus::after {
-  display: none;
+    display: none;
 }
 </style>
 <style id="dynamic-zh-font" type="text/css">
