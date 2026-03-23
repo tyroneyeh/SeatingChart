@@ -689,35 +689,13 @@ const beforeCreated = async () => {
                 data.colors.fill(0, oldLen);
             }
 
-            const typeMap = {
-                totalNamelist: Number,
-                totalX: Number,
-                totalY: Number,
-                totalLeader: Number,
-                fontSizeR: parseFloat,
-                fontSizeC: parseFloat,
-                fontSizeL: parseFloat
-            };
-
             globalThis.dkeys = Object.entries(data);
 
-            for (const [key, value] of globalThis.dkeys) {
-                if (key == 'tabletitle') {
-                    document.title = value + ' - ' + $gettext("TY's Seating Chart Generator");
-                } else if (key == 'today') {
-                    this.today = value;
-                } else if (key in typeMap) {
-                    this[key] = typeMap[key](value);
-                } else if (key == 'colors') {
-                    this[key] = value;
-                }
-            }
         } catch (e) {
             console.error(e);
         }
 
     }
-    this.hideTips = getCookie('hideTips') == 1;
 };
 
 const { createApp, ref, reactive, computed, nextTick } = Vue;
@@ -1627,6 +1605,29 @@ const app = createApp({
         }
 
         await beforeCreated();
+
+        const typeMap = {
+                totalNamelist: Number,
+                totalX: Number,
+                totalY: Number,
+                totalLeader: Number,
+                fontSizeR: parseFloat,
+                fontSizeC: parseFloat,
+                fontSizeL: parseFloat
+        };
+        for (const [key, value] of globalThis.dkeys) {
+            if (key == 'tabletitle') {
+                document.title = value + ' - ' + $gettext("TY's Seating Chart Generator");
+            } else if (key == 'today') {
+                this.today = value;
+            } else if (key in typeMap) {
+                this[key] = typeMap[key](value);
+            } else if (key == 'colors') {
+                this[key] = value;
+            }
+        }
+
+        this.hideTips = getCookie('hideTips') == 1;
 
         globalThis.dkeys?.forEach(i => {
 
