@@ -697,6 +697,7 @@ const beforeCreated = async () => {
 
     }
 };
+const initData = beforeCreated();
 
 const { createApp, ref, reactive, computed, nextTick } = Vue;
 const app = createApp({
@@ -1604,7 +1605,7 @@ const app = createApp({
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
 
-        await beforeCreated();
+        await initData;
 
         const typeMap = {
                 totalNamelist: Number,
