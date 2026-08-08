@@ -782,6 +782,7 @@ const app = createApp({
 
             globalThis.jsondata = JSON.stringify(dataToSave);
             localStorage.setItem('data', globalThis.jsondata);
+            refs.storeData.value = 1;
 
         };
 
@@ -1613,7 +1614,7 @@ const app = createApp({
                 fontSizeC: parseFloat,
                 fontSizeL: parseFloat
         };
-        for (const [key, value] of globalThis.dkeys) {
+        for (const [key, value] of globalThis.dkeys || []) {
             if (key == 'tabletitle') {
                 document.title = value + ' - ' + $gettext("TY's Seating Chart Generator");
             } else if (key == 'today') {
@@ -1648,7 +1649,6 @@ const app = createApp({
         await nextTick();
 
         this.updateDisplay();
-        this.storeData = 1;
 
         if ('speechSynthesis' in globalThis) {
             speechSynthesis.speak(new SpeechSynthesisUtterance(""));
