@@ -2,9 +2,9 @@
 <html lang="zh-Hant-TW">
 <head>
   <meta name="google-site-verification" content="XMksXOyLKjmb5ytHkIccl5eZYVXte1OgEkrzg2UWaKs" />
-  <title>TY的座位表 - TY's Seating Chart</title>
+  <title>TY座位表 - TY Seating Chart</title>
   <link rel="icon" href="/favicon.ico">
-  <meta name="description" content="TY的座位表 提供老師與學生們可以快速隨機產生座位表，支援即時編輯並提供下載的功能">
+  <meta name="description" content="TY座位表 提供老師與學生們可以快速隨機產生座位表，支援即時編輯並提供下載的功能">
   <meta name="keywords" content="免費線上座位 座位表生成器 教室座位表 換座位 教室抽籤 隨機座位 座位表">
   <meta name="author" content="TY的生活記錄 TY's Life in Taiwan">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -188,7 +188,7 @@
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" @click="toggleNavBarCtl">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <a class="navbar-brand" href="#" @click="goHome">🏠 {{ $gettext("TY's Seating Chart Generator") }} <img src="https://img.shields.io/github/commit-activity/t/tyroneyeh/SeatingChart?logoColor=%23fff&label=Ver.&labelColor=%23fff&color=%23fff" alt="Version"></a>
+                <a class="navbar-brand" href="#" @click="goHome">🏠 {{ $gettext("TY Seating Chart") }} <img src="https://img.shields.io/github/commit-activity/t/tyroneyeh/SeatingChart?logoColor=%23fff&label=Ver.&labelColor=%23fff&color=%23fff" alt="Version"></a>
                 <div class="collapse navbar-collapse" :class="{show: toggleNavbar}">
                     <ul class="navbar-nav m-auto">
                         <a class="nav-link text-center">{{ $gettext('Columns') }} <input type="number" class="w-50px" v-model="totalX" min="1" ref="totalxs" @change="store" @focus="$event.target.select()"></a>
@@ -342,7 +342,7 @@
     <footer class="d-print-none text-end">
         <noscript>
             <h1>TY 座位表 - 真心推薦的線上免費排座位工具</h1>
-            <p>歡迎使用 TY's Seating Chart Generator。這是一款專為老師、班級幹部設計的<b>線上座位表工具</b>，比 Word、Excel 更輕鬆，旨在解決換座位、排座位的煩惱。透過這個<b>座位表</b>，您可以輕鬆完成<b>隨機排座位</b>與配置調整。</p>
+            <p>歡迎使用 TY Seating Chart。這是一款專為老師、班級幹部設計的<b>線上座位表工具</b>，比 Word、Excel 更輕鬆，旨在解決換座位、排座位的煩惱。透過這個<b>座位表</b>，您可以輕鬆完成<b>隨機排座位</b>與配置調整。</p>
             <h2>核心功能介紹：</h2>
             <ul>
                 <li><b>線上座位表：</b>免下載、免安裝，開啟網域即可使用，電腦手機皆可操作。</li>
@@ -353,11 +353,11 @@
                 <li><b>開源專案：</b>本工具為開放原始碼專案，安全且持續維護。</li>
             </ul>
             <p>這是一個由開發者獨立維護的 Side Project ，致力於提供最簡便、有效率且完全免費的線上排座位工具。</p>
-            <h1>TY Seating Chart Generator - A Highly Recommended Free Online Seating Tool</h1>
-            <p>Welcome to TY's Seating Chart Generator. This is an online seating chart tool designed specifically for teachers and class leaders. It's easier than Word or Excel, aiming to solve the hassle of changing and arranging seats. Through this seating chart generator, you can easily complete random seating arrangements and configuration adjustments.</p>
+            <h1>TY Seating Chart - A Highly Recommended Free Online Seating Tool</h1>
+            <p>Welcome to TY Seating Chart. This is an online seating chart tool designed specifically for teachers and class leaders. It's easier than Word or Excel, aiming to solve the hassle of changing and arranging seats. Through this seating chart generator, you can easily complete random seating arrangements and configuration adjustments.</p>
             <h2>Core Features:</h2>
             <ul>
-                <li><b>Online Seating Chart Generator:</b>No download or installation required. Simply open your domain to use it. It can be operated on both computers and mobile phones.</li>
+                <li><b>Online Seating Chart:</b>No download or installation required. Simply open your domain to use it. It can be operated on both computers and mobile phones.</li>
                 <li><b>Random Seating Arrangement:</b>Built-in algorithm automatically arranges student lists with one click, ensuring fairness, transparency, and speed.</li>
                 <li><b>Quick Import of Student Lists:</b>Supports directly pasting lists, eliminating the need for manual typing and saving significant administrative time.</b> </li>
                 <li><b>Customizable Classroom Configuration:</b> Flexible adjustment of rows and columns to adapt to classrooms of various sizes. </li>
@@ -771,7 +771,7 @@ const app = createApp({
 
                 if (key == 'tabletitle') {
                     dataToSave[key] = ref.value.innerText;
-                    document.title = ref.value.innerText + ' - ' + $gettext("TY's Seating Chart Generator");
+                    document.title = ref.value.innerText + ' - ' + $gettext("TY Seating Chart");
                 } else if (Array.isArray(ref)) {
                     dataToSave[key] = ref.map(item => item.innerText);
                 } else if (ref.value && undefined != ref.value?.innerText) {
@@ -1111,7 +1111,7 @@ const app = createApp({
                 url.hash = `data=${zipData}`;
                 if (navigator.share) {
                     await navigator.share({
-                        title: $gettext("TY's Seating Chart Generator"),
+                        title: $gettext("TY Seating Chart"),
                         text: storeRefs.tabletitle.value.innerText.trim() || $gettext('Seating charts'),
                         url: url.toString()
                     });
@@ -1617,7 +1617,7 @@ const app = createApp({
         };
         for (const [key, value] of globalThis.dkeys || []) {
             if (key == 'tabletitle') {
-                document.title = value + ' - ' + $gettext("TY's Seating Chart Generator");
+                document.title = value + ' - ' + $gettext("TY Seating Chart");
             } else if (key == 'today') {
                 this.today = value;
             } else if (key in typeMap) {
@@ -1674,7 +1674,7 @@ const app = createApp({
 
 const translations = {
     "zh-TW": {
-        "TY's Seating Chart": "TY的座位表",
+        "TY Seating Chart": "TY座位表",
         "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
         "Are you sure you want to clear all photos?": "確定要清除所有照片嗎?",
         "President": "班長",
