@@ -665,7 +665,8 @@ const removeCookie = (name, value) => {
     setCookie(name, value, 0);
 };
 
-const beforeCreated = async () => {
+const LoadData = async () => {
+
     const params = new URLSearchParams(location.hash.substring(1));
     if (params.has('data')) {
         try {
@@ -695,7 +696,7 @@ const beforeCreated = async () => {
 
     }
 };
-const initData = beforeCreated();
+
 
 const { createApp, ref, reactive, computed, nextTick } = Vue;
 const app = createApp({
@@ -1041,6 +1042,7 @@ const app = createApp({
         };
 
         const download = async () => {
+            refs.toggleSubmenu.value = false;
             if (!globalThis.jsondata) return;
             let data = JSON.parse(globalThis.jsondata);
             data.photo = await IDBHelper.get('photo');
@@ -1058,6 +1060,7 @@ const app = createApp({
         };
 
         const randomPos = () => {
+            refs.toggleSubmenu.value = false;
             let rNum, i, studentNums;
             // Ensure namelist is not empty and has valid elements
             for (i = storeRefs.totalNamelist.value; i > 0; i--) {
@@ -1096,6 +1099,7 @@ const app = createApp({
         };
 
         const resetPos = () => {
+            refs.toggleSubmenu.value = false;
             storeRefs.posdata.forEach(i => i.innerText = '');
             refs.posname.forEach(i => i.innerText = '');
             refs.nameBgCtlChecked.value = [];
@@ -1104,6 +1108,7 @@ const app = createApp({
         };
 
         const shareData = async () => {
+            refs.toggleSubmenu.value = false;
             if (globalThis.jsondata) {
                 const {photo, ...data} = JSON.parse(globalThis.jsondata);
                 const zipData = await gzipBase64UrlBC(data);
@@ -1123,6 +1128,7 @@ const app = createApp({
         };
 
         const uploadfileChange = (e) => {
+            refs.toggleSubmenu.value = false;
             const fileInput = e.target.files?.[0];
             if (!fileInput) return;
             const reader = new FileReader();
@@ -1419,6 +1425,7 @@ const app = createApp({
         }
 
         const print = () => {
+            refs.toggleSubmenu.value = false;
             const el = document.getElementById('print-area');
             const A4_HEIGHT_PX = 1122;
             const contentHeight = el.offsetHeight + 120;
@@ -1499,7 +1506,8 @@ const app = createApp({
             storeSelected: ref(''),
             shareText: ref(null),
             fonts: reactive(fonts),
-            photos: reactive([])
+            photos: reactive([]),
+            dataLists: ref(globalThis.datalists)
         };
 
         return {
@@ -1599,12 +1607,12 @@ const app = createApp({
     },
     async mounted() {
 
+        await LoadData();
+
         if (this.leadernames) {
             if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
             if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
         }
-
-        await initData;
 
         const typeMap = {
                 totalNamelist: Number,
@@ -1725,7 +1733,7 @@ const translations = {
 };
 
 const browserLang = navigator.language || navigator.userLanguage;
-const initialLang = browserLang.toLowerCase().includes('zh') ? 'zh-TW' : 'en';
+const initialLang = browserLang.includes('zh') ? 'zh-TW' : 'en';
 const currentLanguage = ref(initialLang);
 
 const translate = (key) => {
