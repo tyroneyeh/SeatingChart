@@ -154,23 +154,29 @@
         }
     }
     @page { margin: 0; }
-    html, body, #app {
-        height: 100vh !important;
-        width: 100vw !important;
+    html, body {
+        height: 100% !important;
+        width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow: hidden !important;
+        background-color: white;
     }
     #app {
         display: flex;
         flex-direction: column;
+        height: 100% !important;
+        min-height: 100% !important;
     }
     #print-area {
         flex-grow: 1;
         align-content: stretch;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
     .seats > .row.g-1 {
         flex-grow: 1;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 }
 .pos-container {
