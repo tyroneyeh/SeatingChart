@@ -734,10 +734,10 @@ const app = createApp({
             refs.toggleNavbar.value ? localStorage.setItem('toggleNavbar', 1) : localStorage.removeItem('toggleNavbar');
         }
 
-        const tipsToHide = () => {
+        function tipsToHide() {
             refs.hideTips.value = true;
             setCookie('hideTips', 1);
-        };
+        }
 
         function getNameByNumber(num) {
             const nameListEntry = storeRefs.namelist?.[num - 1];
@@ -749,7 +749,7 @@ const app = createApp({
             targetArr[index].innerHTML = name;
         }
 
-        const updateDisplay = (o, num, pos) => {
+        function updateDisplay(o, num, pos) {
             if (storeRefs.totalX.value > 1 && storeRefs.totalY.value > 1) {
                 refs.totalnums.value = storeRefs.totalX.value * storeRefs.totalY.value;
             }
@@ -779,10 +779,10 @@ const app = createApp({
                 });
 
             }
-        };
+        }
 
 
-        const store = (o) => {
+        function store(o) {
 
             const datakeys = Object.keys(storeRefs);
 
@@ -811,9 +811,9 @@ const app = createApp({
             localStorage.setItem('data', globalThis.jsondata);
             refs.storeData.value = 1;
 
-        };
+        }
 
-        const endEdit = (o, num, pos) => {
+        function endEdit(o, num, pos) {
             globalThis.startEditing = false;
             if (o == 'posdata') {
                 const excludePos = storeRefs.posdata.map(el => el?.innerText ?? '');
@@ -833,9 +833,9 @@ const app = createApp({
                 store(o);
             }
             oldValue = null;
-        };
+        }
 
-        const startEdit = el => {
+        function startEdit(el) {
             globalThis.startEditing = true;
             refs.editingEl.value?.removeAttribute('contenteditable');
             if (!el) return;
@@ -849,9 +849,9 @@ const app = createApp({
             if (text.length) {
                 speakText(text.replaceAll(/\s/g, ','));
             }
-        };
+        }
 
-        const focusAtEnd = (el) => {
+        function focusAtEnd(el) {
             if (!el) return;
             el.focus();
             const range = document.createRange();
@@ -862,7 +862,7 @@ const app = createApp({
             sel.addRange(range);
         }
 
-        const editKeydown = async (o, n) => {
+        async function editKeydown(o, n) {
             const key = event.key;
 
             if (o == 'namelist') {
@@ -955,7 +955,7 @@ const app = createApp({
                     }
                 }
             }
-        };
+        }
 
         function convertPhotoToIndexedDB(photoItem, n) {
             let j = 0;
@@ -986,7 +986,7 @@ const app = createApp({
             }
         }
 
-        const splitTextWithSpecialCaseSimple = text => {
+        function splitTextWithSpecialCaseSimple(text) {
             if (!text) return [];
 
             const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
@@ -1015,7 +1015,7 @@ const app = createApp({
             return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
         }
 
-        const editPaste = async (o, n) => {
+        async function editPaste(o, n) {
 
             const text = await navigator.clipboard.readText();
 
@@ -1045,28 +1045,28 @@ const app = createApp({
 
             randomPos();
 
-        };
+        }
 
-        const clearStore = () => {
+        function clearStore() {
             if (!confirm($gettext("Are you sure you want to clear all entered data?"))) return;
             localStorage.removeItem('data');
             IDBHelper.remove('photo');
             goHome();
-        };
+        }
 
-        const clearPhotos = () => {
+        function clearPhotos() {
             if (!confirm($gettext("Are you sure you want to clear all photos?"))) return;
             localStorage.removeItem('showPhoto');
             IDBHelper.remove('photo');
             goHome();
-        };
+        }
 
-        const clearColors = () => {
+        function clearColors() {
             storeRefs.colors.value.fill(0);
             store();
-        };
+        }
 
-        const download = async () => {
+        async function download() {
             refs.toggleSubmenu.value = false;
             if (!globalThis.jsondata) return;
             let data = JSON.parse(globalThis.jsondata);
@@ -1082,9 +1082,9 @@ const app = createApp({
                 dlAnchorElem.click();
                 dlAnchorElem.remove();
             }
-        };
+        }
 
-        const randomPos = () => {
+        function randomPos() {
             refs.toggleSubmenu.value = false;
             let rNum, i, studentNums;
             // Ensure namelist is not empty and has valid elements
@@ -1121,18 +1121,18 @@ const app = createApp({
 
             updateDisplay();
             store();
-        };
+        }
 
-        const resetPos = () => {
+        function resetPos() {
             refs.toggleSubmenu.value = false;
             storeRefs.posdata.forEach(i => i.innerText = '');
             refs.posname.forEach(i => i.innerText = '');
             refs.nameBgCtlChecked.value = [];
             store();
             return 1;
-        };
+        }
 
-        const shareData = async () => {
+        async function shareData() {
             refs.toggleSubmenu.value = false;
             if (globalThis.jsondata) {
                 const {photo, ...data} = JSON.parse(globalThis.jsondata);
@@ -1152,9 +1152,9 @@ const app = createApp({
                     await navigator.clipboard.writeText(url.toString());
                 }
             }
-        };
+        }
 
-        const uploadfileChange = (e) => {
+        function uploadfileChange(e) {
             refs.toggleSubmenu.value = false;
             const fileInput = e.target.files?.[0];
             if (!fileInput) return;
@@ -1176,9 +1176,9 @@ const app = createApp({
                 goHome();
             }
             e.target.value = '';
-        };
+        }
 
-        const speakText = text => {
+        function speakText(text) {
             if (!refs.speechVoice.value) return;
             if (!text || speechSynthesis.speaking || !('speechSynthesis' in globalThis)) {
                 return;
@@ -1186,7 +1186,7 @@ const app = createApp({
             speechSynthesis.speak(new SpeechSynthesisUtterance(text));
         }
 
-        const doSpeak = n => {
+        function doSpeak(n) {
             if (!refs.speechVoice.value) return;
             const name = storeRefs.namelist[n - 1]?.innerText.trim();
             if (name) {
@@ -1195,17 +1195,17 @@ const app = createApp({
             }
         }
 
-        const showPos = (n, show) => {
+        function showPos(n, show) {
             n && (refs.highlightedPos.value = show ? n : null);
-        };
+        }
 
-        const dragStart = (type, index) => {
+        function dragStart(type, index) {
             event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
             event.target.classList?.add('dragging', `${type}-row`);
             refs.draggingPos.value = `${type}-${index}`;
-        };
+        }
 
-        const swapElements = (arr, idx1, idx2) => {
+        function swapElements(arr, idx1, idx2) {
             const val1 = parseInt(arr[idx1]?.innerText || '');
             const val2 = parseInt(arr[idx2]?.innerText || '');
 
@@ -1214,11 +1214,11 @@ const app = createApp({
 
         }
 
-        const setElementValue = (arr, idx, value) => {
+        function setElementValue(arr, idx, value) {
             if (arr[idx]) arr[idx].innerText = value || '';
         }
 
-        const drop = async (targetIndex) => {
+        async function drop(targetIndex) {
             event.preventDefault();
             event.stopPropagation();
 
@@ -1326,7 +1326,7 @@ const app = createApp({
             if (!isVaild) return;
             store();
             updateDisplay();
-        };
+        }
 
         const backgroundColor = (index) => {
             if (index > 0) {
@@ -1355,7 +1355,7 @@ const app = createApp({
             c: "fontSizeC",
             l: "fontSizeL"
         };
-        const adujstFont = async (direction) => {
+        async function adujstFont(direction) {
 
             const key = fontSizeMap[refs.fontPos.value];
             if (key) {
@@ -1365,7 +1365,7 @@ const app = createApp({
                     store();
                 }
             }
-        };
+        }
 
         const fontButtonCtl = computed(() => {
             const key = fontSizeMap[refs.fontPos.value];
@@ -1377,11 +1377,11 @@ const app = createApp({
             return storeRefs.colors.value.some(item => item != 0);
         });
 
-        const nameBtnCtlChange = (e) => {
+        function nameBtnCtlChange(e) {
             refs.nameBgCtlChecked.value = e.target.checked ? refs.nameBgCtl.filter(c => c.value != '').map(c => +c.value) : [];
-        };
+        }
 
-        const binGo = () => {
+        function binGo() {
             refs.bingoButtonCtl.value = true;
             refs.doBingo.value = true;
             let arr = storeRefs.posdata.map(i => Number(i.innerText)).filter(Boolean);
@@ -1428,9 +1428,9 @@ const app = createApp({
             }
 
             roll(0);
-        };
+        }
 
-        const tipPhoto = async n => {
+        async function tipPhoto(n) {
             if (!n) return;
 
             refs.photo.value = await IDBHelper.get('photo', n);
@@ -1441,17 +1441,17 @@ const app = createApp({
             refs.seatsPos.value = `${row}-${column}`;
             refs.photoNo.value = n;
             refs.photoName.value = storeRefs.namelist[n - 1].innerText;
-        };
+        }
 
-        const setTitle = event => {
+        function setTitle(event) {
             event.currentTarget.title = event.currentTarget.innerText;
-        };
+        }
 
         function indexPos(x, y) {
             return (y - 1) * storeRefs.totalX.value + (x - 1);
         }
 
-        const print = () => {
+        function print() {
             refs.toggleSubmenu.value = false;
             const el = document.getElementById('print-area');
             const A4_HEIGHT_PX = 1122;
