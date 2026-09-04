@@ -723,7 +723,7 @@ const LoadData = async () => {
 };
 
 
-const { createApp, ref, reactive, computed, nextTick } = Vue;
+const { createApp, ref, reactive, computed, nextTick, onMounted, watch } = Vue;
 const app = createApp({
     setup() {
 
@@ -799,7 +799,7 @@ const app = createApp({
                     dataToSave[key] = ref.value.innerText;
                     document.title = ref.value.innerText + ' - ' + $gettext("TY Seating Chart");
                 } else if (Array.isArray(ref)) {
-                    dataToSave[key] = ref.map(item => item.innerText);
+                    dataToSave[key] = ref.map(item => item && item.innerText);
                 } else if (ref.value && undefined != ref.value?.innerText) {
                     dataToSave[key] = ref.value.innerText;
                 } else if (ref.value) {
@@ -1537,6 +1537,138 @@ const app = createApp({
             dataLists: ref(globalThis.datalists)
         };
 
+
+        watch(refs.showList, (newVal) => {
+            newVal ? localStorage.removeItem('showList') : localStorage.setItem('showList', 0);
+        });
+        watch(refs.showTitle, (newVal) => {
+            newVal ? localStorage.removeItem('showTitle') : localStorage.setItem('showTitle', 0);
+        });
+        watch(refs.showSeats, (newVal) => {
+            newVal ? localStorage.removeItem('showSeats') : localStorage.setItem('showSeats', 0);
+        });
+        watch(refs.showNumber, (newVal) => {
+            newVal ? localStorage.removeItem('showNumber') : localStorage.setItem('showNumber', 0);
+        });
+        watch(refs.showPlace, (newVal) => {
+            newVal ? localStorage.removeItem('showPlace') : localStorage.setItem('showPlace', 0);
+        });
+        watch(refs.showName, (newVal) => {
+            newVal ? localStorage.removeItem('showName') : localStorage.setItem('showName', 0);
+        });
+        watch(refs.showLeader, (newVal) => {
+            newVal ? localStorage.removeItem('showLeader') : localStorage.setItem('showLeader', 0);
+        });
+        watch(refs.showNote, (newVal) => {
+            newVal ? localStorage.removeItem('showNote') : localStorage.setItem('showNote', 0);
+        });
+        watch(refs.showVertical, (newVal) => {
+            newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
+        });
+        watch(refs.showFonts, (newVal) => {
+            setFonts(newVal);
+        });
+        watch(refs.speechVoice, (newVal) => {
+            newVal ? localStorage.removeItem('speechVoice') : localStorage.setItem('speechVoice', 0);
+        });
+        watch(refs.showDate, (newVal) => {
+            newVal ? localStorage.removeItem('showDate') : localStorage.setItem('showDate', 0);
+        });
+        watch(refs.showDesk, (newVal) => {
+            newVal ? localStorage.removeItem('showDesk') : localStorage.setItem('showDesk', 0);
+        });
+        watch(refs.showPhoto, async(newVal) => {
+            newVal ? localStorage.setItem('showPhoto', 1) : localStorage.removeItem('showPhoto');
+            if (newVal && !refs.photos.length) {
+                const photos = await IDBHelper.getAll('photo');
+                for (const [key, value] of photos) {
+                    refs.photos[key] = value;
+                }
+            }
+        });
+        watch(refs.onlyPhoto, (newVal) => {
+            newVal ? localStorage.setItem('onlyPhoto', 1) : localStorage.removeItem('onlyPhoto');
+        });
+        watch(refs.deskPos, (newVal) => {
+            newVal ? localStorage.setItem('deskPos', 1) : localStorage.removeItem('deskPos');
+        });
+
+
+        onMounted(async () => {
+
+            await LoadData();
+
+            if (storeRefs.leadernames) {
+                if (storeRefs.leadernames[0] && !storeRefs.leadernames[0].innerText.length) storeRefs.leadernames[0].innerText = $gettext('President');
+                if (storeRefs.leadernames[1] && !storeRefs.leadernames[1].innerText.length) storeRefs.leadernames[1].innerText = $gettext('Vice president');
+            }
+
+            const typeMap = {
+                    totalNamelist: Number,
+                    totalX: Number,
+                    totalY: Number,
+                    totalLeader: Number,
+                    fontSizeR: parseFloat,
+                    fontSizeC: parseFloat,
+                    fontSizeL: parseFloat
+            };
+            for (const [key, value] of globalThis.dkeys || []) {
+                if (key == 'tabletitle') {
+                    document.title = value + ' - ' + $gettext("TY Seating Chart");
+                    storeRefs.tabletitle.value.innerText = value;
+                } else if (key == 'today') {
+                    storeRefs.today.value.innerText = value;
+                } else if (key in typeMap) {
+                    storeRefs[key].value = typeMap[key](value);
+                } else if (key == 'colors') {
+                    storeRefs[key].value = value;
+                }
+            }
+
+            refs.hideTips.value = getCookie('hideTips') == 1;
+
+            globalThis.dkeys?.forEach(i => {
+
+                if (Array.isArray(i[1]) && i[1][0] != null) {
+                    if (i[0] == 'colors') {
+                        storeRefs[i[0]].value = i[1];
+                    } else {
+                        i[1].forEach((_, j) => {
+                            if (storeRefs[i[0]] && undefined != storeRefs[i[0]][j]?.innerHTML)
+                                storeRefs[i[0]][j].innerHTML = i[1][j];
+                        });
+                    }
+                } else if (undefined != storeRefs[i[0]]?.value?.innerHTML)
+                    storeRefs[i[0]].value.innerHTML = i[1].replaceAll('\n', '<br>');
+                else if (undefined != storeRefs[i[0]]?.value)
+                    storeRefs[i[0]].value = i[1];
+
+            });
+
+            await nextTick();
+
+            updateDisplay();
+
+            if ('speechSynthesis' in globalThis) {
+                speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+            }
+
+            if (storeRefs.today.value.innerText == '') storeRefs.today.value.innerText = new Date().toLocaleDateString();
+
+            document.body.addEventListener('dragover', (e) => e.preventDefault());
+            document.body.addEventListener('drop', drop);
+            globalThis.addEventListener('paste', () => !globalThis.startEditing && editPaste('namelist', 1));
+
+            refs.nameBtnCtl.value.checked = Boolean(refs.nameBgCtlChecked.value.length == storeRefs.namelist.filter(el => el.innerText.trim() != '').length);
+
+            const photosData = await IDBHelper.getAll('photo');
+            if (!photosData?.length) refs.showPhoto.value = false;
+            for (const [key, value] of photosData) {
+                refs.photos[key] = value;
+            }
+
+        });
+
         return {
             ...storeRefs,
             ...refs,
@@ -1575,136 +1707,7 @@ const app = createApp({
             print,
             backgroundColor
         };
-    },
-    watch: {
-        showList(newVal) {
-            newVal ? localStorage.removeItem('showList') : localStorage.setItem('showList', 0);
-        },
-        showTitle(newVal) {
-            newVal ? localStorage.removeItem('showTitle') : localStorage.setItem('showTitle', 0);
-        },
-        showSeats(newVal) {
-            newVal ? localStorage.removeItem('showSeats') : localStorage.setItem('showSeats', 0);
-        },
-        showNumber(newVal) {
-            newVal ? localStorage.removeItem('showNumber') : localStorage.setItem('showNumber', 0);
-        },
-        showPlace(newVal) {
-            newVal ? localStorage.removeItem('showPlace') : localStorage.setItem('showPlace', 0);
-        },
-        showName(newVal) {
-            newVal ? localStorage.removeItem('showName') : localStorage.setItem('showName', 0);
-        },
-        showLeader(newVal) {
-            newVal ? localStorage.removeItem('showLeader') : localStorage.setItem('showLeader', 0);
-        },
-        showNote(newVal) {
-            newVal ? localStorage.removeItem('showNote') : localStorage.setItem('showNote', 0);
-        },
-        showVertical(newVal) {
-            newVal ? localStorage.removeItem('showVertical') : localStorage.setItem('showVertical', 0);
-        },
-        showFonts(newVal) {
-            setFonts(newVal);
-        },
-        speechVoice(newVal) {
-            newVal ? localStorage.removeItem('speechVoice') : localStorage.setItem('speechVoice', 0);
-        },
-        showDate(newVal) {
-            newVal ? localStorage.removeItem('showDate') : localStorage.setItem('showDate', 0);
-        },
-        showDesk(newVal) {
-            newVal ? localStorage.removeItem('showDesk') : localStorage.setItem('showDesk', 0);
-        },
-        async showPhoto(newVal) {
-            newVal ? localStorage.setItem('showPhoto', 1) : localStorage.removeItem('showPhoto');
-            if (newVal && !this.photos.length) {
-                const photos = await IDBHelper.getAll('photo');
-                for (const [key, value] of photos) {
-                    this.photos[key] = value;
-                }
-            }
-        },
-        onlyPhoto(newVal) {
-            newVal ? localStorage.setItem('onlyPhoto', 1) : localStorage.removeItem('onlyPhoto');
-        },
-        deskPos(newVal) {
-            newVal ? localStorage.setItem('deskPos', 1) : localStorage.removeItem('deskPos');
-        }
-    },
-    async mounted() {
-
-        await LoadData();
-
-        if (this.leadernames) {
-            if (this.leadernames[0] && !this.leadernames[0].innerText.length) this.leadernames[0].innerText = $gettext('President');
-            if (this.leadernames[1] && !this.leadernames[1].innerText.length) this.leadernames[1].innerText = $gettext('Vice president');
-        }
-
-        const typeMap = {
-                totalNamelist: Number,
-                totalX: Number,
-                totalY: Number,
-                totalLeader: Number,
-                fontSizeR: parseFloat,
-                fontSizeC: parseFloat,
-                fontSizeL: parseFloat
-        };
-        for (const [key, value] of globalThis.dkeys || []) {
-            if (key == 'tabletitle') {
-                document.title = value + ' - ' + $gettext("TY Seating Chart");
-            } else if (key == 'today') {
-                this.today = value;
-            } else if (key in typeMap) {
-                this[key] = typeMap[key](value);
-            } else if (key == 'colors') {
-                this[key] = value;
-            }
-        }
-
-        this.hideTips = getCookie('hideTips') == 1;
-
-        globalThis.dkeys?.forEach(i => {
-
-            if (Array.isArray(i[1]) && i[1][0] != null) {
-                if (i[0] == 'colors') {
-                    this[i[0]] = i[1];
-                } else {
-                    i[1].forEach((_, j) => {
-                        if (this[i[0]] && undefined != this[i[0]][j]?.innerHTML)
-                            this[i[0]][j].innerHTML = i[1][j];
-                    });
-                }
-            } else if (undefined != this[i[0]]?.innerHTML)
-                this[i[0]].innerHTML = i[1].replaceAll('\n', '<br>');
-            else if (undefined != this[i[0]]?.value)
-                this[i[0]].value = i[1];
-
-        });
-
-        await nextTick();
-
-        this.updateDisplay();
-
-        if ('speechSynthesis' in globalThis) {
-            speechSynthesis.speak(new SpeechSynthesisUtterance(""));
-        }
-
-        if (this.today.innerText == '') this.today.innerText = new Date().toLocaleDateString();
-
-        document.body.addEventListener('dragover', (e) => e.preventDefault());
-        document.body.addEventListener('drop', this.drop);
-        globalThis.addEventListener('paste', () => !globalThis.startEditing && this.editPaste('namelist', 1));
-
-        this.nameBtnCtl.checked = Boolean(this.nameBgCtlChecked.length == this.namelist.filter(el => el.innerText.trim() != '').length);
-
-        const photosData = await IDBHelper.getAll('photo');
-        if (!photosData?.length) this.showPhoto = false;
-        for (const [key, value] of photosData) {
-            this.photos[key] = value;
-        }
     }
-
 });
 
 const translations = {
