@@ -148,11 +148,34 @@
     }
 }
 @media print {
-  @media (max-width: 932.98px) {
-    .mobile-no-print {
-      display: none !important;
+    @media (max-width: 932.98px) {
+        .mobile-no-print {
+            display: none !important;
+        }
     }
-  }
+    @page { margin: 0; }
+    html, body, #app {
+        height: 100vh !important;
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    #app {
+        display: flex;
+        flex-direction: column;
+    }
+    #print-area {
+        flex-grow: 1;
+        align-content: stretch;
+    }
+    .seats > .row.g-1 {
+        flex-grow: 1;
+    }
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }
 .pos-container {
     justify-content: flex-end;
