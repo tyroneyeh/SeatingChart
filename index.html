@@ -154,7 +154,6 @@
             display: none !important;
         }
     }
-    @page { margin: 0; }
     html, body {
         height: 100% !important;
         width: 100% !important;
@@ -1626,6 +1625,8 @@ const app = createApp({
                 }
             }
 
+            await nextTick();
+
             refs.hideTips.value = getCookie('hideTips') == 1;
 
             globalThis.dkeys?.forEach(i => {
@@ -1647,7 +1648,6 @@ const app = createApp({
             });
 
             await nextTick();
-
             updateDisplay();
 
             if ('speechSynthesis' in globalThis) {
