@@ -732,6 +732,118 @@ const LoadData = async () => {
 
 
 const { createApp, ref, reactive, computed, nextTick, onMounted, watch } = Vue;
+
+
+const translations = {
+    "zh-TW": {
+        "TY Seating Chart": "TY座位表",
+        "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
+        "Are you sure you want to clear all photos?": "確定要清除所有照片嗎?",
+        "President": "班長",
+        "Paste": "貼上",
+        "Clear": "清除資料",
+        "Desk": "講桌",
+        "Reverse": "反轉",
+        "Download": "下載",
+        "Columns": "排",
+        "Leaders": "股長",
+        "Seats": "座位",
+        "Rows": "列",
+        "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料",
+        "Random": "隨機",
+        "Reset": "重置座位",
+        "Title": "標題",
+        "Seating charts": "座位表",
+        "Lists": "名單",
+        "Teacher": "導師",
+        "Date": "日期",
+        "Upload": "上傳",
+        "Vice president": "副班長",
+        "Left": "左",
+        "Center": "中",
+        "Right": "右",
+        "Font size": "字體大小",
+        "Fonts": "字型",
+        "ZhuYin": "注音",
+        "PinYin": "拼音",
+        "Both": "兩者",
+        "Print": "列印",
+        "Note": "備註",
+        "Bingo": "抽籤",
+        "Numbers": "座號",
+        "Place": "位置",
+        "Names": "姓名",
+        "Number": "號",
+        "Vertical": "垂直",
+        "Share": "分享",
+        "Methods": "功能",
+        "Options": "選項",
+        "Voice": "語音",
+        "Photo": "照片",
+        "Only Photo": "只要照片",
+        "Clear Photos": "清除照片",
+        "Clear Colors": "清除顏色"
+    },
+    "zh-CN": {
+        "TY Seating Chart": "TY座位表",
+        "Are you sure you want to clear all entered data?": "确定要清除全部输入的数据吗?",
+        "Are you sure you want to clear all photos?": "确定要清除所有照片吗?",
+        "President": "班长",
+        "Paste": "粘贴",
+        "Clear": "清除数据",
+        "Desk": "讲桌",
+        "Reverse": "反转",
+        "Download": "下载",
+        "Columns": "排",
+        "Leaders": "组长",
+        "Seats": "座位",
+        "Rows": "列",
+        "Please directly click on the name or seat number area to enter information": "请直接点击姓名或座号区域输入资料",
+        "Random": "随机",
+        "Reset": "重置座位",
+        "Title": "标题",
+        "Seating charts": "座位表",
+        "Lists": "名单",
+        "Teacher": "班主任",
+        "Date": "日期",
+        "Upload": "上传",
+        "Vice president": "副班长",
+        "Left": "左",
+        "Center": "中",
+        "Right": "右",
+        "Font size": "字体大小",
+        "Fonts": "字体",
+        "ZhuYin": "注音",
+        "PinYin": "拼音",
+        "Both": "两者",
+        "Print": "打印",
+        "Note": "备注",
+        "Bingo": "抽签",
+        "Numbers": "座号",
+        "Place": "位置",
+        "Names": "姓名",
+        "Number": "号",
+        "Vertical": "垂直",
+        "Share": "分享",
+        "Methods": "功能",
+        "Options": "选项",
+        "Voice": "语音",
+        "Photo": "照片",
+        "Only Photo": "仅照片",
+        "Clear Photos": "清除照片",
+        "Clear Colors": "清除颜色"
+    }
+};
+
+const browserLang = navigator.language || navigator.userLanguage;
+const initialLang = browserLang.includes('zh') ? 'zh-TW' : 'en';
+const currentLanguage = ref(initialLang);
+
+const translate = (key) => {
+    const dict = translations[currentLanguage.value];
+    return (dict && dict[key]) ? dict[key] : key;
+};
+
 const app = createApp({
     setup() {
 
@@ -1610,6 +1722,9 @@ const app = createApp({
                 if (storeRefs.leadernames[0] && !storeRefs.leadernames[0].innerText.length) storeRefs.leadernames[0].innerText = $gettext('President');
                 if (storeRefs.leadernames[1] && !storeRefs.leadernames[1].innerText.length) storeRefs.leadernames[1].innerText = $gettext('Vice president');
             }
+            if (!refs.storeData.value && currentLanguage.value == 'en') {
+                refs.showVertical.value = false;
+            }
 
             const typeMap = {
                     totalNamelist: Number,
@@ -1654,6 +1769,8 @@ const app = createApp({
                     storeRefs[i[0]].value = i[1];
 
             });
+
+            refs.storeData.value = globalThis.dkeys ? 1 : 0;
 
             await nextTick();
             updateDisplay();
@@ -1719,66 +1836,6 @@ const app = createApp({
     }
 });
 
-const translations = {
-    "zh-TW": {
-        "TY Seating Chart": "TY座位表",
-        "Are you sure you want to clear all entered data?": "確定要清除全部輸入的資料嗎?",
-        "Are you sure you want to clear all photos?": "確定要清除所有照片嗎?",
-        "President": "班長",
-        "Paste": "貼上",
-        "Clear": "清除資料",
-        "Desk": "講桌",
-        "Reverse": "反轉",
-        "Download": "下載",
-        "Columns": "排",
-        "Leaders": "股長",
-        "Seats": "座位",
-        "Rows": "列",
-        "Please directly click on the name or seat number area to enter information": "請直接點選姓名或座號區域輸入資料",
-        "Random": "隨機",
-        "Reset": "重置座位",
-        "Title": "標題",
-        "Seating charts": "座位表",
-        "Lists": "名單",
-        "Teacher": "導師",
-        "Date": "日期",
-        "Upload": "上傳",
-        "Vice president": "副班長",
-        "Left": "左",
-        "Center": "中",
-        "Right": "右",
-        "Font size": "字體大小",
-        "Fonts": "字型",
-        "ZhuYin": "注音",
-        "PinYin": "拼音",
-        "Both": "兩者",
-        "Print": "列印",
-        "Note": "備註",
-        "Bingo": "抽籤",
-        "Numbers": "座號",
-        "Place": "位置",
-        "Names": "姓名",
-        "Number": "號",
-        "Vertical": "垂直",
-        "Share": "分享",
-        "Methods": "功能",
-        "Options": "選項",
-        "Voice": "語音",
-        "Photo": "照片",
-        "Only Photo": "只要照片",
-        "Clear Photos": "清除照片",
-        "Clear Colors": "清除顏色"
-    }
-};
-
-const browserLang = navigator.language || navigator.userLanguage;
-const initialLang = browserLang.includes('zh') ? 'zh-TW' : 'en';
-const currentLanguage = ref(initialLang);
-
-const translate = (key) => {
-    const dict = translations[currentLanguage.value];
-    return (dict && dict[key]) ? dict[key] : key;
-};
 globalThis.$gettext = app.config.globalProperties.$gettext = translate;
 
 app.component('qrcode-vue', QrcodeVue.default || QrcodeVue).mount('#app');
