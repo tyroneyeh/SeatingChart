@@ -683,22 +683,22 @@ const IDBHelper = {
     }
 };
 
-const getCookie = name => {
+function getCookie(name) {
     let value = '; ' + document.cookie;
     let parts = value.split(`; ${name}=`);
     if (parts.length == 2) return parts.pop().split(';').shift();
-};
+}
 
-const setCookie = (name, value, age) => {
+function setCookie(name, value, age) {
     age = undefined == age ? 60 * 60 * 24 * 14 : age;
     document.cookie = `${name}=${value}; path=${location.pathname}; max-age=${age};`;
-};
+}
 
-const removeCookie = (name, value) => {
+function removeCookie(name, value) {
     setCookie(name, value, 0);
-};
+}
 
-const LoadData = async () => {
+async function LoadData() {
 
     const params = new URLSearchParams(location.hash.substring(1));
     if (params.has('data')) {
@@ -728,7 +728,7 @@ const LoadData = async () => {
         }
 
     }
-};
+}
 
 
 const { createApp, ref, reactive, computed, nextTick, onMounted, watch } = Vue;
@@ -839,10 +839,59 @@ const browserLang = navigator.language || navigator.userLanguage;
 const initialLang = browserLang.includes('zh') ? 'zh-TW' : 'en';
 const currentLanguage = ref(initialLang);
 
-const translate = (key) => {
+function translate(key) {
     const dict = translations[currentLanguage.value];
     return (dict && dict[key]) ? dict[key] : key;
-};
+}
+
+
+function splitTextWithSpecialCaseSimple(text) {
+    if (!text) return [];
+
+    const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
+    const textRe = (isChinese(text[0]) ? /[ 　\n\t,，、]+/ : /\n/);
+    const textSegments = text.includes('\n')
+        ? text.split('\n').filter(segment => segment.length > 0)
+        : text.split(textRe).filter(segment => segment.length > 0);
+    const cleanedSegments = [];
+
+    for (const segment of textSegments) {
+        if (segment.length > 0) {
+            cleanedSegments.push(segment);
+        }
+    }
+    let i = 0;
+    const result = [];
+    while (i < cleanedSegments.length) {
+        if (i + 1 < cleanedSegments.length && cleanedSegments[i].length == 1 && cleanedSegments[i + 1].length == 1) {
+            result.push(`${cleanedSegments[i]} ${cleanedSegments[i + 1]}`);
+            i += 2;
+        } else {
+            result.push(cleanedSegments[i]);
+            i++;
+        }
+    }
+
+    return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
+}
+
+
+function swapElements(arr, idx1, idx2) {
+    const val1 = parseInt(arr[idx1]?.innerText || '');
+    const val2 = parseInt(arr[idx2]?.innerText || '');
+
+    if (arr[idx1]) arr[idx1].innerText = val2 || '';
+    if (arr[idx2]) arr[idx2].innerText = val1 || '';
+
+}
+
+function setElementValue(arr, idx, value) {
+    if (arr[idx]) arr[idx].innerText = value || '';
+}
+
+function setTitle(event) {
+    event.currentTarget.title = event.currentTarget.innerText;
+}
 
 const app = createApp({
     setup() {
@@ -1106,34 +1155,6 @@ const app = createApp({
             }
         }
 
-        function splitTextWithSpecialCaseSimple(text) {
-            if (!text) return [];
-
-            const isChinese = ch => /[\u4e00-\u9fa5]/.test(ch);
-            const textSegments = text.includes('\n')
-                ? text.split('\n').filter(segment => segment.length > 0)
-                : text.split((isChinese(text[0]) ? /[ 　\n\t,，、]+/ : /\n/)).filter(segment => segment.length > 0);
-            const cleanedSegments = [];
-
-            for (const segment of textSegments) {
-                if (segment.length > 0) {
-                    cleanedSegments.push(segment);
-                }
-            }
-            let i = 0;
-            const result = [];
-            while (i < cleanedSegments.length) {
-                if (i + 1 < cleanedSegments.length && cleanedSegments[i].length == 1 && cleanedSegments[i + 1].length == 1) {
-                    result.push(`${cleanedSegments[i]} ${cleanedSegments[i + 1]}`);
-                    i += 2;
-                } else {
-                    result.push(cleanedSegments[i]);
-                    i++;
-                }
-            }
-
-            return result.filter(segment => segment.replace(/\s/g, '').length >= 2);
-        }
 
         async function editPaste(o, n) {
 
@@ -1323,19 +1344,6 @@ const app = createApp({
             event.dataTransfer.setData('text/plain', JSON.stringify({ type: type, index: index }));
             event.target.classList?.add('dragging', `${type}-row`);
             refs.draggingPos.value = `${type}-${index}`;
-        }
-
-        function swapElements(arr, idx1, idx2) {
-            const val1 = parseInt(arr[idx1]?.innerText || '');
-            const val2 = parseInt(arr[idx2]?.innerText || '');
-
-            if (arr[idx1]) arr[idx1].innerText = val2 || '';
-            if (arr[idx2]) arr[idx2].innerText = val1 || '';
-
-        }
-
-        function setElementValue(arr, idx, value) {
-            if (arr[idx]) arr[idx].innerText = value || '';
         }
 
         async function drop(targetIndex) {
@@ -1563,9 +1571,6 @@ const app = createApp({
             refs.photoName.value = storeRefs.namelist[n - 1].innerText;
         }
 
-        function setTitle(event) {
-            event.currentTarget.title = event.currentTarget.innerText;
-        }
 
         function indexPos(x, y) {
             return (y - 1) * storeRefs.totalX.value + (x - 1);
