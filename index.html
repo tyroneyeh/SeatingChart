@@ -1717,6 +1717,7 @@ const app = createApp({
         onMounted(async () => {
 
             await LoadData();
+            refs.storeData.value = globalThis.dkeys ? 1 : 0;
 
             if (storeRefs.leadernames) {
                 if (storeRefs.leadernames[0] && !storeRefs.leadernames[0].innerText.length) storeRefs.leadernames[0].innerText = $gettext('President');
@@ -1769,8 +1770,6 @@ const app = createApp({
                     storeRefs[i[0]].value = i[1];
 
             });
-
-            refs.storeData.value = globalThis.dkeys ? 1 : 0;
 
             await nextTick();
             updateDisplay();
