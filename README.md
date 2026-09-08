@@ -17,6 +17,7 @@
 - 抽籤功能
 - 頭像儲存於瀏覽器索引式資料庫
 - 文字轉語音
+- 列印 (輸出 PDF)
 
 ## TY座位表 是一个用 VueJS 3 + Bootstrap 5 所写的一个纯前端网页线上教室座位表
 
@@ -37,6 +38,7 @@
 - 抽签功能
 - 头像储存于浏览器索引式资料库
 - 文字转语音
+- 列印（输出 PDF）
 
 ## Students Classroom Seating Chart
 
@@ -61,3 +63,4 @@ TY SeatingChart is a pure front-end online classroom seating chart built with **
 - Bingo function
 - Avatars store in browser's IndexedDB
 - Text to speech
+- Print (Export PDF)
