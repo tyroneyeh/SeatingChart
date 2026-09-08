@@ -808,8 +808,7 @@ const translations = {
 };
 
 const browserLang = navigator.language || navigator.userLanguage;
-const initialLang = browserLang.includes('zh') ? 'zh-TW' : 'en';
-const currentLanguage = ref(initialLang);
+const currentLanguage = ref(browserLang);
 
 function translate(key) {
     const dict = translations[currentLanguage.value];
