@@ -1174,6 +1174,7 @@ const app = createApp({
         }
 
         function clearColors() {
+            refs.toggleSubmenu.value = false;
             storeRefs.colors.value.fill(0);
             store();
         }
