@@ -250,7 +250,7 @@
                         </div>
                         <div class="text-center">
                             <button class="form-control-sm btn-outline-secondary dropdown-toggle" type="button" @click="toggleOptionmenu = !toggleOptionmenu" accesskey="o">{{ $gettext('Options') }}</button>
-                            <div class="dropdown-menu form-switch show" v-if="toggleOptionmenu">
+                            <div class="dropdown-menu form-switch show" @mouseleave="startHideOptionMenu" @mouseenter="keepMenuOptionOpen" v-if="toggleOptionmenu">
                                 <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showList">&nbsp;{{ $gettext('Lists') }}</label>
                                 <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showTitle">&nbsp;{{ $gettext('Title') }}</label>
                                 <label class="nav-link form-switch ms-5"><input type="checkbox" class="form-check-input" v-model="showDate">&nbsp;{{ $gettext('Date') }}</label>
@@ -867,7 +867,7 @@ function setTitle(event) {
 const app = createApp({
     setup() {
 
-        let oldValue;
+        let oldValue, hideOptionTimer = null;;
 
         function toggleNavBarCtl() {
             refs.toggleNavbar.value = !refs.toggleNavbar.value;
@@ -1559,6 +1559,19 @@ const app = createApp({
             el.style.zoom = '';
         }
 
+        function startHideOptionMenu() {
+            hideOptionTimer = setTimeout(() => {
+                refs.toggleOptionmenu.value = false;
+            }, 1000);
+        }
+
+        function keepMenuOptionOpen() {
+            if (hideOptionTimer) {
+                clearTimeout(hideOptionTimer);
+                hideOptionTimer = null;
+            }
+        }
+
         const storeRefs = {
             tabletitle: ref($gettext('Seating charts')),
             today: ref(new Date().toLocaleDateString()),
@@ -1807,7 +1820,9 @@ const app = createApp({
             setTitle,
             indexPos,
             print,
-            backgroundColor
+            backgroundColor,
+            startHideOptionMenu,
+            keepMenuOptionOpen
         };
     }
 });
