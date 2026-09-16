@@ -1,5 +1,8 @@
 ## TY座位表 是一個用 VueJS 3 + Bootstrap 5 所寫的一個純前端網頁線上教室座位表
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![No Backend](https://img.shields.io/badge/Backend-None-blue.svg)](https://en.wikipedia.org/wiki/Serverless_computing)
+
 - 網址 https://ty-seatingchart.pages.dev
 
 ### 功能
