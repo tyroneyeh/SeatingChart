@@ -1720,6 +1720,9 @@ const app = createApp({
             if (!refs.storeData.value && currentLanguage.value == 'en') {
                 refs.showVertical.value = false;
             }
+            if (refs.storeData.value) {
+                tipsToHide();
+            }
 
             const typeMap = {
                     totalNamelist: Number,
