@@ -149,9 +149,10 @@
 }
 @media print {
     @page {
-        margin: 0;
         size: A4 portrait;
+        margin: 5mm;
     }
+
     @media (max-width: 932.98px) {
         .mobile-no-print {
             display: none !important;
@@ -159,45 +160,28 @@
     }
     html, body {
         width: 100% !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
+        height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
-        background-color: white !important;
-        overflow: hidden !important;
+        background-color: white;
     }
     #app {
-        height: 100vh !important;
-        max-height: 100vh !important;
-        display: flex !important;
-        flex-direction: column !important;
-        padding: 0.5cm !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
+        display: flex;
+        flex-direction: column;
+        height: auto !important;
+        min-height: 100% !important;
     }
     #print-area {
-        flex: 1 1 0% !important;
-        min-height: 0 !important;
-        display: flex !important;
+        flex-grow: 1;
         align-content: stretch;
-        overflow: hidden !important;
-    }
-    .seats {
-        flex: 1 1 0% !important;
-        min-height: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        flex-wrap: nowrap !important;
     }
     .seats > .row.g-1 {
-        flex: 1 1 0% !important;
-        min-height: 0 !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        margin: 0 !important;
-    }
-    .seat-row {
-        height: 100% !important;
-        overflow: hidden !important;
+        flex-grow: 1;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
     .col-sm-2 { flex: 0 0 16.666667% !important; max-width: 16.666667% !important; }
     .col-sm-3 { flex: 0 0 25% !important; max-width: 25% !important; }
@@ -1571,13 +1555,7 @@ const app = createApp({
 
         function print() {
             refs.toggleSubmenu.value = false;
-            const el = document.getElementById('print-area');
-            const A4_HEIGHT_PX = 1122;
-            const contentHeight = el.offsetHeight + 120;
-            const scale = contentHeight > A4_HEIGHT_PX ? A4_HEIGHT_PX / contentHeight : 1;
-            el.style.zoom = scale;
             window.print();
-            el.style.zoom = '';
         }
 
         function startHideOptionMenu() {
@@ -1801,6 +1779,22 @@ const app = createApp({
             document.body.addEventListener('dragover', (e) => e.preventDefault());
             document.body.addEventListener('drop', drop);
             globalThis.addEventListener('paste', () => !globalThis.startEditing && editPaste('namelist', 1));
+            window.addEventListener('beforeprint', () => {
+                refs.toggleSubmenu.value = false;
+                const el = document.getElementById('print-area');
+                if (!el) return;
+
+                const A4_HEIGHT_PX = 1122;
+                const contentHeight = el.offsetHeight + 120;
+                const scale = contentHeight > A4_HEIGHT_PX ? A4_HEIGHT_PX / contentHeight : 1;
+                el.style.zoom = scale;
+            });
+            window.addEventListener('afterprint', () => {
+                const el = document.getElementById('print-area');
+                if (el) {
+                    el.style.zoom = '';
+                }
+            });
 
             refs.nameBtnCtl.value.checked = Boolean(refs.nameBgCtlChecked.value.length == storeRefs.namelist.filter(el => el.innerText.trim() != '').length);
 
