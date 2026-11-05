@@ -158,42 +158,66 @@
         }
     }
     html, body {
-        width: 794px !important;
-        height: auto !important;
-        margin: 0 auto !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
         padding: 0 !important;
         background-color: white !important;
+        -webkit-text-size-adjust: 100% !important;
+        text-size-adjust: 100% !important;
+        overflow: hidden !important;
     }
     #app {
-        width: 794px !important;
-        min-height: 1122px !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
         display: flex !important;
         flex-direction: column !important;
         box-sizing: border-box !important;
+        overflow: hidden !important;
     }
     #print-area {
-        flex: 1 1 auto !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
         display: flex !important;
         align-content: stretch;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        overflow: hidden !important;
     }
     .seats {
-        flex: 1 1 auto !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
         display: flex !important;
         flex-direction: column !important;
     }
     .seats > .row.g-1 {
-        flex: 1 1 auto !important;
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
         margin: 0 !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
     }
     .seat-row {
         height: 100% !important;
+        min-height: 0 !important;
         display: flex !important;
         flex-direction: column !important;
+        justify-content: flex-start !important;
+        padding: 2px !important;
+    }
+    .possize {
+        flex: 0 0 auto !important;
+        min-height: 1.2em !important;
+    }
+    .seat-row .namearea {
+        flex: 1 1 0% !important;
+        min-height: 0 !important;
+        display: flex !important;
+        align-items: center !important;
         justify-content: center !important;
+        overflow: hidden !important;
     }
     .col-sm-2 { flex: 0 0 16.666667% !important; max-width: 16.666667% !important; }
     .col-sm-3 { flex: 0 0 25% !important; max-width: 25% !important; }
