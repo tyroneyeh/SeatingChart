@@ -1825,12 +1825,24 @@ const app = createApp({
                 const scale = contentHeight > A4_HEIGHT_PX ? A4_HEIGHT_PX / contentHeight : 1;
                 el.style.zoom = scale;
             });
-            window.addEventListener('afterprint', () => {
+            const resetPrintLayout = () => {
                 const el = document.getElementById('print-area');
-                if (el) {
+                if (el && el.style.zoom !== '') {
                     el.style.zoom = '';
+                    const originalDisplay = el.style.display;
+                    el.style.display = 'none';
+                    el.getBoundingClientRect();
+                    el.style.display = originalDisplay;
                 }
-            });
+            };
+            window.addEventListener('afterprint', resetPrintLayout);
+            if (window.matchMedia) {
+                window.matchMedia('print').addEventListener('change', (mql) => {
+                    if (!mql.matches) {
+                        resetPrintLayout();
+                    }
+                });
+            }
 
             refs.nameBtnCtl.value.checked = Boolean(refs.nameBgCtlChecked.value.length == storeRefs.namelist.filter(el => el.innerText.trim() != '').length);
 
