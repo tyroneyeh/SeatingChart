@@ -150,7 +150,7 @@
 @media print {
     @page {
         size: A4 portrait;
-        margin: 5mm;
+        margin: 0;
     }
 
     @media (max-width: 932.98px) {
@@ -161,15 +161,16 @@
     html, body {
         width: 100% !important;
         height: auto !important;
+        min-height: 287mm !important;
         margin: 0 !important;
         padding: 0 !important;
         background-color: white;
     }
     #app {
-        display: flex;
-        flex-direction: column;
-        height: auto !important;
-        min-height: 100% !important;
+        min-height: 287mm !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-sizing: border-box !important;
     }
     #print-area {
         flex-grow: 1;
@@ -178,10 +179,22 @@
         break-inside: avoid;
         flex-wrap: nowrap !important;
     }
+    .seats {
+        flex: 1 1 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
     .seats > .row.g-1 {
         flex-grow: 1;
+        margin: 0 !important;
         page-break-inside: avoid;
         break-inside: avoid;
+    }
+    .seat-row {
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
     }
     .col-sm-2 { flex: 0 0 16.666667% !important; max-width: 16.666667% !important; }
     .col-sm-3 { flex: 0 0 25% !important; max-width: 25% !important; }
