@@ -150,34 +150,33 @@
 @media print {
     @page {
         size: A4 portrait;
-        margin: 0;
+        margin: 5mm;
     }
-
     @media (max-width: 932.98px) {
         .mobile-no-print {
             display: none !important;
         }
     }
     html, body {
-        width: 100% !important;
+        width: 794px !important;
         height: auto !important;
-        min-height: 287mm !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
         padding: 0 !important;
-        background-color: white;
+        background-color: white !important;
     }
     #app {
-        min-height: 287mm !important;
+        width: 794px !important;
+        min-height: 1122px !important;
         display: flex !important;
         flex-direction: column !important;
         box-sizing: border-box !important;
     }
     #print-area {
-        flex-grow: 1;
+        flex: 1 1 auto !important;
+        display: flex !important;
         align-content: stretch;
-        page-break-inside: avoid;
-        break-inside: avoid;
-        flex-wrap: nowrap !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
     .seats {
         flex: 1 1 auto !important;
@@ -185,10 +184,10 @@
         flex-direction: column !important;
     }
     .seats > .row.g-1 {
-        flex-grow: 1;
+        flex: 1 1 auto !important;
         margin: 0 !important;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
     .seat-row {
         height: 100% !important;
