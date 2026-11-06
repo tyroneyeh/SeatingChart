@@ -369,7 +369,7 @@
                         <div class="border-bottom text-center bg-light bg-opacity-25 possize"><span class="with-pencil" :class="{'w-100': !showPhoto || onlyPhoto}" v-show="showNumber" @paste.stop="editPaste('posdata', indexPos(x, y))" @keydown="editKeydown('posdata', indexPos(x, y))" @click.stop="startEdit($event.target)" @blur="endEdit('posdata', $event.target.innerText, indexPos(x, y))" :ref="el => { if(el) posdata[indexPos(x, y)] = el }"></span> <span class="namearea" v-if="showName && showPhoto && !onlyPhoto">{{posname[indexPos(x, y)]?.innerText}}</span></div>
                         <div class="fs-6 text-light text-end" v-show="showPlace">{{ `${x}-${totalY - y + 1}` }}</div>
                         <div class="text-center mx-auto namearea align-items-center justify-content-center with-pencil" :class="{'d-none': !showName || showPhoto, 'mb-2': showVertical, 'mb-3': !showVertical, 'vertical-text': showVertical, 'pt-1': !showPlace, 'pb-3': showPlace}" @click.stop="startEdit($event.target);toggleColor($event, indexPos(x, y))" @blur="endEdit('posname', $event.target.innerText, indexPos(x, y))" :ref="el => { if(el) posname[indexPos(x, y)] = el }">&nbsp;</div>
-                        <div class="text-center mx-auto namearea align-items-center justify-content-center" v-show="showPhoto"><img draggable="false" class="w-100" :src="photos[posdata[indexPos(x, y)]?.innerText]" :alt="" /></div>
+                        <div class="text-center mx-auto namearea align-items-center justify-content-center" v-if="showPhoto"><img draggable="false" class="w-100" :src="photos[posdata[indexPos(x, y)]?.innerText]" :alt="" /></div>
                     </div>
                 </div>
             </div>
