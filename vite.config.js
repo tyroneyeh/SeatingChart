@@ -25,7 +25,7 @@ function extractInlineHashes(html, tagName) {
 }
 
 function buildSecurityHeaders(scriptHashes, styleHashes) {
-  const scriptSrc = ["'self'", ...scriptHashes].join(' ');
+  const scriptSrc = ["'self'", ...scriptHashes, 'https://static.cloudflareinsights.com'].join(' ');
   const styleSrc = ["'self'", ...styleHashes].join(' ');
 
   return {
@@ -35,7 +35,7 @@ function buildSecurityHeaders(scriptHashes, styleHashes) {
       `style-src ${styleSrc}`,
       "img-src 'self' data: https://img.shields.io https://data.jsdelivr.com",
       "font-src 'self' https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com",
-      "connect-src 'self' https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com https://img.shields.io https://data.jsdelivr.com",
+      "connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com https://img.shields.io https://data.jsdelivr.com",
       "worker-src 'self'",
       "manifest-src 'self'",
       "base-uri 'none'",
