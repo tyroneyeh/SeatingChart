@@ -1,2 +1,14 @@
 /*
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'sha256-G71y8+e5SO3YOYterGnipdSkfJfyjuM50h4h2X4bh8s='; style-src 'self' 'sha256-Jma/4XnRgJIyazHet8wT4jwNw7kS4yEdPm5zIgutG4s='; img-src 'self' data: https://img.shields.io https://data.jsdelivr.com; font-src 'self' https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com; connect-src 'self' https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com https://img.shields.io https://data.jsdelivr.com; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
   Cache-Control: public, max-age=86400
+
+/sw.js
+  ! Cache-Control
+  Cache-Control: no-cache
