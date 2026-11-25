@@ -84,7 +84,22 @@
 
     <div class="container-fluid row mx-auto" :style="{ 'font-size': fontSizeR + 'em' }">
         <div class="col-sm-3"></div>
-        <div class="text-nowrap text-center col-sm-6 namearea with-pencil" v-show="showTitle" @click="startEdit($event.target)" @blur="endEdit($event)" ref="tabletitle">{{ $gettext('Seating charts') }}</div>
+        <div class="text-nowrap text-center col-sm-6" v-show="showTitle">
+            <input
+                ref="tabletitle"
+                v-model="titleInput"
+                list="class-list"
+                class="form-select text-center namearea title-input"
+                :placeholder="currentClass || $gettext('Seating charts')"
+                @focus="onTitleFocus"
+                @blur="onTitleBlur"
+                @change="onTitleChange"
+                @keydown.enter="$event.target.blur()"
+            />
+            <datalist id="class-list">
+                <option v-for="cls in classList" :key="cls" :value="cls"></option>
+            </datalist>
+        </div>
         <div class="col-sm-6" v-show="!showTitle"></div>
         <div class="text-nowrap text-end col-sm-3" v-show="showDate">
             <span class="namearea with-pencil" @click="startEdit($event.target)" @blur="endEdit($event)" ref="updateLabel">{{ $gettext('Date') }}:</span>
@@ -303,6 +318,11 @@ function setTitle(event) {
 export default {
     name: 'App',
     setup() {
+        const CLASS_LIST_KEY = 'classList';
+        const CURRENT_CLASS_KEY = 'currentClass';
+        const DATA_PREFIX = 'data:';
+        const defaultClassName = translate('Seating charts');
+
         let oldValue = null;
         let hideOptionTimer = null;
         let jsondata = null;
@@ -311,32 +331,323 @@ export default {
         let dropData = null;
         let pasteDataLength = 0;
 
-        async function loadData() {
-            const params = new URLSearchParams(location.hash.substring(1));
-            if (params.has('data')) {
-                try {
-                    jsondata = await ungzipBase64UrlBC(params.get('data'));
-                } catch (e) {
-                    console.log(e);
-                }
-            } else {
-                jsondata = localStorage.getItem('data');
-            }
+        function getClassDataKey(className) {
+            return `${DATA_PREFIX}${className}`;
+        }
 
+        function readClassList() {
+            try {
+                const raw = localStorage.getItem(CLASS_LIST_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                if (Array.isArray(parsed)) {
+                    return parsed.filter((name) => typeof name === 'string' && name.trim().length > 0);
+                }
+            } catch {
+                // ignore malformed storage
+            }
+            return [];
+        }
+
+        function saveClassList(list) {
+            const unique = [...new Set(list.filter((name) => typeof name === 'string' && name.trim().length > 0))];
+            refs.classList.value = unique;
+            localStorage.setItem(CLASS_LIST_KEY, JSON.stringify(unique));
+        }
+
+        function setCurrentClassState(name, persistCurrent = true) {
+            const safeName = (name && String(name).trim()) || defaultClassName;
+            refs.currentClass.value = safeName;
+            refs.titleInput.value = safeName;
+            if (persistCurrent) {
+                localStorage.setItem(CURRENT_CLASS_KEY, safeName);
+            }
+            document.title = safeName + ' - ' + translate('TY Seating Chart');
+        }
+
+        async function migrateLegacyStorage() {
+            const legacyRaw = localStorage.getItem('data');
+            const existingList = readClassList();
+            if (legacyRaw && !existingList.length) {
+                let legacyTitle = defaultClassName;
+                try {
+                    const parsed = JSON.parse(legacyRaw);
+                    if (parsed?.tabletitle && String(parsed.tabletitle).trim()) {
+                        legacyTitle = String(parsed.tabletitle).trim();
+                    }
+                } catch {
+                    // keep default
+                }
+                localStorage.setItem(getClassDataKey(legacyTitle), legacyRaw);
+                saveClassList([legacyTitle]);
+                localStorage.setItem(CURRENT_CLASS_KEY, legacyTitle);
+                localStorage.removeItem('data');
+                await IDBHelper.migrateLegacyPhotos('photo', legacyTitle);
+            } else {
+                refs.classList.value = existingList;
+                const fallbackClass = localStorage.getItem(CURRENT_CLASS_KEY) || existingList[0] || defaultClassName;
+                await IDBHelper.migrateLegacyPhotos('photo', fallbackClass);
+            }
+        }
+
+        function parseRawData(raw) {
+            jsondata = raw || null;
+            dkeys = null;
             if (jsondata) {
                 try {
                     const data = JSON.parse(jsondata);
-
                     if (data.colors && data.posdata && data.colors.length != data.posdata.length) {
                         const oldLen = data.colors.length;
                         data.colors.length = data.posdata.length;
                         data.colors.fill(0, oldLen);
                     }
-
                     dkeys = Object.entries(data);
+                    return data;
                 } catch (e) {
                     console.error(e);
                 }
+            }
+            return null;
+        }
+
+        async function loadData(targetClassName = null) {
+            if (!targetClassName) {
+                const params = new URLSearchParams(location.hash.substring(1));
+                if (params.has('data')) {
+                    try {
+                        const raw = await ungzipBase64UrlBC(params.get('data'));
+                        const parsed = parseRawData(raw);
+                        const sharedTitle = (parsed?.tabletitle && String(parsed.tabletitle).trim()) || defaultClassName;
+                        setCurrentClassState(sharedTitle, false);
+                        return;
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+            }
+
+            const savedList = readClassList();
+            refs.classList.value = savedList;
+            const resolvedClass =
+                targetClassName ||
+                localStorage.getItem(CURRENT_CLASS_KEY) ||
+                savedList[0] ||
+                defaultClassName;
+            setCurrentClassState(resolvedClass, savedList.includes(resolvedClass));
+            parseRawData(localStorage.getItem(getClassDataKey(resolvedClass)));
+        }
+
+        async function resetClassFields() {
+            storeRefs.totalX.value = 6;
+            storeRefs.totalY.value = 8;
+            storeRefs.totalNamelist.value = 48;
+            storeRefs.totalLeader.value = 8;
+            storeRefs.fontSizeL.value = 1;
+            storeRefs.fontSizeC.value = 1.8;
+            storeRefs.fontSizeR.value = 1.2;
+            storeRefs.colors.value = [];
+            refs.nameBgCtlChecked.value = [];
+            refs.highlightedPos.value = null;
+            refs.photo.value = null;
+            refs.doBingo.value = false;
+            refs.shareText.value = null;
+            refs.photos.length = 0;
+
+            await nextTick();
+
+            storeRefs.namelist.forEach((el) => el && (el.innerText = ''));
+            storeRefs.posdata.forEach((el) => el && (el.innerText = ''));
+            refs.posname.forEach((el) => el && (el.innerText = ''));
+            storeRefs.leadernames.forEach((el) => el && (el.innerText = ''));
+            storeRefs.leaders.forEach((el) => el && (el.innerText = ''));
+            refs.leadersname.forEach((el) => el && (el.innerText = ''));
+            if (storeRefs.teacher.value) storeRefs.teacher.value.innerText = '';
+            if (storeRefs.note.value) storeRefs.note.value.innerText = '';
+            if (storeRefs.today.value) storeRefs.today.value.innerText = new Date().toLocaleDateString();
+            if (storeRefs.deskname.value) storeRefs.deskname.value.innerText = translate('Desk');
+            if (storeRefs.updateLabel.value) storeRefs.updateLabel.value.innerText = `${translate('Date')}:`;
+            if (storeRefs.teacherLabel.value) storeRefs.teacherLabel.value.innerText = translate('Teacher');
+            if (storeRefs.studentListLabel.value) storeRefs.studentListLabel.value.innerText = translate('Lists');
+            if (storeRefs.noteLabel.value) storeRefs.noteLabel.value.innerText = translate('Note');
+            if (storeRefs.leadernames[0]) storeRefs.leadernames[0].innerText = translate('President');
+            if (storeRefs.leadernames[1]) storeRefs.leadernames[1].innerText = translate('Vice president');
+            if (refs.nameBtnCtl.value) refs.nameBtnCtl.value.checked = false;
+        }
+
+        async function loadClassPhotos(className) {
+            refs.photos.length = 0;
+            const photosData = await IDBHelper.getByClass('photo', className);
+            if (!photosData?.length) {
+                refs.showPhoto.value = false;
+                return;
+            }
+            refs.showPhoto.value = localStorage.getItem('showPhoto') != null;
+            for (const [key, value] of photosData) {
+                refs.photos[key] = value;
+            }
+        }
+
+        async function applyLoadedData() {
+            refs.storeData.value = dkeys ? 1 : 0;
+
+            if (storeRefs.leadernames) {
+                if (storeRefs.leadernames[0] && !storeRefs.leadernames[0].innerText.length) {
+                    storeRefs.leadernames[0].innerText = translate('President');
+                }
+                if (storeRefs.leadernames[1] && !storeRefs.leadernames[1].innerText.length) {
+                    storeRefs.leadernames[1].innerText = translate('Vice president');
+                }
+            }
+
+            const typeMap = {
+                totalNamelist: Number,
+                totalX: Number,
+                totalY: Number,
+                totalLeader: Number,
+                fontSizeR: parseFloat,
+                fontSizeC: parseFloat,
+                fontSizeL: parseFloat
+            };
+            for (const [key, value] of dkeys || []) {
+                if (key == 'tabletitle') {
+                    const titleVal = (value && String(value).trim()) || refs.currentClass.value;
+                    refs.currentClass.value = titleVal;
+                    refs.titleInput.value = titleVal;
+                    document.title = titleVal + ' - ' + translate('TY Seating Chart');
+                } else if (key == 'today') {
+                    storeRefs.today.value.innerText = value;
+                } else if (key in typeMap) {
+                    storeRefs[key].value = typeMap[key](value);
+                } else if (key == 'colors') {
+                    storeRefs[key].value = value;
+                }
+            }
+
+            await nextTick();
+
+            dkeys?.forEach((i) => {
+                if (i[0] === 'tabletitle') return;
+                if (Array.isArray(i[1]) && i[1][0] != null) {
+                    if (i[0] == 'colors') {
+                        storeRefs[i[0]].value = i[1];
+                    } else {
+                        i[1].forEach((_, j) => {
+                            if (storeRefs[i[0]] && undefined != storeRefs[i[0]][j]?.innerText) {
+                                storeRefs[i[0]][j].innerText = i[1][j] ?? '';
+                            }
+                        });
+                    }
+                } else if (undefined != storeRefs[i[0]]?.value?.innerText) {
+                    storeRefs[i[0]].value.innerText = i[1] ?? '';
+                } else if (undefined != storeRefs[i[0]]?.value) {
+                    storeRefs[i[0]].value = i[1];
+                }
+            });
+
+            await nextTick();
+            updateDisplay();
+
+            if (storeRefs.today.value && storeRefs.today.value.innerText == '') {
+                storeRefs.today.value.innerText = new Date().toLocaleDateString();
+            }
+
+            if (refs.nameBtnCtl.value) {
+                const filledCount = storeRefs.namelist.filter((el) => el.innerText.trim() != '').length;
+                refs.nameBtnCtl.value.checked = Boolean(filledCount > 0 && refs.nameBgCtlChecked.value.length == filledCount);
+            }
+
+            await loadClassPhotos(refs.currentClass.value);
+        }
+
+        async function switchClass(className) {
+            const target = className?.trim();
+            if (!target) return;
+            await resetClassFields();
+            await loadData(target);
+            setCurrentClassState(target, true);
+            await applyLoadedData();
+        }
+
+        async function addClassWithName(newName) {
+            const trimmed = newName?.trim();
+            if (!trimmed) return;
+            if (refs.storeData.value && !refs.classList.value.includes(refs.currentClass.value)) {
+                saveClassList([...refs.classList.value, refs.currentClass.value]);
+            }
+            saveClassList([...refs.classList.value, trimmed]);
+            setCurrentClassState(trimmed, true);
+            await resetClassFields();
+            jsondata = null;
+            dkeys = null;
+            store();
+            updateDisplay();
+        }
+
+        async function renameClassTo(newName) {
+            const trimmed = newName?.trim();
+            const oldName = refs.currentClass.value;
+            if (!trimmed || trimmed === oldName) {
+                refs.titleInput.value = oldName;
+                return;
+            }
+
+            const oldKey = getClassDataKey(oldName);
+            const oldRaw = localStorage.getItem(oldKey);
+            if (oldRaw) {
+                try {
+                    const parsed = JSON.parse(oldRaw);
+                    parsed.tabletitle = trimmed;
+                    const updatedRaw = JSON.stringify(parsed);
+                    localStorage.setItem(getClassDataKey(trimmed), updatedRaw);
+                    jsondata = updatedRaw;
+                } catch {
+                    localStorage.setItem(getClassDataKey(trimmed), oldRaw);
+                }
+                localStorage.removeItem(oldKey);
+            }
+
+            await IDBHelper.renameClass('photo', oldName, trimmed);
+
+            const nextList = refs.classList.value.includes(oldName)
+                ? refs.classList.value.map((name) => (name === oldName ? trimmed : name))
+                : [...refs.classList.value, trimmed];
+            saveClassList(nextList);
+            setCurrentClassState(trimmed, true);
+            store();
+        }
+
+        function onTitleFocus() {
+            startEditing = true;
+            if (refs.classList.value.length > 1) {
+                refs.titleInput.value = '';
+            } else {
+                nextTick(() => storeRefs.tabletitle.value?.select());
+            }
+        }
+
+        async function onTitleChange() {
+            const nextName = refs.titleInput.value.trim();
+            if (!nextName) {
+                refs.titleInput.value = refs.currentClass.value;
+                return;
+            }
+            if (nextName === refs.currentClass.value) return;
+
+            if (refs.classList.value.includes(nextName)) {
+                await switchClass(nextName);
+            } else if (!refs.storeData.value && !refs.classList.value.length) {
+                await renameClassTo(nextName);
+            } else if (confirm(translate('Create a new class? (OK: add new class, Cancel: rename current class)'))) {
+                await addClassWithName(nextName);
+            } else {
+                await renameClassTo(nextName);
+            }
+            storeRefs.tabletitle.value?.blur();
+        }
+
+        function onTitleBlur() {
+            startEditing = false;
+            if (!refs.titleInput.value.trim()) {
+                refs.titleInput.value = refs.currentClass.value;
             }
         }
 
@@ -414,8 +725,8 @@ export default {
                 const refVal = storeRefs[key];
 
                 if (key == 'tabletitle') {
-                    dataToSave[key] = refVal.value.innerText;
-                    document.title = refVal.value.innerText + ' - ' + translate('TY Seating Chart');
+                    dataToSave[key] = refs.currentClass.value;
+                    document.title = refs.currentClass.value + ' - ' + translate('TY Seating Chart');
                 } else if (Array.isArray(refVal)) {
                     dataToSave[key] = refVal.map((item) => item && item.innerText);
                 } else if (refVal.value && undefined != refVal.value?.innerText) {
@@ -426,7 +737,11 @@ export default {
             });
 
             jsondata = JSON.stringify(dataToSave);
-            localStorage.setItem('data', jsondata);
+            localStorage.setItem(getClassDataKey(refs.currentClass.value), jsondata);
+            localStorage.setItem(CURRENT_CLASS_KEY, refs.currentClass.value);
+            if (!refs.classList.value.includes(refs.currentClass.value)) {
+                saveClassList([...refs.classList.value, refs.currentClass.value]);
+            }
             refs.storeData.value = 1;
         }
 
@@ -594,7 +909,7 @@ export default {
                         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         const num = n + j;
                         const dataUrl = canvas.toDataURL('image/png');
-                        IDBHelper.put('photo', dataUrl, num);
+                        IDBHelper.putForClass('photo', refs.currentClass.value, num, dataUrl);
                         refs.photos[num] = dataUrl;
                         j++;
                     };
@@ -647,18 +962,35 @@ export default {
             randomPos();
         }
 
-        function clearStore() {
+        async function clearStore() {
             if (!confirm(translate('Are you sure you want to clear all entered data?'))) return;
-            localStorage.removeItem('data');
-            IDBHelper.remove('photo');
-            goHome();
+            refs.toggleSubmenu.value = false;
+            const target = refs.currentClass.value;
+            localStorage.removeItem(getClassDataKey(target));
+            await IDBHelper.clearClass('photo', target);
+            const remaining = refs.classList.value.filter((c) => c !== target);
+            saveClassList(remaining);
+            if (remaining.length > 0) {
+                await switchClass(remaining[0]);
+            } else {
+                localStorage.removeItem(CLASS_LIST_KEY);
+                localStorage.removeItem(CURRENT_CLASS_KEY);
+                setCurrentClassState(defaultClassName, false);
+                await resetClassFields();
+                jsondata = null;
+                dkeys = null;
+                refs.storeData.value = 0;
+            }
         }
 
-        function clearPhotos() {
+        async function clearPhotos() {
             if (!confirm(translate('Are you sure you want to clear all photos?'))) return;
+            refs.toggleSubmenu.value = false;
             localStorage.removeItem('showPhoto');
-            IDBHelper.remove('photo');
-            goHome();
+            await IDBHelper.clearClass('photo', refs.currentClass.value);
+            refs.photos.length = 0;
+            refs.photo.value = null;
+            refs.showPhoto.value = false;
         }
 
         function clearColors() {
@@ -671,7 +1003,7 @@ export default {
             refs.toggleSubmenu.value = false;
             if (!jsondata) return;
             const dataObj = JSON.parse(jsondata);
-            dataObj.photo = await IDBHelper.get('photo');
+            dataObj.photo = await IDBHelper.getByClass('photo', refs.currentClass.value);
             const data = JSON.stringify(dataObj);
 
             if (data) {
@@ -680,7 +1012,7 @@ export default {
                 const dlAnchorElem = document.createElement('a');
                 dlAnchorElem.href = url;
                 dlAnchorElem.download =
-                    (storeRefs.tabletitle.value.innerText.trim() || translate('Seating charts')) +
+                    (refs.currentClass.value.trim() || translate('Seating charts')) +
                     `_${storeRefs.today.value.innerText}.json`;
                 document.body.appendChild(dlAnchorElem);
                 dlAnchorElem.click();
@@ -746,7 +1078,7 @@ export default {
                     try {
                         await navigator.share({
                             title: translate('TY Seating Chart'),
-                            text: storeRefs.tabletitle.value.innerText.trim() || translate('Seating charts'),
+                            text: refs.currentClass.value.trim() || translate('Seating charts'),
                             url: url.toString()
                         });
                     } catch {
@@ -765,19 +1097,30 @@ export default {
             if (!fileInput) return;
             const reader = new FileReader();
             reader.readAsText(fileInput, 'UTF-8');
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
                 if (!event.target?.result) return;
                 const data = JSON.parse(event.target.result);
+                const targetClass =
+                    (data.tabletitle && String(data.tabletitle).trim()) || refs.currentClass.value || defaultClassName;
                 if (data.photo) {
+                    await IDBHelper.clearClass('photo', targetClass);
                     for (const photos of data.photo) {
-                        for (const [key, value] of Object.entries(photos)) {
-                            IDBHelper.put('photo', value, parseInt(key));
+                        if (Array.isArray(photos) && photos.length === 2) {
+                            await IDBHelper.putForClass('photo', targetClass, parseInt(photos[0], 10), photos[1]);
+                        } else if (photos && typeof photos === 'object') {
+                            for (const [key, value] of Object.entries(photos)) {
+                                await IDBHelper.putForClass('photo', targetClass, parseInt(key, 10), value);
+                            }
                         }
                     }
                     delete data.photo;
                 }
-                localStorage.setItem('data', JSON.stringify(data));
-                goHome();
+                data.tabletitle = targetClass;
+                localStorage.setItem(getClassDataKey(targetClass), JSON.stringify(data));
+                if (!refs.classList.value.includes(targetClass)) {
+                    saveClassList([...refs.classList.value, targetClass]);
+                }
+                await switchClass(targetClass);
             };
             e.target.value = '';
         }
@@ -1034,7 +1377,7 @@ export default {
         async function tipPhoto(n) {
             if (!n) return;
 
-            refs.photo.value = await IDBHelper.get('photo', n);
+            refs.photo.value = await IDBHelper.getForClass('photo', refs.currentClass.value, n);
 
             const numPos = storeRefs.posdata.findIndex((i) => i.innerText == n);
             const row = (numPos % storeRefs.totalX.value) + 1;
@@ -1067,7 +1410,7 @@ export default {
         }
 
         const storeRefs = {
-            tabletitle: ref(translate('Seating charts')),
+            tabletitle: ref(null),
             today: ref(new Date().toLocaleDateString()),
             totalX: ref(6),
             totalY: ref(8),
@@ -1092,6 +1435,9 @@ export default {
 
         const refs = {
             uploadfile: ref(null),
+            classList: ref([]),
+            currentClass: ref(defaultClassName),
+            titleInput: ref(defaultClassName),
             toggleNavbar: ref(localStorage.getItem('toggleNavbar') == 1),
             toggleSubmenu: ref(false),
             toggleOptionmenu: ref(false),
@@ -1183,7 +1529,7 @@ export default {
         watch(refs.showPhoto, async (newVal) => {
             newVal ? localStorage.setItem('showPhoto', 1) : localStorage.removeItem('showPhoto');
             if (newVal && !refs.photos.length) {
-                const photos = await IDBHelper.getAll('photo');
+                const photos = await IDBHelper.getByClass('photo', refs.currentClass.value);
                 for (const [key, value] of photos) {
                     refs.photos[key] = value;
                 }
@@ -1232,77 +1578,22 @@ export default {
         let printMediaQuery = null;
 
         onMounted(async () => {
+            await migrateLegacyStorage();
             await loadData();
-            refs.storeData.value = dkeys ? 1 : 0;
 
-            if (storeRefs.leadernames) {
-                if (storeRefs.leadernames[0] && !storeRefs.leadernames[0].innerText.length) {
-                    storeRefs.leadernames[0].innerText = translate('President');
-                }
-                if (storeRefs.leadernames[1] && !storeRefs.leadernames[1].innerText.length) {
-                    storeRefs.leadernames[1].innerText = translate('Vice president');
-                }
-            }
-            if (!refs.storeData.value && currentLanguage.value == 'en') {
+            if (!dkeys && currentLanguage.value == 'en') {
                 refs.showVertical.value = false;
             }
-            if (refs.storeData.value) {
+            if (dkeys) {
                 tipsToHide();
             }
 
-            const typeMap = {
-                totalNamelist: Number,
-                totalX: Number,
-                totalY: Number,
-                totalLeader: Number,
-                fontSizeR: parseFloat,
-                fontSizeC: parseFloat,
-                fontSizeL: parseFloat
-            };
-            for (const [key, value] of dkeys || []) {
-                if (key == 'tabletitle') {
-                    document.title = value + ' - ' + translate('TY Seating Chart');
-                    storeRefs.tabletitle.value.innerText = value;
-                } else if (key == 'today') {
-                    storeRefs.today.value.innerText = value;
-                } else if (key in typeMap) {
-                    storeRefs[key].value = typeMap[key](value);
-                } else if (key == 'colors') {
-                    storeRefs[key].value = value;
-                }
-            }
-
-            await nextTick();
-
             refs.hideTips.value = getCookie('hideTips') == 1;
 
-            dkeys?.forEach((i) => {
-                if (Array.isArray(i[1]) && i[1][0] != null) {
-                    if (i[0] == 'colors') {
-                        storeRefs[i[0]].value = i[1];
-                    } else {
-                        i[1].forEach((_, j) => {
-                            if (storeRefs[i[0]] && undefined != storeRefs[i[0]][j]?.innerText) {
-                                storeRefs[i[0]][j].innerText = i[1][j] ?? '';
-                            }
-                        });
-                    }
-                } else if (undefined != storeRefs[i[0]]?.value?.innerText) {
-                    storeRefs[i[0]].value.innerText = i[1] ?? '';
-                } else if (undefined != storeRefs[i[0]]?.value) {
-                    storeRefs[i[0]].value = i[1];
-                }
-            });
-
-            await nextTick();
-            updateDisplay();
+            await applyLoadedData();
 
             if ('speechSynthesis' in globalThis) {
                 speechSynthesis.speak(new SpeechSynthesisUtterance(''));
-            }
-
-            if (storeRefs.today.value.innerText == '') {
-                storeRefs.today.value.innerText = new Date().toLocaleDateString();
             }
 
             document.body.addEventListener('dragover', handleBodyDragOver);
@@ -1313,16 +1604,6 @@ export default {
             if (window.matchMedia) {
                 printMediaQuery = window.matchMedia('print');
                 printMediaQuery.addEventListener('change', handlePrintMediaChange);
-            }
-
-            refs.nameBtnCtl.value.checked = Boolean(
-                refs.nameBgCtlChecked.value.length == storeRefs.namelist.filter((el) => el.innerText.trim() != '').length
-            );
-
-            const photosData = await IDBHelper.getAll('photo');
-            if (!photosData?.length) refs.showPhoto.value = false;
-            for (const [key, value] of photosData) {
-                refs.photos[key] = value;
             }
         });
 
@@ -1343,6 +1624,10 @@ export default {
             goHome,
             toggleNavBarCtl,
             triggerUpload,
+            onTitleFocus,
+            onTitleBlur,
+            onTitleChange,
+            switchClass,
             startEdit,
             endEdit,
             editKeydown,

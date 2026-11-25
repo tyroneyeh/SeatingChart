@@ -23,13 +23,17 @@ export const IDBHelper = {
         });
     },
 
+    makeClassKey(className, seatNum) {
+        return `${className}:${seatNum}`;
+    },
+
     async put(storeName, value, key) {
         if (!this.db) await this.init('photo', 1, storeName);
 
         return new Promise((resolve, reject) => {
             const tx = this.db.transaction([storeName], 'readwrite');
             const store = tx.objectStore(storeName);
-            const req = key ? store.put(value, key) : store.put(value);
+            const req = key !== undefined ? store.put(value, key) : store.put(value);
             req.onsuccess = () => resolve(req.result);
             req.onerror = () => reject(req.error);
         });
@@ -41,7 +45,7 @@ export const IDBHelper = {
         return new Promise((resolve, reject) => {
             const tx = this.db.transaction([storeName], 'readonly');
             const store = tx.objectStore(storeName);
-            if (key) {
+            if (key !== undefined) {
                 const req = store.get(key);
                 req.onsuccess = () => resolve(req.result);
                 req.onerror = () => reject(req.error);
@@ -59,6 +63,108 @@ export const IDBHelper = {
                 };
                 cursorReq.onerror = () => reject(cursorReq.error);
             }
+        });
+    },
+
+    async putForClass(storeName, className, seatNum, value) {
+        return this.put(storeName, value, this.makeClassKey(className, seatNum));
+    },
+
+    async getForClass(storeName, className, seatNum) {
+        return this.get(storeName, this.makeClassKey(className, seatNum));
+    },
+
+    async getByClass(storeName, className) {
+        if (!this.db) await this.init('photo', 1, storeName);
+        const prefix = `${className}:`;
+
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction([storeName], 'readonly');
+            const store = tx.objectStore(storeName);
+            const result = [];
+            const cursorReq = store.openCursor();
+            cursorReq.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    if (typeof cursor.key === 'string' && cursor.key.startsWith(prefix)) {
+                        const seatNum = parseInt(cursor.key.slice(prefix.length), 10);
+                        if (!isNaN(seatNum)) {
+                            result.push([seatNum, cursor.value]);
+                        }
+                    }
+                    cursor.continue();
+                } else {
+                    resolve(result);
+                }
+            };
+            cursorReq.onerror = () => reject(cursorReq.error);
+        });
+    },
+
+    async clearClass(storeName, className) {
+        if (!this.db) await this.init('photo', 1, storeName);
+        const prefix = `${className}:`;
+
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction([storeName], 'readwrite');
+            const store = tx.objectStore(storeName);
+            const cursorReq = store.openCursor();
+            cursorReq.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    if (typeof cursor.key === 'string' && cursor.key.startsWith(prefix)) {
+                        cursor.delete();
+                    }
+                    cursor.continue();
+                }
+            };
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    },
+
+    async renameClass(storeName, oldName, newName) {
+        if (oldName === newName) return;
+        const entries = await this.getByClass(storeName, oldName);
+        if (!entries.length) return;
+
+        if (!this.db) await this.init('photo', 1, storeName);
+        const oldPrefix = `${oldName}:`;
+
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction([storeName], 'readwrite');
+            const store = tx.objectStore(storeName);
+            for (const [seatNum, value] of entries) {
+                store.put(value, this.makeClassKey(newName, seatNum));
+                store.delete(`${oldPrefix}${seatNum}`);
+            }
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    },
+
+    async migrateLegacyPhotos(storeName, defaultClassName) {
+        if (!this.db) await this.init('photo', 1, storeName);
+
+        return new Promise((resolve, reject) => {
+            const tx = this.db.transaction([storeName], 'readwrite');
+            const store = tx.objectStore(storeName);
+            const cursorReq = store.openCursor();
+            cursorReq.onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const isLegacyKey =
+                        typeof cursor.key === 'number' ||
+                        (typeof cursor.key === 'string' && /^\d+$/.test(cursor.key));
+                    if (isLegacyKey) {
+                        store.put(cursor.value, this.makeClassKey(defaultClassName, parseInt(cursor.key, 10)));
+                        cursor.delete();
+                    }
+                    cursor.continue();
+                }
+            };
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
         });
     },
 

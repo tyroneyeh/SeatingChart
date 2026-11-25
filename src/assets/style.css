@@ -136,6 +136,25 @@
     object-fit: cover;
     object-position: -51px;
 }
+.title-input {
+    font-size: inherit;
+    line-height: inherit;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 2.25rem;
+    border-color: transparent;
+    background-color: transparent;
+    cursor: pointer;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.title-input:hover,
+.title-input:focus {
+    border-color: var(--bs-border-color);
+}
+.title-input::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+}
 @media (max-width: 932.98px) {
     .responsive-qr {
         width: 80vmin;
@@ -221,6 +240,17 @@
     .col-sm-9 { flex: 0 0 75% !important; max-width: 75% !important; }
     .col-sm-10 { flex: 0 0 83.333333% !important; max-width: 83.333333% !important; }
     .col-sm-12 { flex: 0 0 100% !important; max-width: 100% !important; }
+    .title-input {
+        width: 100% !important;
+        max-width: 100% !important;
+        border: none !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+    .title-input::-webkit-calendar-picker-indicator {
+        display: none !important;
+    }
 }
 .pos-container {
     justify-content: flex-end;
