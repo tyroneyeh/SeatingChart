@@ -1,9 +1,9 @@
 /*
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'sha256-DsSRqTyobednvaWH/tKkrhlbLP/hGxGmJ7tWp35Echg=' https://static.cloudflareinsights.com; style-src 'self' 'sha256-O5NrxWL59g9DFN0PqeX++GavfEZxXuN0pJk0/SfNf7Q='; img-src 'self' data: https://img.shields.io https://data.jsdelivr.com; font-src 'self' https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com https://img.shields.io https://data.jsdelivr.com; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'sha256-88leBJlhvVTC1VsSUp42zndCJBsKcVeVDUBaIADWEkQ=' https://static.cloudflareinsights.com; style-src 'self' 'sha256-O5NrxWL59g9DFN0PqeX++GavfEZxXuN0pJk0/SfNf7Q='; img-src 'self' data: https://img.shields.io https://data.jsdelivr.com; font-src 'self' https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com; connect-src 'self' https://cloudflareinsights.com https://static.cloudflareinsights.com https://gcore.jsdelivr.net https://raw.githack.com https://rawcdn.githack.com https://img.shields.io https://data.jsdelivr.com; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
-  Referrer-Policy: no-referrer
+  Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Permissions-Policy: geolocation=(), microphone=(), camera=()
